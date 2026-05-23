@@ -1,0 +1,64 @@
+/* VDBS e.V. – Color Tokens (CSS Custom Properties)
+   Quelle: Corporate Design – VDBS e.V. (Entwurf) */
+
+:root {
+    /* Neutrals */
+    --color-ink: #0F172A;   /* Text/Headlines */
+    --color-white: #FFFFFF; /* Background */
+
+    /* Primary */
+    --color-primary: #2FBF71; /* VDBS Green (Brand anchor) */
+
+    /* Secondary (functional) */
+    --color-secondary-cta: #22B7A3;       /* Ocean Mist (CTA/Anmeldung) */
+    --color-secondary-highlight: #582759; /* Plum (Hervorhebung/Termin) */
+
+    /* Accents (sparsam) */
+    --color-accent-amber: #F59E0B; /* Amber */
+    --color-accent-teal: #14B8A6;  /* Teal */
+    --color-accent-berry: #D946EF; /* Berry */
+    --color-accent-sun: #FDE047;   /* Sun Yellow */
+    --color-accent-lime: #A3E635;  /* Lime */
+
+    /* Status (UI Semantik) */
+    --color-status-success: #22C55E; /* Grün */
+    --color-status-error:   #EF4444; /* Rot */
+    --color-status-warning: #F59E0B; /* Orange/Amber */
+    --color-status-info:    #3B82F6; /* Blau */
+
+
+    /* Width Tokens */
+    --max-width: 1200px;
+    --sidebar-width: 280px;
+
+    /* Spacing Tokens */
+    --spacing-1: 0.25rem; /* 4px */
+    --spacing-2: 0.5rem;  /* 8px */
+    --spacing-3: 1rem;    /* 16px */
+    --spacing-4: 1.5rem;  /* 24px */
+    --spacing-5: 2rem;    /* 32px */
+    --spacing-6: 2.5rem;  /* 40px */
+    --spacing-7: 3rem;    /* 48px */
+
+    --spacing-page: clamp(0.75rem, 4vw, 3.125rem); /* 12px - 50px (responsive) */
+    --spacing-header: 4rem; /* 64px (Abstand unter Header) */
+    --spacing-footer: 4rem; /* 64px (Abstand über Footer) */
+
+    --spacing-gap: 1rem; /* 16px (Standardabstand zwischen Elementen) */
+    --spacing-container: 2rem; /* 32px (Innenabstand von Containern) */
+    --spacing-section: 3rem; /* 48px (Abstand zwischen Abschnitten) */
+    --spacing-card: 1.5rem; /* 24px (Innenabstand von Karten) */
+    --spacing-list: 0.75rem; /* 12px (Abstand zwischen Listenelementen) */
+    --spacing-form: 1rem; /* 16px (Abstand zwischen Formularelementen) */
+    --spacing-button: 0.75rem 1.5rem; /* 12px vertikal, 24px horizontal (Innenabstand von Buttons) */
+    --spacing-input: 0.5rem 1rem; /* 8px vertikal, 16px horizontal (Innenabstand von Eingabefeldern) */
+  
+    /* CD Tokens (Typografie) */
+    --font-family-base: "Open Sans", system-ui, -apple-system, "Segoe UI", Arial, sans-serif; /* später: "IBM Plex Sans" */
+    --font-family-accent: "Source Serif 4", ui-serif, "Times New Roman", serif;
+
+    --font-weight-regular: 400;
+    --font-weight-medium: 600;
+    --font-weight-bold: 700;
+    --font-weight-extrabold: 800;
+}

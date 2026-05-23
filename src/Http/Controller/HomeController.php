@@ -19,7 +19,8 @@ final class HomeController
         $renderer = Container::get($this->container, Renderer::class);
 
         $html = $renderer->renderPage('pages/home/index', [
-            'title' => 'VDBS Portal',
+            'areaName' => 'VDBS Portal',
+            'pageTitle' => 'Startseite',
             'now' => date('c'),
             'path' => $request->path,
         ]);

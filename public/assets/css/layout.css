@@ -1,0 +1,94 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-white);
+    color: var(--color-ink);
+}
+
+main, header, footer {
+    padding: 0 var(--spacing-page);
+}
+
+/* Page shell: header / sidebar / main / footer */
+.layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+        "header"
+        "main"
+        "footer";
+    gap: var(--spacing-gap);
+    min-height: 100vh;
+    background-color: var(--color-background, transparent);
+}
+
+.site-header { grid-area: header; }
+.site-main { grid-area: main; }
+.site-sidebar { grid-area: sidebar; }
+.site-footer { grid-area: footer; }
+
+/* Centered content container used inside regions */
+.container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--spacing-page);
+    box-sizing: border-box;
+}
+
+/* If a `.container` is used inside the header or footer, remove its
+   horizontal padding so it doesn't double the `--spacing-page` gutter.
+   Header/footer keep their own padding so backgrounds remain full-bleed
+   while inner content aligns with `main`. */
+.site-header .container,
+.site-footer .container {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* Container modifiers for different content widths
+   - `.container--narrow`: use for compact content areas (forms, lists)
+   - `.container--wide` : wider max-width for larger grids/dashboards
+   - `.container--fluid`: full-width content while preserving horizontal padding
+*/
+.container--narrow { max-width: 900px; }
+.container--wide { max-width: 1400px; }
+.container--fluid { max-width: none; padding-left: var(--spacing-page); padding-right: var(--spacing-page); }
+
+/* Responsive two-column layout with optional sidebar */
+@media (min-width: 768px) {
+    .layout {
+        grid-template-columns: var(--sidebar-width) 1fr;
+        grid-template-areas:
+            "header header"
+            "sidebar main"
+            "footer footer";
+    }
+    .site-header { grid-column: 1 / -1; }
+    .site-sidebar { align-self: start; }
+    .site-main { padding-left: 0; }
+    .site-sidebar { padding-left: var(--spacing-page); }
+    .site-footer { grid-column: 1 / -1; }
+}
+
+/* Utility grid for lists/cards */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--spacing-gap);
+}
+
+/* Sticky sidebar for larger screens */
+@media (min-width: 992px) {
+    .site-sidebar {
+        position: sticky;
+        top: calc(var(--spacing-page, 1rem) + 1rem);
+        height: calc(100vh - (var(--spacing-page, 1rem) * 2));
+        overflow: auto;
+    }
+}
+
+/* Small helpers */
+.layout--no-sidebar .layout { grid-template-columns: 1fr; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+

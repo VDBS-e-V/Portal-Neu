@@ -1,0 +1,300 @@
+/*
+        Buttons — Styles & Usage (komplett dokumentiert)
+
+        Übersicht
+        - `.btn` ist die Basis-Klasse für alle Buttons. Kombiniere sie mit
+            Modifier-Klassen, um Aussehen, Größe, Form und Verhalten zu steuern.
+        - Dieses Stylesheet nutzt CSS-Variablen (Theming). Erwartete Variablen:
+                --spacing-button, --font-family-base, --font-weight-medium,
+                --color-primary, --color-secondary-cta, --color-secondary-highlight,
+                --color-white, --color-status-error, --color-focus (optional)
+        - Enthaltene Konzepte: Appearance-Varianten, Größen, Formen (pill),
+            Outline/Ghost-Varianten, Icon-Unterstützung, Ladezustand (Spinner),
+            Disabled/Active-Zustände und Accessibility-Hilfen.
+
+        Klassen-Referenz (Kurzfassung)
+        - Basis:
+                `.btn` — Anzeige: inline-block; Padding, Schriftschnitt, Transition.
+        - Appearance / Semantik:
+                `.btn-primary` — Primäre Aktion (z. B. Absenden, Speichern).
+                `.btn-secondary` — Sekundäre Aktion (z. B. Abbrechen).
+                `.btn-danger` — Gefährliche/destruktive Aktion (z. B. Löschen).
+                `.btn-link` — Button, der wie ein Link aussieht (transparent, kein Padding).
+        - Varianten:
+                `.btn-outline` — Rahmige Variante (transparenter Hintergrund, sichtbare Border).
+                `.btn-ghost` — Sehr dezente/transparent wirkende Variante.
+        - Größen:
+                `.btn-sm`, `.btn-lg` — Kleine bzw. große Buttons.
+                `.btn-small`, `.btn-large` — Legacy-Aliase (keine zusätzlichen Styles).
+        - Form / Layout:
+                `.btn-pill` — Vollständig abgerundete (Pill-)Form.
+                `.btn-block` — Block-Layout, volle Breite.
+        - Icon-Unterstützung:
+                `.btn .btn-icon` — Icon-Wrapper (für SVG/Icon-Font).
+                `.icon-left` / `.icon-right` — Abstand rechts/links vom Text.
+                `.btn--icon-only` — Quadratförmiger, nur-Icon-Button.
+        - Zustände:
+                `:hover`, `:focus` — Hover-/Fokus-Zustände (sichtbares Feedback).
+                `:active`, `.active` — Gedrückter/aktiver Zustand.
+                `:disabled`, `.disabled` — Deaktiviert (reduzierte Opazität, keine Pointer-Events).
+                `.btn.loading` — Ladezustand; zeigt CSS-Spinner über `::after` an.
+
+        Accessibility / Hinweise
+        - Verwende `aria-label` bei Icon-only Buttons (`.btn--icon-only`) — sonst sind sie
+            für Screenreader nicht selbsterklärend.
+        - Beim Umschalten in den Ladezustand `(.btn.loading)` empfiehlt sich zusätzlich
+            `aria-busy="true"` auf dem Button oder dem relevanten Container.
+        - Der CSS-Spinner verwendet `currentColor` — passe ggf. `color` des Buttons an,
+            damit der Spinner kontrastreich ist.
+        - Fokusring: `:focus-visible` nutzt `--color-focus` oder einen Standard-Ring.
+
+        Beispiele
+        - Hauptaktion: <button class="btn btn-primary">Speichern</button>
+        - Outline abbrechen: <button class="btn btn-outline btn-sm">Abbrechen</button>
+        - Icon-only (zugänglich): <button class="btn btn--icon-only" aria-label="Suche"><span class="btn-icon">🔍</span></button>
+        - Ladezustand: <button class="btn btn-primary loading" aria-busy="true" disabled>Speichern</button>
+
+        Integration
+        - Dieses File ist komponentenorientiert. In Produktivprojekten sollte es
+            in eine zentrale Datei (`app.css`) gebündelt oder per Import eingebunden werden.
+        - Anpassungen: Spinner-Größe/-Farbe lassen sich durch Überschreiben von
+            `.btn.loading::after` ändern.
+*/
+
+.btn {
+    display: inline-block;
+    padding: var(--spacing-button);
+    font-family: var(--font-family-base);
+    font-weight: var(--font-weight-medium);
+    text-align: center;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+}
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--color-secondary-cta);
+    color: var(--color-white);
+}
+
+.btn-secondary {
+    background-color: var(--color-secondary-cta);
+    color: var(--color-white);
+}
+.btn-secondary:hover,
+.btn-secondary:focus {
+    background-color: var(--color-secondary-highlight);
+    color: var(--color-white);
+}
+
+.btn-danger {
+    background-color: var(--color-status-error);
+    color: var(--color-white);
+}
+.btn-danger:hover,
+.btn-danger:focus {
+    background-color: var(--color-status-error);
+    color: var(--color-white);
+}
+
+.btn-link {
+    background-color: transparent;
+    color: var(--color-secondary-cta);
+    padding: 0;
+}
+.btn-link:hover,
+.btn-link:focus {
+    color: var(--color-secondary-highlight);
+    text-decoration: underline;
+}
+
+/* Additional button features: sizes, variants, states, icons, loading, block, accessibility */
+
+/* Sizes */
+.btn-sm {
+    padding: calc(var(--spacing-button) * 0.6);
+    font-size: 0.875rem;
+}
+.btn-lg {
+    padding: calc(var(--spacing-button) * 1.25);
+    font-size: 1.125rem;
+}
+
+/* Pill / rounded */
+.btn-pill {
+    border-radius: 999px;
+}
+
+/* Block / full width */
+.btn-block {
+    display: block;
+    width: 100%;
+}
+
+/* Outline / Ghost variants */
+.btn-outline {
+    background-color: transparent;
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+    padding: calc(var(--spacing-button) - 2px);
+}
+.btn-outline:hover,
+.btn-outline:focus {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+}
+.btn-ghost {
+    background-color: transparent;
+    color: var(--color-secondary-cta);
+    border: 1px solid transparent;
+}
+.btn-ghost:hover,
+.btn-ghost:focus {
+    background-color: rgba(0,0,0,0.03);
+}
+
+/* Icon support */
+.btn .btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.btn .icon-left {
+    margin-right: 0.5em;
+}
+.btn .icon-right {
+    margin-left: 0.5em;
+}
+.btn--icon-only {
+    padding: .5em;
+    width: 2.5em;
+    height: 2.5em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Disabled / readonly */
+.btn:disabled,
+.btn.disabled,
+button[disabled].btn {
+    opacity: 0.6;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+/* Loading state */
+.btn.loading {
+    position: relative;
+    color: transparent !important;
+}
+.btn.loading::after {
+    content: "";
+    box-sizing: border-box;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1em;
+    height: 1em;
+    margin-top: -0.5em;
+    margin-left: -0.5em;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: currentColor;
+    animation: btn-spin 0.6s linear infinite;
+}
+@keyframes btn-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Active / pressed feedback */
+.btn:active,
+.btn.active {
+    transform: translateY(1px);
+    filter: brightness(0.95);
+}
+
+/* Focus accessibility */
+.btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--color-focus, rgba(50, 115, 220, 0.25));
+}
+
+/* Utility variants */
+.btn-small { /* legacy alias */ }
+.btn-large { /* legacy alias */ }
+
+/* Button grid / tile helpers
+   Use `.btn-grid` to layout a set of buttons as tiles similar to the attached example.
+   Combine with `.container` (or `.container--wide` / `.container--narrow`) to control max-width.
+
+   Example usage:
+   <div class="container container--wide">
+     <div class="btn-grid btn-grid--center">
+       <a class="btn btn-tile" href="#"><span class="btn-icon">🔍</span><span class="btn-text">Suche</span></a>
+       <a class="btn btn-tile" href="#"><span class="btn-icon">📧</span><span class="btn-text">Webmail</span></a>
+       <!-- ... -->
+     </div>
+   </div>
+*/
+.btn-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    align-items: stretch;
+    justify-items: stretch;
+}
+.btn-grid--center { justify-items: center; }
+.btn-grid--compact { gap: .5rem; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+
+.btn-grid .btn {
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: .75rem;
+    text-align: left;
+    min-height: 48px;
+    padding: .75rem 1rem;
+    box-sizing: border-box;
+}
+
+.btn.btn-tile {
+    background-color: var(--color-surface, #dceafe);
+    color: var(--color-ink, #07152a);
+    border-radius: 6px;
+    border: 1px solid rgba(0,0,0,0.04);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.02);
+    transition: transform .12s ease, box-shadow .12s ease;
+}
+.btn.btn-tile:hover,
+.btn.btn-tile:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(13,31,57,0.08);
+}
+
+.btn.btn-tile .btn-icon {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.4em;
+    height: 1.4em;
+    font-size: 1.1em;
+}
+.btn.btn-tile .btn-text {
+    flex: 1 1 auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 420px) {
+    .btn-grid { gap: .5rem; }
+    .btn-grid .btn { padding: .6rem .75rem; min-height: 44px; }
+}

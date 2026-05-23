@@ -1,0 +1,79 @@
+/* Open Sans (Variable) */
+@font-face {
+  font-family: "Open Sans";
+  src: url("/assets/fonts/OpenSans-VariableFont_wdth,wght.ttf") format("truetype");
+  font-weight: 300 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Open Sans";
+  src: url("/assets/fonts/OpenSans-Italic-VariableFont_wdth,wght.ttf") format("truetype");
+  font-weight: 300 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Source Serif 4 (Variable) */
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("/assets/fonts/SourceSerif4-VariableFont_opsz,wght.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("/assets/fonts/SourceSerif4-Italic-VariableFont_opsz,wght.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+body {
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-regular);
+}
+
+h1, h2, h3, .headline {
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Serif nur als Akzent (Claim, Rubrik, Editorial-Zitat) */
+.claim, blockquote, .editorial-accent {
+  font-family: var(--font-family-accent);
+  font-weight: var(--font-weight-regular);
+  font-style: italic; /* optional */
+}
+
+
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+    color-scheme: light;
+    font-size: 16px; /* Basisgröße für rem-Einheiten */
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-white);
+    color: var(--color-ink);
+}
+
+a { color: var(--color-secondary-cta); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+code, pre { font-family: "Courier New", Courier, monospace; background-color: var(--color-white); padding: 0.2em 0.4em; border-radius: 4px; }
+
+hr {
+    border: none;
+    border-top: 1px solid var(--color-ink);
+    margin: 2em 0;
+}
