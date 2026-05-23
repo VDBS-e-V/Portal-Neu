@@ -1,0 +1,28 @@
+# public/.htaccess
+
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+
+	# Falls dein Projekt in einem Unterordner läuft (z.B. /vdbs_portal/public),
+	# setze optional die RewriteBase passend (sonst auskommentiert lassen).
+	# RewriteBase /vdbs_portal/public/
+
+	# Authorization Header für PHP verfügbar machen (falls du später Bearer Tokens nutzt)
+	RewriteCond %{HTTP:Authorization} .
+	RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+	# Wenn Datei oder Ordner existiert: direkt ausliefern
+	RewriteCond %{REQUEST_FILENAME} -f [OR]
+	RewriteCond %{REQUEST_FILENAME} -d
+	RewriteRule ^ - [L]
+
+	# Alles andere an den Front Controller
+	RewriteRule ^ index.php [L]
+</IfModule>
+
+# Sicherheit: keine .env & Co ausliefern
+<FilesMatch "^(?:\.env|\.env\.example|composer\.(?:json|lock)|phpunit\.xml)$">
+	Require all denied
+</FilesMatch>
