@@ -4,22 +4,10 @@
 <head>
 	<?php require __DIR__ . '/../parts/head.php'; ?>
 </head>
-<?php
-$sidebarPath = __DIR__ . '/../parts/sidebar.php';
-$hasSidebar = file_exists($sidebarPath);
-?>
-<body class="layout<?= $hasSidebar ? '' : ' layout--no-sidebar' ?>">
+<body class="layout">
 	<div class="site-header" role="banner">
 		<?php require __DIR__ . '/../parts/header.php'; ?>
 	</div>
-
-	<?php if ($hasSidebar): ?>
-	<aside class="site-sidebar" role="complementary">
-		<div class="container">
-			<?php require $sidebarPath; ?>
-		</div>
-	</aside>
-	<?php endif; ?>
 
 	<main class="site-main" role="main">
 		<div class="container">
