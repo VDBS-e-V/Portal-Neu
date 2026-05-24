@@ -21,6 +21,18 @@ final class HomeController
         $html = $renderer->renderPage('pages/home/index', [
             'areaName' => 'VDBS Portal',
             'pageTitle' => 'Startseite',
+            'areaRootLink' => '/',
+            'areaNav' => [
+                ['label' => 'Start', 'href' => '/', 'active' => true],
+                ['label' => 'Styleguide', 'href' => '/styleguide', 'active' => false],
+                ['label' => 'Area 3', 'href' => '/areas/area3', 'active' => false],
+            ],
+            'headerNav' => [
+                ['label' => 'Über das Portal', 'href' => '/ueber-das-portal', 'active' => true],
+                ['label' => 'Zugang zum Portal', 'href' => '/zugang-zum-portal', 'active' => false],
+                ['label' => 'FAQ', 'href' => '/faq', 'active' => false],
+                ['label' => 'Kontakt', 'href' => '/kontakt', 'active' => false],
+            ],
             'now' => date('c'),
             'path' => $request->path,
         ]);

@@ -22,7 +22,7 @@
 	content: "";
 	position: absolute;
 	inset: 0;
-	background: linear-gradient(180deg, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.60) 100%);
+	background: linear-gradient(180deg, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.60) 100%); /* subtle dark overlay for better text contrast */
 	z-index: 1;
 }
 
