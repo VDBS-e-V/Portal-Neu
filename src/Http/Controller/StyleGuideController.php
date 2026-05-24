@@ -8,6 +8,9 @@ use App\Bootstrap\Container;
 use App\Http\Request\Request;
 use App\Http\Response\HtmlResponse;
 use App\Presentation\Templating\Renderer;
+use App\Infrastructure\Persistence\PDO\AreaPdoRepository;
+use App\Infrastructure\Persistence\PDO\MenuPdoRepository;
+use PDO;
 
 final class StyleGuideController
 {
@@ -22,15 +25,8 @@ final class StyleGuideController
             'areaName' => 'Styleguide',
             'pageTitle' => 'Übersicht',
             'areaRootLink' => '/styleguide',
-            'areaNav' => [
-                ['label' => 'Start', 'href' => '/', 'active' => false],
-                ['label' => 'Styleguide', 'href' => '/styleguide', 'active' => true],
-                ['label' => 'Area 3', 'href' => '/areas/area3', 'active' => false],
-            ],
-            'headerNav' => [
-                ['label' => 'Übersicht', 'href' => '/styleguide', 'active' => true],
-                ['label' => 'Kacheln', 'href' => '/styleguide/cards', 'active' => false],
-            ],
+            'areaNav' => $this->buildAreaNav($request),
+            'headerNav' => $this->buildHeaderNav($request),
         ]);
 
         return new HtmlResponse($html);
@@ -45,17 +41,148 @@ final class StyleGuideController
             'areaName' => 'Styleguide',
             'pageTitle' => 'Kacheln',
             'areaRootLink' => '/styleguide',
-            'areaNav' => [
-                ['label' => 'Start', 'href' => '/', 'active' => false],
-                ['label' => 'Styleguide', 'href' => '/styleguide', 'active' => true],
-                ['label' => 'Area 3', 'href' => '/areas/area3', 'active' => false],
-            ],
-            'headerNav' => [
-                ['label' => 'Übersicht', 'href' => '/styleguide', 'active' => false],
-                ['label' => 'Kacheln', 'href' => '/styleguide/cards', 'active' => true],
-            ],
+            'areaNav' => $this->buildAreaNav($request),
+            'headerNav' => $this->buildHeaderNav($request),
         ]);
 
         return new HtmlResponse($html);
+    }
+
+    private function buildAreaNav(Request $request): array
+    {
+        $dbConfig = Container::get($this->container, 'config.db');
+        $dsn = sprintf('mysql:host=%s;port=%d;dbname=%s;charset=%s', $dbConfig['host'], (int)$dbConfig['port'], $dbConfig['name'], $dbConfig['charset']);
+        try {
+            $pdo = new PDO($dsn, $dbConfig['user'], $dbConfig['pass'], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+        } catch (\Throwable $e) {
+            return [
+                ['label' => 'Start', 'href' => '/', 'active' => $request->path === '/'],
+                ['label' => 'Styleguide', 'href' => '/styleguide', 'active' => $request->path === '/styleguide'],
+            ];
+        }
+
+        $repo = new AreaPdoRepository($pdo);
+        $areas = $repo->findAllOrdered();
+
+        $nav = [];
+        foreach ($areas as $a) {
+            $slug = $a->slug;
+            if (str_starts_with($slug, '/')) {
+                $href = $slug;
+            } elseif ($slug === 'start' || $slug === '') {
+                $href = '/';
+            } else {
+                $href = '/' . ltrim($slug, '/');
+            }
+
+            $active = false;
+            if ($href === '/') {
+                $active = $request->path === '/';
+            } else {
+                $active = str_starts_with($request->path, $href);
+            }
+
+            $nav[] = [
+                'label' => $a->name,
+                'href' => $href,
+                'active' => $active,
+                'icon' => $a->icon ?? null,
+            ];
+        }
+
+        return $nav;
+    }
+
+    private function buildHeaderNav(Request $request): array
+    {
+        $fallback = [
+            ['label' => 'Übersicht', 'href' => '/styleguide', 'active' => false],
+            ['label' => 'Kacheln', 'href' => '/styleguide/cards', 'active' => false],
+        ];
+
+        try {
+            /** @var MenuPdoRepository $menuRepo */
+            $menuRepo = Container::get($this->container, MenuPdoRepository::class);
+        } catch (\Throwable $e) {
+            return $fallback;
+        }
+
+        $dbConfig = Container::get($this->container, 'config.db');
+        $dsn = sprintf('mysql:host=%s;port=%d;dbname=%s;charset=%s', $dbConfig['host'], (int)$dbConfig['port'], $dbConfig['name'], $dbConfig['charset']);
+        try {
+            $pdo = new PDO($dsn, $dbConfig['user'], $dbConfig['pass'], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+        } catch (\Throwable $e) {
+            return $fallback;
+        }
+
+        $areaRepo = new AreaPdoRepository($pdo);
+        $areas = $areaRepo->findAllOrdered();
+        $currentAreaId = null;
+        foreach ($areas as $a) {
+            $slug = $a->slug;
+            if (str_starts_with($slug, '/')) {
+                $href = $slug;
+            } elseif ($slug === 'start' || $slug === '') {
+                $href = '/';
+            } else {
+                $href = '/' . ltrim($slug, '/');
+            }
+
+            $active = false;
+            if ($href === '/') {
+                $active = $request->path === '/';
+            } else {
+                $active = str_starts_with($request->path, $href);
+            }
+
+            if ($active) {
+                $currentAreaId = $a->id;
+                break;
+            }
+        }
+
+        if ($currentAreaId === null) return $fallback;
+
+        $menu = $menuRepo->findByAreaId($currentAreaId);
+        if ($menu === null) return $fallback;
+
+        $tree = $menuRepo->findItemsTreeByMenuId($menu->id);
+
+        $mapNode = null;
+        $mapNode = function (array $node) use (&$mapNode, $request) : array {
+            $item = $node['item'];
+            $children = [];
+            $active = false;
+
+            foreach ($node['children'] as $child) {
+                $childMapped = $mapNode($child);
+                if ($childMapped['active']) $active = true;
+                $children[] = $childMapped;
+            }
+
+            $href = $item->href ?? '#';
+            if (!$active) {
+                if ($href === '/') {
+                    $active = $request->path === '/';
+                } else {
+                    $active = str_starts_with($request->path, (string)$href);
+                }
+            }
+
+            return [
+                'label' => $item->title,
+                'href' => $href,
+                'active' => $active,
+                'children' => $children,
+            ];
+        };
+
+        $header = [];
+        foreach ($tree as $node) {
+            if (!$node['item']->visible) continue;
+            $header[] = $mapNode($node);
+        }
+
+        return empty($header) ? $fallback : $header;
     }
 }

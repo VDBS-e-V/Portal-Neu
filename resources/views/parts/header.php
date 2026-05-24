@@ -8,7 +8,24 @@
 			<ul class="header-top-areas-list">
 				<?php
 					foreach ($areaNav ?? [] as $area) {
-						echo '<li class="header-top-areas-list-item"><a href="' . htmlspecialchars($area['href'] ?? '#') . '" class="link--no-style">' . htmlspecialchars($area['label'] ?? '') . '</a></li>';
+						$href = htmlspecialchars($area['href'] ?? '#', ENT_QUOTES, 'UTF-8');
+						$label = htmlspecialchars($area['label'] ?? '', ENT_QUOTES, 'UTF-8');
+						$aClasses = 'link--no-style';
+						$liClasses = 'header-top-areas-list-item';
+						$aria = '';
+						if (!empty($area['active'])) {
+							$aClasses .= ' is-active';
+							$aria = ' aria-current="page"';
+						}
+
+						echo '<li class="' . $liClasses . '">';
+						echo '<a href="' . $href . '" class="' . $aClasses . '"' . $aria . '>';
+						if (!empty($area['icon'])) {
+							echo '<img src="' . htmlspecialchars($area['icon'], ENT_QUOTES, 'UTF-8') . '" alt="" class="header-area-icon" /> ';
+						}
+						echo $label;
+						echo '</a>';
+						echo '</li>';
 					}
 				?>
 			</ul>
@@ -22,10 +39,31 @@
 		</div>
 		<div class="header-bottom-nav">
 			<ul class="header-bottom-nav-list">
-				<?php 
-					foreach ($headerNav ?? [] as $navItem) {
-						echo '<li class="header-bottom-nav-list-item"><a href="' . htmlspecialchars($navItem['href'] ?? '#') . '" class="link--no-style">' . htmlspecialchars($navItem['label'] ?? '') . '</a></li>';
+				<?php
+				$renderNav = function(array $items) use (&$renderNav) {
+					foreach ($items as $navItem) {
+						$href = htmlspecialchars($navItem['href'] ?? '#', ENT_QUOTES, 'UTF-8');
+						$label = htmlspecialchars($navItem['label'] ?? '', ENT_QUOTES, 'UTF-8');
+						$aClasses = 'link--no-style';
+						$liClasses = 'header-bottom-nav-list-item';
+						$aria = '';
+						if (!empty($navItem['active'])) {
+							$aClasses .= ' is-active';
+							$aria = ' aria-current="page"';
+						}
+
+						echo '<li class="' . $liClasses . '">';
+						echo '<a href="' . $href . '" class="' . $aClasses . '"' . $aria . '>' . $label . '</a>';
+						if (!empty($navItem['children'])) {
+							echo '<ul class="header-bottom-nav-sublist">';
+							$renderNav($navItem['children']);
+							echo '</ul>';
+						}
+						echo '</li>';
 					}
+				};
+
+				$renderNav($headerNav ?? []);
 				?>
 			</ul>
 		</div>

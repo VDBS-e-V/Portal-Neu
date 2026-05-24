@@ -7,6 +7,8 @@ namespace App\Bootstrap;
 use App\Http\Request\Request;
 use App\Http\Routing\Router;
 use App\Presentation\Templating\Renderer;
+use App\Infrastructure\Persistence\PDO\AreaPdoRepository;
+use PDO;
 
 final class App
 {
@@ -25,9 +27,54 @@ final class App
                 /** @var Renderer $renderer */
                 $renderer = Container::get($container, Renderer::class);
 
+                // Build areaNav for header (best effort)
+                $areaNav = [];
+                $areaRootLink = '/';
+                try {
+                    $dbConfig = Container::get($container, 'config.db');
+                    $dsn = sprintf('mysql:host=%s;port=%d;dbname=%s;charset=%s', $dbConfig['host'], (int)$dbConfig['port'], $dbConfig['name'], $dbConfig['charset']);
+                    $pdo = new PDO($dsn, $dbConfig['user'], $dbConfig['pass'], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+                    $repo = new AreaPdoRepository($pdo);
+                    $areas = $repo->findAllOrdered();
+                    $request = Request::fromGlobals();
+                    foreach ($areas as $a) {
+                        $slug = $a->slug;
+                        if (str_starts_with($slug, '/')) {
+                            $href = $slug;
+                        } elseif ($slug === 'start' || $slug === '') {
+                            $href = '/';
+                        } else {
+                            $href = '/' . ltrim($slug, '/');
+                        }
+
+                        $active = false;
+                        if ($href === '/') {
+                            $active = $request->path === '/';
+                        } else {
+                            $active = str_starts_with($request->path, $href);
+                        }
+
+                        $areaNav[] = [
+                            'label' => $a->name,
+                            'href' => $href,
+                            'active' => $active,
+                            'icon' => $a->icon ?? null,
+                        ];
+                    }
+                    if (!empty($areaNav)) {
+                        $areaRootLink = $areaNav[0]['href'] ?? '/';
+                    }
+                } catch (\Throwable $e) {
+                    // ignore - fallback to empty nav
+                }
+
                 // optional Daten reinreichen (nicht zu viel leaken)
-                return $renderer->render('pages/errors/500', [
+                return $renderer->renderPage('pages/errors/500', [
                     'title' => '500',
+                    'pageTitle' => '500 – Serverfehler',
+                    'areaName' => 'Fehler',
+                    'areaNav' => $areaNav,
+                    'areaRootLink' => $areaRootLink,
                 ]);
             }
         );

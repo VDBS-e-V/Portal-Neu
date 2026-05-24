@@ -3,6 +3,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<link rel="shortcut icon" href="/assets/images/bildmarken/logo_icon.png" type="image/x-icon">
+
 <link rel="stylesheet" href="/assets/css/app.css">
 
 <?php $appName = $_ENV['APP_NAME'] ?? ''; ?>
