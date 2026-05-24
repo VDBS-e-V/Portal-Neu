@@ -40,8 +40,8 @@
     --spacing-7: 3rem;    /* 48px */
 
     --spacing-page: clamp(0.75rem, 4vw, 3.125rem); /* 12px - 50px (responsive) */
-    --spacing-header: 4rem; /* 64px (Abstand unter Header) */
-    --spacing-footer: 4rem; /* 64px (Abstand über Footer) */
+    --spacing-header: 3rem; /* 64px (Abstand unter Header) */
+    --spacing-footer: 3rem; /* 64px (Abstand über Footer) */
 
     --spacing-gap: 1rem; /* 16px (Standardabstand zwischen Elementen) */
     --spacing-container: 2rem; /* 32px (Innenabstand von Containern) */
@@ -56,7 +56,8 @@
     --font-family-base: "Open Sans", system-ui, -apple-system, "Segoe UI", Arial, sans-serif; /* später: "IBM Plex Sans" */
     --font-family-accent: "Source Serif 4", ui-serif, "Times New Roman", serif;
 
-    --font-weight-regular: 400;
+    --font-weight-light: 400;
+    --font-weight-regular: 500;
     --font-weight-medium: 600;
     --font-weight-bold: 700;
     --font-weight-extrabold: 800;

@@ -2,7 +2,7 @@ header {
     /* Fallback for older browsers */
     background-color: var(--color-white);
     /* subtle downward glow/shimmer */
-    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
     position: relative;
     overflow: hidden;
 
@@ -18,7 +18,7 @@ header::after {
     top: -30%;
     width: 200%;
     height: 30%;
-    background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
+    background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.) 50%, rgba(255,255,255,0) 100%);
     transform: translateY(-120%);
     filter: blur(10px);
     animation: shimmer-down 2.5s linear infinite;
@@ -139,7 +139,7 @@ div.header-bottom-nav {
 ul.header-bottom-nav-list {
     display: flex;
 
-    gap: var(--spacing-4);
+    gap: var(--spacing-5);
     margin: 0;
     padding: 0;
 }
@@ -151,12 +151,9 @@ li.header-bottom-nav-list-item {
 div.header-bottom-nav a {
     color: color-mix(var(--color-ink) 80%, transparent);
     font-family: var(--font-family-base);
-    font-weight: var(--font-weight-medium);
-    font-size: 1.175rem;
-    letter-spacing: -0.02em;
-    text-decoration: none;
-    font-family: var(--font-family-base);
     font-weight: var(--font-weight-regular);
+    font-size: 1.25rem; /* 20px */
+    text-decoration: none;
     transition: all ease-in-out .2s;
 }
 

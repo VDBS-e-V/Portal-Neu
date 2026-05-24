@@ -5,9 +5,7 @@
 	<?php require __DIR__ . '/../parts/head.php'; ?>
 </head>
 <body class="layout">
-	<div class="site-header" role="banner">
-		<?php require __DIR__ . '/../parts/header.php'; ?>
-	</div>
+	<?php require __DIR__ . '/../parts/header.php'; ?>
 
 	<main class="site-main" role="main">
 		<div class="container">
@@ -15,8 +13,6 @@
 		</div>
 	</main>
 
-	<div class="site-footer" role="contentinfo">
-		<?php require __DIR__ . '/../parts/footer.php'; ?>
-	</div>
+	<?php require __DIR__ . '/../parts/footer.php'; ?>
 </body>
 </html>

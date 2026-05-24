@@ -1,0 +1,54 @@
+/* Components: Links
+   - Content link style: thin underline by default
+   - Hover/focus: dark highlight with inverted text
+   Uses tokens from tokens.css
+*/
+
+/* Default link style: apply to all anchors except those explicitly opted-out
+   Use `class="link--no-style"` on an <a> to prevent this styling. */
+
+a:not(.link--no-style) {
+  display: inline-block;
+  color: var(--color-ink);
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 100% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  /* keep the same padding in both states to prevent layout shifts on hover/focus */
+  padding: 0.125rem 0.4rem;
+  background-color: transparent;
+  border-radius: 2px;
+  transition: background-color .15s ease, color .15s ease, box-shadow .15s ease;
+}
+
+a:not(.link--no-style):hover,
+a:not(.link--no-style):focus {
+  color: var(--color-white);
+  background-image: none;
+  background-color: var(--color-ink);
+  /* padding unchanged to avoid size change */
+  box-shadow: none;
+}
+
+/* Utility class to explicitly apply the highlight style when needed */
+.link--highlight {
+  display: inline-block;
+  color: var(--color-ink);
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 100% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  padding: 0.125rem 0.4rem;
+  background-color: transparent;
+  border-radius: 2px;
+  transition: background-color .15s ease, color .15s ease, box-shadow .15s ease;
+}
+
+.link--highlight:hover,
+.link--highlight:focus {
+  color: var(--color-white);
+  background-image: none;
+  background-color: var(--color-ink);
+}

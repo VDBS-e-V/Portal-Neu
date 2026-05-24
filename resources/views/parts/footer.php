@@ -1,48 +1,48 @@
 <?php declare(strict_types=1); ?>
-<hr class="footer-divider--thick">
-<footer class="footer" role="contentinfo">
+<footer class="footer site-footer" role="contentinfo">
+    <hr class="footer-divider--thick">
 	<div class="footer-top">
 		<div class="container container--wide">
 			<div class="footer-grid">
 				<div class="footer-col">
 					<h4>Informationen für</h4>
 					<ul class="footer-list">
-						<li><a href="#">Teamer:innen</a></li>
-						<li><a href="#">Vereinsmitglieder:innen</a></li>
-						<li><a href="#">Verwaltung</a></li>
-						<li><a href="#">Schüler:innen</a></li>
-						<li><a href="#">Lehrkräfte</a></li>
-						<li><a href="#">Partner:innen</a></li>
+						<li><a href="#" class="link--no-style">Teamer:innen</a></li>
+						<li><a href="#" class="link--no-style">Vereinsmitglieder:innen</a></li>
+						<li><a href="#" class="link--no-style">Verwaltung</a></li>
+						<li><a href="#" class="link--no-style">Schüler:innen</a></li>
+						<li><a href="#" class="link--no-style">Lehrkräfte</a></li>
+						<li><a href="#" class="link--no-style">Partner:innen</a></li>
 					</ul>
 				</div>
 
 				<div class="footer-col">
 					<h4>Service-Portal</h4>
 					<ul class="footer-list">
-						<li><a href="/">Startseite</a></li>
-						<li><a href="/kontakt">Kontakt</a></li>
-						<li><a href="/impressum">Impressum</a></li>
-						<li><a href="/datenschutz">Datenschutz</a></li>
-						<li><a href="/barrierefreiheit">Barrierefreiheit</a></li>
-						<li><a href="/beratung">Beratung</a></li>
+						<li><a href="/" class="link--no-style">Startseite</a></li>
+						<li><a href="/kontakt" class="link--no-style">Kontakt</a></li>
+						<li><a href="/impressum" class="link--no-style">Impressum</a></li>
+						<li><a href="/datenschutz" class="link--no-style">Datenschutz</a></li>
+						<li><a href="/barrierefreiheit" class="link--no-style">Barrierefreiheit</a></li>
+						<li><a href="/beratung" class="link--no-style">Beratung</a></li>
 					</ul>
 				</div>
 
 				<div class="footer-col">
 					<h4>Soziale Medien</h4>
 					<ul class="footer-list footer-social">
-						<li><a href="#"><span class="social-icon">📷</span> Instagram</a></li>
-						<li><a href="#"><span class="social-icon">▶️</span> Homo Politicus</a></li>
+						<li><a href="#" class="link--no-style"><span class="social-icon">📷</span> Instagram</a></li>
+						<li><a href="#" class="link--no-style"><span class="social-icon">▶️</span> Homo Politicus</a></li>
 					</ul>
 				</div>
 
 				<div class="footer-col">
 					<h4>Kontakt</h4>
 					<ul class="footer-list">
-						<li><a href="mailto:kontakt@vdb.schule">kontakt@vdb.schule</a></li>
-						<li><a href="tel:+491234567890">+49 1234 567890</a></li>
-						<li><a href="/kontakt">Kontaktformular</a></li>
-						<li><a href="/anfahrt">Anfahrt</a></li>
+						<li><a href="mailto:kontakt@vdb.schule" class="link--no-style">kontakt@vdb.schule</a></li>
+						<li><a href="tel:+491234567890" class="link--no-style">+49 1234 567890</a></li>
+						<li><a href="/kontakt" class="link--no-style">Kontaktformular</a></li>
+						<li><a href="/anfahrt" class="link--no-style">Anfahrt</a></li>
 					</ul>
 				</div>
 			</div>
