@@ -1,6 +1,11 @@
-﻿/vendor/
-storage/logs/
-storage/cache/
-storage/uploads/
-var/
-.env
+﻿/.env
+/vendor/
+/storage/cache/*
+/storage/logs/*
+/storage/uploads/*
+!/storage/.gitkeep
+!/storage/cache/.gitkeep
+!/storage/logs/.gitkeep
+!/storage/uploads/.gitkeep
+/var/*
+!/var/.gitkeep

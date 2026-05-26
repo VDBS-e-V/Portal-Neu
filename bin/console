@@ -1,69 +1,21 @@
+#!/usr/bin/env php
 <?php
 
 declare(strict_types=1);
 
-use App\Infrastructure\Persistence\PDO\ConnectionFactory;
-use App\Infrastructure\Persistence\Migrations\MigrationRunner;
-
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-// .env laden (wie in App.php; minimal)
-$env = dirname(__DIR__) . '/.env';
-if (is_file($env)) {
-	foreach (file($env, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
-		$line = trim($line);
-		if ($line === '' || str_starts_with($line, '#')) continue;
-		$pos = strpos($line, '=');
-		if ($pos === false) continue;
-		$key = trim(substr($line, 0, $pos));
-		$val = trim(substr($line, $pos + 1));
-		if ((str_starts_with($val, '"') && str_ends_with($val, '"')) || (str_starts_with($val, "'") && str_ends_with($val, "'"))) {
-			$val = substr($val, 1, -1);
-		}
-		if (getenv($key) === false) putenv($key . '=' . $val);
-	}
+use App\Bootstrap\Routes;
+
+$command = $argv[1] ?? '';
+
+if ($command === 'routes') {
+    foreach (Routes::load() as $route) {
+        echo sprintf("%s %s -> %s::%s\n", $route->method, $route->path, $route->controller, $route->action);
+    }
+
+    exit(0);
 }
 
-$cmd = $argv[1] ?? 'help';
-
-switch ($cmd) {
-	case 'help':
-	default:
-		echo "Commands:\n";
-		echo "  help                 Show this help\n";
-		echo "  routes               List routes\n";
-		echo "  migrate              Apply pending migrations\n";
-		echo "  migrate:status       Show migration status\n";
-		exit(0);
-
-	case 'routes':
-		$routes = require dirname(__DIR__) . '/config/routes.php';
-		foreach ($routes as $r) {
-			[$method, $path, $handler] = $r;
-			echo sprintf("%-6s %s -> %s::%s\n", $method, $path, $handler[0], $handler[1]);
-		}
-		exit(0);
-
-	case 'migrate':
-	case 'migrate:status':
-		$db = require dirname(__DIR__) . '/config/database.php';
-		$pdo = ConnectionFactory::make($db);
-
-		$migrationsPath = dirname(__DIR__) . '/migrations';
-		$runner = new MigrationRunner($pdo, $migrationsPath);
-
-		if ($cmd === 'migrate:status') {
-			$status = $runner->status();
-			foreach ($status as $s) {
-				$flag = $s['applied'] ? 'APPLIED' : 'PENDING';
-				$chk = $s['checksum_ok'];
-				$chkText = $chk === null ? '' : ($chk ? ' (checksum ok)' : ' (CHECKSUM MISMATCH!)');
-				echo $flag . "  " . $s['migration'] . $chkText . "\n";
-			}
-			exit(0);
-		}
-
-		$runner->migrate();
-		echo "OK: migrations applied.\n";
-		exit(0);
-}
+fwrite(STDERR, "Usage: php bin/console routes\n");
+exit(1);

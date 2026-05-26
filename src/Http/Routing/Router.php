@@ -4,96 +4,76 @@ declare(strict_types=1);
 
 namespace App\Http\Routing;
 
-use App\Bootstrap\Container;
+use App\Http\Controller\Controller;
 use App\Http\Request\Request;
 use App\Http\Response\HtmlResponse;
+use App\Http\Response\JsonResponse;
 use App\Http\Response\Response;
 use App\Presentation\Templating\Renderer;
-use App\Infrastructure\Persistence\PDO\AreaPdoRepository;
-use PDO;
+use RuntimeException;
 
 final class Router
 {
-    /** @var Route[] */
+    /** @var array<int, Route> */
     private array $routes = [];
 
-    public function __construct(private array $container) {}
-
-    /** @param array{0: class-string, 1: string} $handler */
-    public function add(string $method, string $path, array $handler): void
+    public function __construct(private Renderer $renderer)
     {
-        $this->routes[] = new Route(strtoupper($method), $path, $handler);
+    }
+
+    public function add(Route $route): void
+    {
+        $this->routes[] = $route;
     }
 
     public function dispatch(Request $request): Response
     {
         foreach ($this->routes as $route) {
-            if ($route->method !== $request->method) continue;
-            if ($route->path !== $request->path) continue;
+            if ($route->method !== $request->method || $route->path !== $request->path) {
+                continue;
+            }
 
-            [$class, $method] = $route->handler;
+            $controllerClass = $route->controller;
+            $controller = new $controllerClass($this->renderer);
 
-            $controller = new $class($this->container);
-            $result = $controller->$method($request);
+            if (!$controller instanceof Controller) {
+                throw new RuntimeException('Route controller must extend ' . Controller::class);
+            }
 
-            if ($result instanceof Response) return $result;
-            if (is_string($result)) return new HtmlResponse($result);
+            $action = $route->action;
+            $response = $controller->{$action}($request);
 
-            return new HtmlResponse('Invalid controller response', 500);
+            if ($response instanceof Response) {
+                return $response;
+            }
+
+            if (is_string($response)) {
+                return new HtmlResponse($response);
+            }
+
+            throw new RuntimeException('Controller action must return a response or string.');
         }
 
-        // 404 als View
-        /** @var Renderer $renderer */
-        $renderer = Container::get($this->container, Renderer::class);
-
-        // Build areaNav for header (best effort)
-        $areaNav = [];
-        $areaRootLink = '/';
-        try {
-            $dbConfig = Container::get($this->container, 'config.db');
-            $dsn = sprintf('mysql:host=%s;port=%d;dbname=%s;charset=%s', $dbConfig['host'], (int)$dbConfig['port'], $dbConfig['name'], $dbConfig['charset']);
-            $pdo = new PDO($dsn, $dbConfig['user'], $dbConfig['pass'], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-            $repo = new AreaPdoRepository($pdo);
-            $areas = $repo->findAllOrdered();
-            foreach ($areas as $a) {
-                $slug = $a->slug;
-                if (str_starts_with($slug, '/')) {
-                    $href = $slug;
-                } elseif ($slug === 'start' || $slug === '') {
-                    $href = '/';
-                } else {
-                    $href = '/' . ltrim($slug, '/');
-                }
-
-                $active = false;
-                if ($href === '/') {
-                    $active = $request->path === '/';
-                } else {
-                    $active = str_starts_with($request->path, $href);
-                }
-
-                $areaNav[] = [
-                    'label' => $a->name,
-                    'href' => $href,
-                    'active' => $active,
-                    'icon' => $a->icon ?? null,
-                ];
-            }
-            if (!empty($areaNav)) {
-                $areaRootLink = $areaNav[0]['href'] ?? '/';
-            }
-        } catch (\Throwable $e) {
-            // ignore
+        if ($request->isApi()) {
+            return new JsonResponse([
+                'status' => 'error',
+                'message' => 'Not Found',
+            ], 404);
         }
 
-        $html = $renderer->renderPage('pages/errors/404', [
+        return new HtmlResponse($this->renderer->renderPage('pages/errors/404', [
             'title' => '404',
-            'pageTitle' => '404 – Nicht gefunden',
             'areaName' => 'Fehler',
-            'areaNav' => $areaNav,
-            'areaRootLink' => $areaRootLink,
-        ]);
-
-        return new HtmlResponse($html, 404);
+            'pageTitle' => '404 - Nicht gefunden',
+            'areaRootLink' => '/',
+            'areaNav' => [[
+                'label' => 'Start',
+                'href' => '/',
+                'active' => false,
+            ]],
+            'headerNav' => [],
+            'path' => $request->path,
+            'now' => date('c'),
+        ]), 404);
     }
 }

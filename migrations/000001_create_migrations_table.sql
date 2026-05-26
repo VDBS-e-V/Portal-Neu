@@ -1,8 +1,0 @@
-CREATE TABLE IF NOT EXISTS migrations (
-	id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-	migration VARCHAR(255) NOT NULL,
-	checksum CHAR(64) NOT NULL,
-	applied_at DATETIME NOT NULL,
-	PRIMARY KEY (id),
-	UNIQUE KEY uniq_migration (migration)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

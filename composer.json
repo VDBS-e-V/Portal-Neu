@@ -1,5 +1,7 @@
 {
   "name": "vdbs/portal",
+  "description": "Minimal PHP skeleton for the VDBS portal.",
+  "license": "proprietary",
   "type": "project",
   "require": {
     "php": ">=8.2"

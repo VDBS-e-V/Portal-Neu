@@ -4,48 +4,60 @@ declare(strict_types=1);
 
 namespace App\Bootstrap;
 
+use RuntimeException;
+
 final class Container
 {
+    /** @var array<string, mixed> */
+    private array $parameters;
+
+    /** @var array<string, callable(self): mixed> */
+    private array $factories;
+
+    /** @var array<string, mixed> */
+    private array $instances = [];
+
     /**
-     * Minimaler DI-Container:
-     * - $definitions: class-string => factory(array $container): object
-     * - zusätzlich einfache String-Keys für Paths/Config
+     * @param array<string, mixed> $parameters
+     * @param array<string, callable(self): mixed> $factories
      */
-    public static function build(): array
+    public function __construct(array $parameters = [], array $factories = [])
     {
-        $root = dirname(__DIR__, 2);
-
-        $container = [
-            'paths.root' => $root,
-            'paths.views' => $root . '/resources/views',
-            'config.app' => require $root . '/config/app.php',
-            'config.db' => require $root . '/config/database.php',
-            'definitions' => require $root . '/config/services.php',
-            'instances' => [],
-        ];
-
-        return $container;
+        $this->parameters = $parameters;
+        $this->factories = $factories;
     }
 
-    public static function get(array &$c, string $id): mixed
+    public function get(string $id): mixed
     {
-        // string keys
-        if (array_key_exists($id, $c) && $id !== 'definitions' && $id !== 'instances') {
-            return $c[$id];
+        if (array_key_exists($id, $this->parameters)) {
+            return $this->parameters[$id];
         }
 
-        // cached instance?
-        if (isset($c['instances'][$id])) {
-            return $c['instances'][$id];
+        if (array_key_exists($id, $this->instances)) {
+            return $this->instances[$id];
         }
 
-        // factory?
-        $defs = $c['definitions'] ?? [];
-        if (isset($defs[$id]) && is_callable($defs[$id])) {
-            $c['instances'][$id] = $defs[$id]($c);
-            return $c['instances'][$id];
+        if (array_key_exists($id, $this->factories)) {
+            $this->instances[$id] = ($this->factories[$id])($this);
+
+            return $this->instances[$id];
         }
 
-        throw new \RuntimeException("Service not found: {$id}");
+        throw new RuntimeException('Service not found: ' . $id);
+    }
+
+    public function set(string $id, mixed $value): void
+    {
+        $this->instances[$id] = $value;
+    }
+
+    public function bind(string $id, callable $factory): void
+    {
+        $this->factories[$id] = $factory;
+    }
+
+    public function has(string $id): bool
+    {
+        return array_key_exists($id, $this->parameters) || array_key_exists($id, $this->instances) || array_key_exists($id, $this->factories);
     }
 }

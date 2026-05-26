@@ -4,40 +4,47 @@ declare(strict_types=1);
 
 namespace App\Bootstrap;
 
+use App\Http\Response\JsonResponse;
 use Throwable;
 
 final class ErrorHandling
 {
-    /**
-     * @param callable(Throwable): string|null $render500Html  Callback, der HTML für 500 liefert
-     */
-    public static function register(bool $debug, ?callable $render500Html = null): void
+    public static function register(bool $debug, ?callable $renderHtml500 = null): void
     {
         ini_set('display_errors', $debug ? '1' : '0');
         error_reporting(E_ALL);
 
-        set_exception_handler(function (Throwable $e) use ($debug, $render500Html) {
+        set_exception_handler(static function (Throwable $throwable) use ($debug, $renderHtml500): void {
             http_response_code(500);
 
             if ($debug) {
                 header('Content-Type: text/plain; charset=utf-8');
-                echo "Uncaught exception:\n\n";
-                echo $e;
+                echo (string) $throwable;
+
                 return;
             }
 
-            header('Content-Type: text/html; charset=utf-8');
+            $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+            $path = is_string($path) && $path !== '' ? $path : '/';
 
-            if ($render500Html) {
+            if (str_starts_with($path, '/api')) {
+                (new JsonResponse(['status' => 'error', 'message' => 'Internal Server Error'], 500))->send();
+
+                return;
+            }
+
+            if ($renderHtml500 !== null) {
                 try {
-                    echo $render500Html($e);
+                    header('Content-Type: text/html; charset=utf-8');
+                    echo $renderHtml500();
+
                     return;
-                } catch (Throwable $inner) {
-                    // Fallback, falls Rendering selbst crasht
+                } catch (Throwable) {
                 }
             }
 
-            echo "Ein Fehler ist aufgetreten.";
+            header('Content-Type: text/plain; charset=utf-8');
+            echo 'Internal Server Error';
         });
     }
 }
