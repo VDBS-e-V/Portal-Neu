@@ -1,0 +1,79 @@
+:root {
+  --vdb-amber: #F59E0B;
+  --vdb-teal: #14B8A6;
+  --vdb-berry: #D946EF;
+  --vdb-sun-yellow: #FDE047;
+  --vdb-lime: #A3E635;
+  --vdb-plum: #7C3AED;
+  --vdb-gray: #6B7280;
+  --vdb-dark: #111827;
+  --vdb-white: #FFFFFF;
+  --vdb-black: #000000;
+  --vdb-icon-stroke-width: 2;
+}
+
+.vdb-icon {
+  width: 1.25em;
+  height: 1.25em;
+  display: inline-block;
+  vertical-align: -0.18em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--vdb-icon-stroke-width);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: 0 0 auto;
+}
+
+.vdb-icon--2xs { width: .75rem; height: .75rem; }
+.vdb-icon--xs  { width: 1rem; height: 1rem; }
+.vdb-icon--sm  { width: 1.25rem; height: 1.25rem; }
+.vdb-icon--md  { width: 1.5rem; height: 1.5rem; }
+.vdb-icon--lg  { width: 2rem; height: 2rem; }
+.vdb-icon--xl  { width: 2.5rem; height: 2.5rem; }
+.vdb-icon--2xl { width: 3rem; height: 3rem; }
+.vdb-icon--3xl { width: 4rem; height: 4rem; }
+
+.vdb-icon--thin    { --vdb-icon-stroke-width: 1.5; }
+.vdb-icon--regular { --vdb-icon-stroke-width: 2; }
+.vdb-icon--bold    { --vdb-icon-stroke-width: 2.5; }
+
+.vdb-icon--amber      { color: var(--vdb-amber); }
+.vdb-icon--teal       { color: var(--vdb-teal); }
+.vdb-icon--berry      { color: var(--vdb-berry); }
+.vdb-icon--sun-yellow { color: var(--vdb-sun-yellow); }
+.vdb-icon--lime       { color: var(--vdb-lime); }
+.vdb-icon--plum       { color: var(--vdb-plum); }
+.vdb-icon--gray       { color: var(--vdb-gray); }
+.vdb-icon--dark       { color: var(--vdb-dark); }
+.vdb-icon--white      { color: var(--vdb-white); }
+.vdb-icon--black      { color: var(--vdb-black); }
+.vdb-icon--current    { color: currentColor; }
+
+.vdb-icon-btn,
+.vdb-icon-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.vdb-icon-btn {
+  justify-content: center;
+  border: 0;
+  border-radius: .75rem;
+  padding: .625rem .875rem;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.vdb-icon-link {
+  color: var(--vdb-teal);
+  text-decoration-thickness: .08em;
+  text-underline-offset: .18em;
+}
+
+.vdb-icon-link:hover,
+.vdb-icon-btn:hover {
+  opacity: .82;
+}
