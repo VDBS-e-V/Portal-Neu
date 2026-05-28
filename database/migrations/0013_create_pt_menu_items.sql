@@ -1,0 +1,26 @@
+-- Migration: 0013_create_pt_menu_items.sql
+-- Creates hierarchical menu items (max 3 levels enforced by CHECK)
+CREATE TABLE IF NOT EXISTS `pt_menu_items` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `menu_id` BIGINT UNSIGNED NOT NULL,
+  `parent_id` BIGINT UNSIGNED DEFAULT NULL,
+  `title` VARCHAR(191) NOT NULL,
+  `slug` VARCHAR(191) DEFAULT NULL,
+  `url` VARCHAR(255) DEFAULT NULL,
+  `route_name` VARCHAR(191) DEFAULT NULL,
+  `icon` VARCHAR(100) DEFAULT NULL,
+  `target` VARCHAR(20) DEFAULT NULL,
+  `order_index` INT DEFAULT NULL,
+  `level` TINYINT UNSIGNED NOT NULL DEFAULT 1,
+  `is_active` TINYINT(1) DEFAULT 1,
+  `settings` JSON DEFAULT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted_at` TIMESTAMP NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_pt_menu_items_menu_id` (`menu_id`),
+  KEY `idx_pt_menu_items_parent_id` (`parent_id`),
+  CONSTRAINT `fk_pt_menu_items_menu` FOREIGN KEY (`menu_id`) REFERENCES `pt_menus` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_pt_menu_items_parent` FOREIGN KEY (`parent_id`) REFERENCES `pt_menu_items` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `chk_pt_menu_items_level` CHECK (`level` BETWEEN 1 AND 3)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
