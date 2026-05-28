@@ -6,15 +6,24 @@
 		</div>
 		<div class="header-top-areas">
 			<ul class="header-top-areas-list">
-                <li class="header-top-areas-list-item">
-                    <a href="/" class="link--no-style">Start</a>
-                </li>
-                <li class="header-top-areas-list-item">
-                    <a href="/dev" class="link--no-style">Development</a>
-                </li>
-                <li class="header-top-areas-list-item">
-                    <a href="/styleguide" class="link--no-style">Style Guide</a>
-                </li>
+				<?php
+				$currPath = $path ?? (isset($_SERVER['REQUEST_URI']) ? parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) : '/');
+				$isAdmin = str_starts_with((string)$currPath, '/development/web-control');
+				if (!empty($headerAreas)):
+					foreach ($headerAreas as $ha):
+						$slug = (string) ($ha['slug'] ?? '');
+						$areaUrl = ($slug === '' || $slug === 'main') ? '/' : ('/' . ltrim($slug, '/'));
+						$adminHref = '/development/web-control/areas/select?area_id=' . urlencode((string)($ha['id'] ?? ''));
+						$href = $isAdmin ? $adminHref : $areaUrl;
+						$selected = isset($current_area['id']) && (string)$current_area['id'] === (string)($ha['id'] ?? '');
+				?>
+						<li class="header-top-areas-list-item<?= $selected ? ' is-active' : '' ?>">
+							<a href="<?= htmlspecialchars($href, ENT_QUOTES, 'UTF-8') ?>" class="link--no-style"<?= $selected ? ' aria-current="true"' : '' ?>><?= htmlspecialchars((string)($ha['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></a>
+						</li>
+					<?php
+					endforeach;
+				endif;
+				?>
 			</ul>
 		</div>
 	</div>
@@ -26,18 +35,17 @@
 		</div>
 		<div class="header-bottom-nav">
 			<ul class="header-bottom-nav-list">
-                <li class="header-bottom-nav-list-item">
-                    <a href="/ueber-das-portal" class="link--no-style">Über das Portal</a>
-                </li>
-                <li class="header-bottom-nav-list-item">
-                    <a href="/zugang-zum-portal" class="link--no-style">Zugang zum Portal</a>
-                </li>
-                <li class="header-bottom-nav-list-item">
-                    <a href="/faq" class="link--no-style">FAQ</a>
-                </li>
-                <li class="header-bottom-nav-list-item">
-                    <a href="/kontakt" class="link--no-style">Kontakt</a>
-                </li>
+				<?php if (!empty($headerMenus)): ?>
+					<?php foreach ($headerMenus as $mi): ?>
+						<li class="header-bottom-nav-list-item">
+							<?php
+								$url = (string) ($mi['url'] ?? ('/' . ltrim((string)($mi['slug'] ?? ''), '/')));
+								$title = (string) ($mi['title'] ?? ($mi['name'] ?? ''));
+							?>
+							<a href="<?= htmlspecialchars($url, ENT_QUOTES, 'UTF-8') ?>" class="link--no-style"><?= htmlspecialchars($title, ENT_QUOTES, 'UTF-8') ?></a>
+						</li>
+					<?php endforeach; ?>
+				<?php endif; ?>
 			</ul>
 		</div>
 		<div class="header-bottom-search">

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use App\Http\Controller\StyleGuideController;
 use App\Http\Controller\HomeController;
+use App\Http\Controller\AreaController;
+use App\Http\Controller\MenuController;
 use App\Http\Routing\Route;
 
 return [
@@ -11,6 +13,26 @@ return [
 	new Route('GET', '/health', HomeController::class, 'health'),
 	new Route('GET', '/api/health', HomeController::class, 'apiHealth'),
 
+    
+	// Development web control: Areas
+	new Route('GET', '/development/web-control/areas', AreaController::class, 'index'),
+	new Route('GET', '/development/web-control/areas/create', AreaController::class, 'createForm'),
+	new Route('POST', '/development/web-control/areas/create', AreaController::class, 'create'),
+	new Route('GET', '/development/web-control/areas/edit', AreaController::class, 'editForm'),
+	new Route('POST', '/development/web-control/areas/edit', AreaController::class, 'edit'),
+	new Route('GET', '/development/web-control/areas/select', AreaController::class, 'select'),
+	new Route('POST', '/development/web-control/areas/delete', AreaController::class, 'delete'),
+
+	// Development web control: Menus
+	new Route('GET', '/development/web-control/menus', MenuController::class, 'index'),
+	new Route('GET', '/development/web-control/menus/create', MenuController::class, 'createForm'),
+	new Route('POST', '/development/web-control/menus/create', MenuController::class, 'create'),
+	new Route('GET', '/development/web-control/menus/edit', MenuController::class, 'editForm'),
+	new Route('POST', '/development/web-control/menus/edit', MenuController::class, 'edit'),
+	new Route('POST', '/development/web-control/menus/delete', MenuController::class, 'delete'),
+
+
+    // StyleGuide
 	new Route('GET', '/styleguide', StyleGuideController::class, 'index'),
 	new Route('GET', '/styleguide/buttons', StyleGuideController::class, 'buttons'),
     new Route('GET', '/styleguide/buttons/generator', StyleGuideController::class, 'buttonGenerator'),
