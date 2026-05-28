@@ -35,6 +35,8 @@
 .vdb-icon--berry              { color: var(--color-accent-berry); }
 .vdb-icon--sun-yellow         { color: var(--color-accent-sun); }
 .vdb-icon--lime               { color: var(--color-accent-lime); }
+.vdb-icon--white              { color: var(--color-white); }
+.vdb-icon--black              { color: var(--color-ink); }
 .vdb-icon--current            { color: currentColor; }
 
 .vdb-icon-btn,

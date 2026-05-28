@@ -1,119 +1,57 @@
-/* Error pages component
-  Bereich
-  - Vollständige Darstellung für Fehlerseiten wie 404, 500, Wartungs- oder Zugriffsmeldungen.
-
-  Ziel
-  - Den Fehlerstatus klar, ruhig und handlungsorientiert kommunizieren.
-  - Dem Nutzer eine Rückkehrmöglichkeit über Buttons oder Links geben.
-
-  Grundprinzip
-  - `.error-page` zentriert den Inhalt im Viewport.
-  - `.error-panel` bildet die visuelle Karte mit Code, Text und Aktionen.
-  - Buttons innerhalb dieser Komponente nutzen die normale Button-Semantik.
-
-  Wichtige Klassen
-  - Wrapper: `.error-page`
-  - Panel: `.error-panel`
-  - Code/Text: `.error-code`, `.error-body`, `.error-title`, `.error-subtitle`, `.error-meta`
-  - Aktionen: `.error-actions`
-  - Hilfsklassen: `.error-code--small`, `.btn`, `.btn-primary`, `.btn-secondary`, `.btn-icon`
-
-  Strukturhinweise
-  - Der Fehlercode ist bewusst groß und prominent.
-  - Textblöcke werden rechts bzw. unterhalb des Codes angeordnet.
-  - Aktionen sollten immer eine klare nächste Handlung enthalten.
-
-  Hinweise zur Verwendung
-  - Für 404/500 jeweils passende Texte und Handlungsbuttons bereitstellen.
-  - Das Layout bleibt responsiv und stapelt auf kleinen Bildschirmen untereinander.
-*/
-
-/* Use design tokens from tokens.css (no new variables) */
-
-/* Page wrapper for full-viewport centered error content */
 .error-page {
-  min-height: 72vh;
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-6) var(--spacing-3);
-  /* light neutral background; tokens do not provide a neutral grey token here, keep subtle tint */
-  background: #f7f9fb;
-  font-family: var(--font-family-base);
-  color: var(--color-ink);
-}
-
-/* Card-like panel */
-.error-panel {
-  width: 100%;
-  max-width: min(820px, var(--max-width));
-  background: var(--color-white);
-  border-radius: 8px;
-  box-shadow: 0 8px 30px rgba(30, 40, 60, 0.08);
-  padding: var(--spacing-4);
-  display: flex;
-  gap: var(--spacing-3);
-  align-items: flex-start;
-}
-
-/* Left: numeric code */
-.error-code {
-  font-size: 72px;
-  line-height: 1;
-  font-weight: var(--font-weight-extrabold);
-  color: var(--color-status-error);
-  margin-right: var(--spacing-3);
-  min-width: 120px;
   text-align: center;
+  padding: 1.5rem 3rem;
+  background-color: color-mix(var(--color-ink) 5%);
 }
 
-/* Right: message block */
-.error-body {
-  flex: 1 1 auto;
-}
-
-.error-title {
-  font-size: 1.75rem;
-  margin: 0 0 var(--spacing-2) 0;
-  font-weight: var(--font-weight-bold);
-}
-
-.error-subtitle {
-  font-size: 1rem;
-  margin: 0 0 var(--spacing-3) 0;
-  color: rgba(15, 23, 42, 0.6); /* muted text using ink token baseline */
-}
-
-.error-meta {
-  font-size: 0.8125rem;
-  color: rgba(15, 23, 42, 0.6);
-  margin-top: var(--spacing-3);
-}
-
-/* Action area (buttons/links) */
-.error-actions {
-  margin-top: var(--spacing-4);
+.error-page .error-text {
   display: flex;
-  gap: var(--spacing-3);
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
 }
 
-
-/* small responsive tweaks */
-@media (max-width: 640px) {
-  .error-panel {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .error-code {
-    font-size: 56px;
-    min-width: unset;
-    text-align: left;
-  }
+.error-page .error-text h1 {
+  width: 100%;
+  font-size: 4rem;
+  font-weight: var(--font-weight-bold);
+  text-align: left;
+  margin: 0;
+  margin-bottom: 0.5rem;
 }
 
-/* Utility: subdued code block */
-.error-code--small {
-  font-size: 28px;
-  color: rgba(15, 23, 42, 0.6);
+.error-page .error-text h2 {
+  width: 100%;
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-medium);
+  text-align: left;
+  margin: 0;
+  margin-bottom: 0.5rem;
+}
+
+.error-page .error-text p {
+  width: 100%;
+  font-size: 1rem;
+  font-weight: var(--font-weight-regular);
+  text-align: left;
+  margin: 0;
+  margin-bottom: 1rem;
+}
+
+.error-page .error-text .btn-group {
+  width: 100%;
+}
+
+.error-page .error-image {
+  max-width: 600px;
+  margin-left: 2rem;
+}
+
+.error-page .error-image img {
+  width: 100%;
+  height: auto;
 }

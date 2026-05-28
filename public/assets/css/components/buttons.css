@@ -1,41 +1,33 @@
 /*
-Buttons — Übersicht
+Buttons — Komponenten-Styling
 
 Zweck:
 - Zentrale Button-Styles, Varianten und Gruppierungen für das Portal.
 
-Datei-Struktur (Übersicht):
-- :root — CSS-Variablen und Tokens (z. B. --btn-border-radius).
-- .btn — Basis-Button (Layout, Padding, Border-Radius).
-- Größen-Modifier — .btn--xs .btn--sm .btn--md .btn--lg .btn--xl.
-- Farb-Modifier — .btn--primary, .btn--secondary-cta, .btn--success, .btn--error, etc.
-- Icon-Utilities — .btn__icon, .btn--icon-only, .btn--gap-*.
-- Gruppen — .btn-group (horizontal/vertical), spacing utilities.
+Struktur:
+- :root — CSS-Tokens (z. B. --btn-border-radius, --color-primary).
+- Basis-Klasse: .btn (Layout, Padding, Border-Radius, Transition).
+- Größen: .btn--xs, .btn--sm, .btn--md, .btn--lg, .btn--xl.
+- Farbvarianten: .btn--primary, .btn--secondary-cta, .btn--success, .btn--error, ...
+- Icon-Utilities: .btn__icon, .btn--icon-only, .btn--gap-*.
+- Gruppen: .btn-group (horizontal/vertical) und Abstands-Modifiers.
 
-Wichtige Klassen & Verhalten:
-- .btn: Basis; nutze ein <button> Element für semantischen Markup.
-- .btn--* Größen und Varianten ändern Padding/Color.
-- :hover/:active: visuelle Zustände; [disabled]/.is-disabled: deaktiviert.
-- .btn__icon: Icon innerhalb des Buttons; bei icon-only Buttons aria-label verwenden.
+Wichtig:
+- Verwende semantisch ein <button>-Element.
+- Deaktivierte Buttons: `disabled` oder `aria-disabled="true"`.
+- Fokus-Styles beibehalten (outline/box-shadow) — für Tastaturnutzer.
 
-Accessibility Hinweise:
-- Verwende native <button> statt <a> wenn möglich (bessere Keyboard-Interaktion).
-- Für deaktivierte Buttons: setze `disabled` (oder `aria-disabled="true"`) und vermeide `pointer-events` hacks.
-- Fokus-Styles beibehalten (outline oder sichtbare Box-Shadow) für Tastaturnutzer.
-
-Beispiele (HTML):
+Beispiele:
     <button class="btn btn--primary btn--md">Speichern</button>
-    <button class="btn btn--icon-only" aria-label="Schließen">
-        <!-- SVG Icon -->
-    </button>
-    <div class="btn-group btn-group--spacing">
+    <button class="btn btn--icon-only" aria-label="Schließen">…</button>
+
+    <div class="btn-group btn-group--vertical">
         <button class="btn btn--secondary-cta">Option 1</button>
         <button class="btn btn--secondary-cta">Option 2</button>
     </div>
 
-Hinweis:
-- Farben sollten Tokens (z. B. --color-primary) verwenden, damit Design-Änderungen zentral möglich sind.
-- Erweiterungen: outline-Modifier, loading-state, und active/pressed-aria-states.
+Erweiterungen:
+- outline-Modifier, loading-state, pressed/active ARIA-States.
 
 */
 
@@ -308,3 +300,32 @@ div.btn-group {
 
 
 /* Titel und Untertitel */
+.btn-group__title {
+    width: 100%;
+    font-size: 1.25rem;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-ink);
+    margin-bottom: 0.25rem;
+}
+
+.btn-group__subtitle {
+    width: 100%;
+    font-size: 0.875rem;
+    font-weight: var(--font-weight-regular);
+    color: var(--color-ink);
+    margin-bottom: 0.5rem;
+}
+
+/* Ausrichtung von Titel und Untertitel */
+.btn-group--title-start .btn-group__title,
+.btn-group--title-start .btn-group__subtitle {
+    text-align: left !important;
+}
+.btn-group--title-center .btn-group__title,
+.btn-group--title-center .btn-group__subtitle {
+    text-align: center !important;
+}
+.btn-group--title-end .btn-group__title,
+.btn-group--title-end .btn-group__subtitle {
+    text-align: right !important;
+}

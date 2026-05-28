@@ -19,7 +19,7 @@ main, header, footer {
         "header"
         "main"
         "footer";
-    gap: var(--spacing-gap);
+    gap: var(--spacing-6);
     min-height: 100vh;
     background-color: var(--color-background, transparent);
 }
@@ -28,18 +28,10 @@ main, header, footer {
 .site-main { grid-area: main; }
 .site-footer { grid-area: footer; }
 
-/* Minimum spacing under the header so content doesn't stick to it.
-   Default is small spacing on mobile; desktop gets a larger header offset. */
-.site-main { padding-top: var(--spacing-2); }
-@media (min-width: 768px) {
-    .site-main { padding-top: var(--spacing-header); }
-}
-
 /* Centered content container used inside regions */
 .container {
-    max-width: calc(var(--max-width) + (var(--spacing-page) * 2));
+    max-width: var(--max-width);
     margin: 0 auto;
-    padding: 0 var(--spacing-page);
     box-sizing: border-box;
 }
 
@@ -64,7 +56,6 @@ main, header, footer {
 
 @media (min-width: 768px) {
     .site-header { grid-column: 1 / -1; }
-    .site-main { padding-left: 0; }
     .site-footer { grid-column: 1 / -1; }
 }
 
