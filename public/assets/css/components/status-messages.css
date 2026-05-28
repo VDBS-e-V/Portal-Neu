@@ -1,0 +1,37 @@
+/* Status messages component
+	Bereich
+	- Semantische Hinweis-, Warn-, Erfolgs- und Fehlermeldungen.
+
+	Ziel
+	- Statusmeldungen deutlich, aber nicht aufdringlich darstellen.
+	- Ein konsistentes Alert-Muster für Formulare, Prozesse und Systemhinweise bereitstellen.
+
+	Grundprinzip
+	- `.msg` ist die Basismeldung mit farbigem Rand und ruhigem Hintergrund.
+	- Modifier definieren die Semantik.
+	- Icon und Content können getrennt ausgerichtet werden.
+
+	Wichtige Klassen
+	- Basis: `.msg`, `.msg__icon`, `.msg__content`
+	- Status: `.msg--success`, `.msg--error`, `.msg--warning`, `.msg--info`
+
+	Strukturhinweise
+	- Der Rand links signalisiert den Status bereits im ersten Blick.
+	- Links innerhalb der Meldungen sind erlaubt und übernehmen die Textfarbe.
+
+	Hinweise zur Verwendung
+	- Für Formularfehler, Bestätigungen, Hinweise und Infoboxen geeignet.
+	- Farbgebung bleibt tokenbasiert und damit konsistent zur übrigen UI.
+*/
+
+.msg { padding: var(--spacing-2); border-left: 6px solid var(--color-primary); background: rgba(15,17,42,0.02); border-radius:8px; display:flex; gap: 1rem; align-items:flex-start; }
+.msg__icon { font-size: 1.25rem; margin-top: .125rem; }
+.msg__content { flex:1; }
+
+.msg--success { border-color: var(--color-status-success); background: color-mix(in srgb, var(--color-status-success) 8%, var(--color-white)); }
+.msg--error { border-color: var(--color-status-error); background: color-mix(in srgb, var(--color-status-error) 8%, var(--color-white)); }
+.msg--warning { border-color: var(--color-status-warning); background: color-mix(in srgb, var(--color-status-warning) 6%, var(--color-white)); }
+.msg--info { border-color: var(--color-status-info); background: color-mix(in srgb, var(--color-status-info) 6%, var(--color-white)); }
+
+.msg p { margin:0; color: var(--color-ink); }
+.msg a { text-decoration: underline; color: inherit; }

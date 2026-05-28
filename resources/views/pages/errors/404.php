@@ -3,6 +3,9 @@
 <div class="error-page">
 	<div class="error-panel">
 		<div class="error-code">404</div>
+		<div class="error-illustration">
+			<img src="/assets/images/errors/falsche-route.png" alt="Illustration: Wegweiser" style="max-width:480px;width:100%;height:auto;margin:1rem 0;" />
+		</div>
 		<div class="error-body">
 			<h1 class="error-title"><?= htmlspecialchars($title ?? '404 – Nicht gefunden', ENT_QUOTES, 'UTF-8') ?></h1>
 			<p class="error-subtitle">Die angeforderte Seite existiert nicht oder wurde verschoben.</p>

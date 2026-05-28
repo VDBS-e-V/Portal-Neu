@@ -1,0 +1,61 @@
+/* Lists component
+  Bereich
+  - Listen-Utilities für Abstände, Ausrichtung, Linklisten und Icon-Listen.
+
+  Ziel
+  - Listen optisch konsistent darstellen, ohne pro Seite eigene Listen-CSS-Regeln schreiben zu müssen.
+
+  Grundprinzip
+  - `.u-list` ist die Basisklasse.
+  - Modifikatoren regeln Listentyp, Abstand, Ausrichtung und spezielle Inhalte.
+
+  Wichtige Klassen
+  - Basis: `.u-list`
+  - Abstände: `.u-list--space-8`, `.u-list--space-12`, `.u-list--space-16`, `.u-list--space-20`
+  - Typen: `.u-list--none`, `.u-list--disc`, `.u-list--circle`, `.u-list--square`
+  - Position: `.u-list--inside`, `.u-list--outside`
+  - Alignment: `.u-list--align-center`, `.u-list--align-right`, `.u-list--align-justify`
+  - Spezialisierungen: `.u-list--link`, `.u-list--icon`
+
+  Strukturhinweise
+  - Die Abstandsmodifikatoren werden direkt auf die Liste gesetzt.
+  - Link- und Icon-Varianten sind für Sidebar-Listen, Navigationsblöcke und Infoboxen geeignet.
+
+  Hinweise zur Verwendung
+  - Für einfache Aufzählungen reicht `.u-list` mit einem Typenmodifikator.
+  - Für strukturierte Inhaltslisten `.u-list--link` oder `.u-list--icon` einsetzen.
+*/
+
+.u-list {
+  margin: 0 0 var(--spacing-section) 0;
+  padding-left: 1.25rem;
+  color: var(--color-ink);
+  font-family: var(--font-family-base);
+}
+
+.u-list--space-8 li { margin-bottom: 0.5rem; }
+.u-list--space-12 li { margin-bottom: 0.75rem; }
+.u-list--space-16 li { margin-bottom: 1rem; }
+.u-list--space-20 li { margin-bottom: 1.25rem; }
+
+.u-list--none { list-style: none; padding-left: 0; }
+.u-list--disc { list-style-type: disc; }
+.u-list--circle { list-style-type: circle; }
+.u-list--square { list-style-type: square; }
+
+.u-list--inside { list-style-position: inside; }
+.u-list--outside { list-style-position: outside; }
+
+.u-list li { line-height: 1.4; }
+
+.u-list--align-center li { text-align: center; }
+.u-list--align-right li { text-align: right; }
+.u-list--align-justify li { text-align: justify; }
+
+/* linked lists */
+.u-list--link li a { color: var(--color-primary); text-decoration: none; }
+.u-list--link li a:hover { text-decoration: underline; }
+
+/* icon lists */
+.u-list--icon li { padding-left: 28px; position: relative; }
+.u-list--icon li::before { content: ''; position: absolute; left: 0; top: 0.35rem; width: 18px; height: 18px; background-repeat: no-repeat; }

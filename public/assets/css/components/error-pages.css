@@ -1,6 +1,31 @@
-/* Error Pages Component Styles
-   File: public/assets/css/components/error-pages.css
-   Purpose: Basiselemente für 404/500 Error-Seiten — spezifische Anpassungen können in den Views ergänzt werden.
+/* Error pages component
+  Bereich
+  - Vollständige Darstellung für Fehlerseiten wie 404, 500, Wartungs- oder Zugriffsmeldungen.
+
+  Ziel
+  - Den Fehlerstatus klar, ruhig und handlungsorientiert kommunizieren.
+  - Dem Nutzer eine Rückkehrmöglichkeit über Buttons oder Links geben.
+
+  Grundprinzip
+  - `.error-page` zentriert den Inhalt im Viewport.
+  - `.error-panel` bildet die visuelle Karte mit Code, Text und Aktionen.
+  - Buttons innerhalb dieser Komponente nutzen die normale Button-Semantik.
+
+  Wichtige Klassen
+  - Wrapper: `.error-page`
+  - Panel: `.error-panel`
+  - Code/Text: `.error-code`, `.error-body`, `.error-title`, `.error-subtitle`, `.error-meta`
+  - Aktionen: `.error-actions`
+  - Hilfsklassen: `.error-code--small`, `.btn`, `.btn-primary`, `.btn-secondary`, `.btn-icon`
+
+  Strukturhinweise
+  - Der Fehlercode ist bewusst groß und prominent.
+  - Textblöcke werden rechts bzw. unterhalb des Codes angeordnet.
+  - Aktionen sollten immer eine klare nächste Handlung enthalten.
+
+  Hinweise zur Verwendung
+  - Für 404/500 jeweils passende Texte und Handlungsbuttons bereitstellen.
+  - Das Layout bleibt responsiv und stapelt auf kleinen Bildschirmen untereinander.
 */
 
 /* Use design tokens from tokens.css (no new variables) */
@@ -73,33 +98,6 @@
   flex-wrap: wrap;
 }
 
-.btn {
-  display: inline-block;
-  padding: var(--spacing-2) var(--spacing-4);
-  border-radius: 6px;
-  text-decoration: none;
-  font-weight: var(--font-weight-medium);
-  font-size: 14px;
-  color: var(--color-white);
-}
-
-.btn-primary {
-  background: var(--color-primary);
-}
-
-.btn-secondary {
-  background: var(--color-secondary-cta);
-}
-
-/* Icon inside buttons: use currentColor so icons follow button text color */
-.btn-icon {
-  display: inline-block;
-  width: 1em;
-  height: 1em;
-  vertical-align: -0.125em;
-  margin-right: var(--spacing-2);
-  fill: currentColor;
-}
 
 /* small responsive tweaks */
 @media (max-width: 640px) {

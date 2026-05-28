@@ -71,11 +71,12 @@
 	<a class="hero__tile hero__tile--d link--no-style" href="#">Hilfe</a>
 </div>
 
-<section class="page-meta">
-	<p>OK – Seite rendert. <br>
-    <a href="">sdfds</a></p>
-	<ul>
-		<li>Path: <code><?= htmlspecialchars($path ?? '', ENT_QUOTES, 'UTF-8') ?></code></li>
-		<li>Now: <code><?= htmlspecialchars($now ?? '', ENT_QUOTES, 'UTF-8') ?></code></li>
-	</ul>
+<section id="uebersicht-portal">
+	<div class="container_uebersicht">
+		<div class="btn-group" aria-label="Schnellzugriff">
+			<a class="btn btn--primary btn--md" href="/">Start</a>
+			<a class="btn btn--outline btn--md" href="/development">Development</a>
+			<a class="btn btn--ghost btn--md" href="/styleguide">Styleguide</a>
+		</div>
+	</div>
 </section>

@@ -1,7 +1,28 @@
-/* Components: Links
-   - Content link style: thin underline by default
-   - Hover/focus: dark highlight with inverted text
-   Uses tokens from tokens.css
+/* Links component
+  Bereich
+  - Globale Link-Stile für Textlinks, Navigationslinks und Highlight-Links.
+
+  Ziel
+  - Einheitliche Link-Darstellung mit klarer Hover-/Fokus-Rückmeldung.
+  - Standardlinks und opt-in Highlightlinks ohne Zusatz-CSS auf Seiten einsetzen.
+
+  Grundprinzip
+  - Nicht explizit ausgeschlossene Links werden automatisch gestylt.
+  - `.link--no-style` hebt das globale Styling bewusst auf.
+  - `.link--highlight` kann gezielt für wichtige Verweise genutzt werden.
+
+  Wichtige Klassen
+  - Standard: `a:not(.link--no-style)`
+  - Opt-out: `.link--no-style`
+  - Highlight: `.link--highlight`
+
+  Strukturhinweise
+  - Das Styling nutzt eine feine Unterstreichung per Hintergrundgrafik.
+  - Hover/Fokus invertieren die Fläche für klare Erkennbarkeit.
+
+  Hinweise zur Verwendung
+  - Für Inline-Links in Fließtext und Notizen geeignet.
+  - Für navigationsartige Elemente kann `.link--highlight` eingesetzt werden.
 */
 
 /* Default link style: apply to all anchors except those explicitly opted-out

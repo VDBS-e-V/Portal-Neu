@@ -13,7 +13,7 @@
                     <a href="/dev" class="link--no-style">Development</a>
                 </li>
                 <li class="header-top-areas-list-item">
-                    <a href="/StyleGuide" class="link--no-style">Style Guide</a>
+                    <a href="/styleguide" class="link--no-style">Style Guide</a>
                 </li>
 			</ul>
 		</div>

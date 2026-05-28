@@ -1,0 +1,38 @@
+/* Stats grid component
+	Bereich
+	- KPI-, Statistik- und Kennzahlenkarten im Grid-Layout.
+
+	Ziel
+	- Wichtige Zahlen visuell hervorheben und vergleichbar darstellen.
+	- Dashboard- oder Übersichtsseiten ohne individuelles Kartensystem ermöglichen.
+
+	Grundprinzip
+	- `.stats-grid` organisiert die Karten in einem responsiven Raster.
+	- `.stat-card` ist die Basiskarte.
+	- Variantemodifier markieren besondere Zustände oder Prioritäten.
+
+	Wichtige Klassen
+	- Grid: `.stats-grid`
+	- Basis: `.stat-card`, `.stat-card__left`
+	- Inhalt: `.stat-card h4`, `.stat-card .number`, `.stat-card .meta`
+	- Modifier: `.stat-card--accent`, `.stat-card--success`, `.stat-card--danger`
+
+	Strukturhinweise
+	- Die Zahl sollte visuell deutlich dominieren.
+	- Zusätzliche Meta-Informationen können unterhalb oder neben der Zahl platziert werden.
+
+	Hinweise zur Verwendung
+	- Für Dashboard-KPIs, Kurzstatistiken, Portale und Verwaltungsübersichten geeignet.
+*/
+
+.stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--spacing-3); }
+
+.stat-card { background: var(--color-white); padding: var(--spacing-card); border-radius: 12px; border: 1px solid rgba(15,17,42,0.06); display:flex; justify-content:space-between; align-items:center; gap: var(--spacing-2); }
+.stat-card__left { display:flex; flex-direction:column; }
+.stat-card h4 { margin:0; color: rgba(15,17,42,0.8); font-weight: var(--font-weight-medium); }
+.stat-card .number { font-size: 1.75rem; color: var(--color-primary); font-weight: var(--font-weight-bold); }
+.stat-card .meta { color: rgba(15,17,42,0.6); }
+
+.stat-card--accent { border-left: 4px solid var(--color-primary); }
+.stat-card--success .number { color: var(--color-status-success); }
+.stat-card--danger .number { color: var(--color-status-error); }

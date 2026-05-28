@@ -1,5 +1,29 @@
 <?php declare(strict_types=1); ?>
 
-<h1><?php echo $pageTitle; ?></h1>
+<h1><?php echo htmlspecialchars($pageTitle ?? 'Style Guide', ENT_QUOTES, 'UTF-8'); ?></h1>
 
-<p>Beispiele für die drei Kachel‑Varianten. Die Karten sind voll klickbar (Link im Wrapper) und per Modifier erweiterbar (z. B. `card--event`).</p>
+<p>Übersicht aller Komponenten mit direkten Beispielen und Sprungmarken zu den Detailseiten.</p>
+
+<section>
+	<div class="btn-grid btn-grid--compact">
+		<a class="btn btn--outline btn--md" href="/styleguide/buttons">Buttons</a>
+		<a class="btn btn--outline btn--md" href="/styleguide/cards">Cards</a>
+		<a class="btn btn--outline btn--md" href="/styleguide/containers">Containers</a>
+		<a class="btn btn--outline btn--md" href="/styleguide/error-pages">Error Pages</a>
+		<a class="btn btn--outline btn--md" href="/styleguide/forms">Forms</a>
+		<a class="btn btn--outline btn--md" href="/styleguide/grids">Grids</a>
+		<a class="btn btn--outline btn--md" href="/styleguide/hero">Hero</a>
+		<a class="btn btn--outline btn--md" href="/styleguide/icons">Icons</a>
+		<a class="btn btn--outline btn--md" href="/styleguide/icons/generator">Icon Generator</a>
+		<a class="btn btn--outline btn--md" href="/styleguide/links">Links</a>
+		<a class="btn btn--outline btn--md" href="/styleguide/lists">Lists</a>
+		<a class="btn btn--outline btn--md" href="/styleguide/pop-ups">Pop-ups</a>
+		<a class="btn btn--outline btn--md" href="/styleguide/search">Search</a>
+		<a class="btn btn--outline btn--md" href="/styleguide/sections">Sections</a>
+		<a class="btn btn--outline btn--md" href="/styleguide/stats-grid">Stats Grid</a>
+		<a class="btn btn--outline btn--md" href="/styleguide/status-messages">Status Messages</a>
+		<a class="btn btn--outline btn--md" href="/styleguide/submenu">Submenu</a>
+		<a class="btn btn--outline btn--md" href="/styleguide/tables">Tables</a>
+		<a class="btn btn--outline btn--md" href="/styleguide/blog-post">Blog Post</a>
+	</div>
+</section>

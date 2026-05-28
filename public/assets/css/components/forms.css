@@ -1,0 +1,282 @@
+/* Forms component
+	Bereich
+	- Vollständige Formular- und Generator-Komponente inklusive Standardfeldern, Layout-Hilfen, Icon-Picker, Preview und Code-Ausgabe.
+
+	Ziel
+	- Formulare, Tooling-UI und Auswahlkomponenten ohne page-spezifische CSS-Teile abbilden.
+	- Eine gemeinsame visuelle Sprache für Inputs, Selektoren, Actions und Hilfstexte liefern.
+
+	Grundprinzip
+	- `.form` ist das Basis-Formular.
+	- Felder werden über `.form__field`, `.form__label`, `.form__hint`, `.form__help` aufgebaut.
+	- Zusätzliche Layout- und Tooling-Bausteine wie `.form__layout`, `.form__panel`, `.form__picker` und `.form__preview` erweitern das Muster.
+
+	Wichtige Klassen
+	- Basis: `.form`, `.form__row`, `.form__field`, `.form__field-grid`, `.form__group`
+	- Labels / Hilfen: `.form__label`, `.form__help`, `.form__hint`, `.form__error`
+	- Layout: `.form__layout`, `.form__layout--split`, `.form--columns-2`, `.form--columns-3`, `.form--inline`
+	- Panels: `.form__panel`, `.form__panel--soft`, `.form__panel-title`, `.form__panel-title--spaced`
+	- Actions: `.form__actions`, `.form__actions--end`
+	- Preview / Code: `.form__preview`, `.form__preview-icon`, `.form__code`
+	- Icon-Picker: `.form__picker`, `.form__picker-toggle`, `.form__picker-menu`, `.form__picker-search`, `.form__picker-list`, `.form__picker-option`, `.form__picker-option-icon`, `.form__picker-option-text`, `.form__picker-empty`
+
+	Strukturhinweise
+	- Standardfelder immer mit Label und optionaler Hilfszeile aufbauen.
+	- Komplexe Tools wie Generatoren in eine linke Eingabespalte und eine rechte Ergebnis-/Vorschau-Spalte trennen.
+	- Der Icon-Picker ist bewusst als custom dropdown gebaut, damit Icons sichtbar auswählbar sind.
+
+	Verhalten und Zustände
+	- Fokus-Stile sind für Inputs und Picker-Optionen eingebaut.
+	- Picker-Optionen markieren die aktive Auswahl mit `.is-selected`.
+	- Preview- und Code-Blöcke sind für Live-Generatoren gedacht.
+
+	Hinweise zur Verwendung
+	- Für einfache Formulare reicht `.form` mit `.form__field` und `.input`.
+	- Für Generatoren oder komplexe Tool-Views können `.form__panel`, `.form__picker` und `.form__preview` kombiniert werden.
+*/
+
+.form {
+	display:grid;
+	gap: var(--spacing-form);
+	font-family: var(--font-family-base);
+}
+
+.form__row { display:flex; gap: var(--spacing-2); align-items:center; }
+
+.form__layout { display:grid; gap: var(--spacing-4); align-items:start; }
+.form__layout--split { grid-template-columns: minmax(0, 1fr) 320px; }
+
+.form__panel {
+	background: var(--color-white);
+	border: 1px solid rgba(15,17,42,0.06);
+	border-radius: 12px;
+	padding: var(--spacing-card);
+	box-shadow: 0 8px 24px rgba(2,6,23,0.04);
+}
+
+.form__panel--soft {
+	background: rgba(15,17,42,0.02);
+}
+
+.form__panel-title {
+	font-family: var(--font-family-accent);
+	font-weight: var(--font-weight-medium);
+	font-size: clamp(1.25rem, 2.5vw, 1.6rem);
+	margin: 0 0 var(--spacing-2) 0;
+	color: var(--color-ink);
+}
+
+.form__panel-title--spaced { margin-top: var(--spacing-4); }
+
+.form__label { display:block; margin-bottom: .5rem; font-weight: var(--font-weight-medium); color: var(--color-ink); }
+
+.form__field { display:grid; gap: .35rem; }
+
+.form__field + .form__field { margin-top: var(--spacing-2); }
+
+.form__field-grid { display:grid; gap: var(--spacing-2); grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+
+.input, textarea, select {
+	padding: var(--spacing-input);
+	border: 1px solid rgba(15,17,42,0.06);
+	border-radius: 8px;
+	font-family: var(--font-family-base);
+	color: var(--color-ink);
+	width:100%;
+	box-sizing:border-box;
+}
+
+.input::placeholder, textarea::placeholder { color: rgba(15,17,42,0.5); }
+
+.input:focus, textarea:focus, select:focus { outline: none; box-shadow: 0 0 0 4px rgba(47,191,113,0.06); border-color: var(--color-primary); }
+
+.input--has-icon { padding-left: 40px; }
+.form__help { font-size: .875rem; color: rgba(15,17,42,0.6); margin-top: .25rem; }
+.form__error { color: var(--color-status-error); font-size: .875rem; margin-top: .25rem; }
+
+.form--columns-2 { grid-template-columns: repeat(2, 1fr); }
+.form--columns-3 { grid-template-columns: repeat(3, 1fr); }
+.form--inline { display:flex; gap: var(--spacing-2); align-items:center; }
+
+.form__actions {
+	display:flex;
+	gap: var(--spacing-2);
+	flex-wrap: wrap;
+	align-items:center;
+}
+
+.form__actions--end { justify-content:flex-end; }
+
+.form__preview {
+	display:grid;
+	place-items:center;
+	min-height: 240px;
+	background: linear-gradient(180deg, rgba(47,191,113,0.04), rgba(15,17,42,0.01));
+	border: 1px dashed rgba(15,17,42,0.12);
+	border-radius: 12px;
+	padding: var(--spacing-card);
+}
+
+.form__preview-icon {
+	display:inline-flex;
+	align-items:center;
+	justify-content:center;
+	font-size: 4rem;
+}
+
+.form__code {
+	margin: 0;
+	padding: var(--spacing-3);
+	border-radius: 10px;
+	background: rgba(15,17,42,0.04);
+	overflow:auto;
+	white-space: pre-wrap;
+	word-break: break-word;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+.form__hint {
+	font-size: .875rem;
+	color: rgba(15,17,42,0.6);
+}
+
+.form__picker {
+	position: relative;
+	display:grid;
+	gap: .5rem;
+}
+
+.form__picker-toggle {
+	width: 100%;
+	justify-content: space-between;
+	text-align: left;
+}
+
+.form__picker-toggle[aria-expanded="true"] {
+	box-shadow: 0 0 0 4px rgba(47,191,113,0.08);
+}
+
+.form__picker-summary {
+	display:flex;
+	align-items:center;
+	gap: .75rem;
+	min-width: 0;
+}
+
+.form__picker-summary-label {
+	font-weight: var(--font-weight-medium);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.form__picker-summary-meta {
+	font-size: .875rem;
+	color: rgba(15,17,42,0.6);
+}
+
+.form__picker-menu {
+	position: absolute;
+	top: calc(100% + .5rem);
+	left: 0;
+	right: 0;
+	z-index: 80;
+	background: var(--color-white);
+	border: 1px solid rgba(15,17,42,0.08);
+	border-radius: 12px;
+	box-shadow: 0 16px 40px rgba(2,6,23,0.12);
+	padding: .75rem;
+	display:none;
+	max-height: 420px;
+	overflow: hidden;
+}
+
+.form__picker-menu.is-open { display:block; }
+
+.form__picker-search {
+	margin-bottom: .75rem;
+}
+
+.form__picker-search .input {
+	background: var(--color-white);
+}
+
+.form__picker-list {
+	display:grid;
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	gap: .5rem;
+	max-height: 320px;
+	overflow:auto;
+	padding-right: .25rem;
+}
+
+.form__picker-option {
+	display:flex;
+	align-items:center;
+	gap: .75rem;
+	width: 100%;
+	border: 1px solid rgba(15,17,42,0.08);
+	border-radius: 10px;
+	padding: .65rem .75rem;
+	background: rgba(15,17,42,0.01);
+	text-align: left;
+	cursor: pointer;
+	transition: transform .12s ease, background .12s ease, border-color .12s ease;
+}
+
+.form__picker-option:hover,
+.form__picker-option:focus-visible {
+	transform: translateY(-1px);
+	background: rgba(47,191,113,0.05);
+	border-color: rgba(47,191,113,0.24);
+}
+
+.form__picker-option.is-selected {
+	background: rgba(47,191,113,0.08);
+	border-color: rgba(47,191,113,0.34);
+}
+
+.form__picker-option-icon {
+	width: 1.5rem;
+	height: 1.5rem;
+	flex: 0 0 auto;
+	display:inline-flex;
+	align-items:center;
+	justify-content:center;
+	color: var(--color-ink);
+}
+
+.form__picker-option-text {
+	min-width: 0;
+	display:grid;
+	gap: .15rem;
+}
+
+.form__picker-option-name {
+	font-weight: var(--font-weight-medium);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.form__picker-option-code {
+	font-size: .8125rem;
+	color: rgba(15,17,42,0.6);
+}
+
+.form__picker-empty {
+	padding: 1rem;
+	color: rgba(15,17,42,0.6);
+	text-align:center;
+	grid-column: 1 / -1;
+}
+
+/* checkbox / radio */
+.form__check { display:flex; align-items:center; gap: .5rem; }
+.form__check input { width: 18px; height: 18px; }
+
+/* fieldset */
+.form__group { border: 1px solid rgba(15,17,42,0.04); padding: var(--spacing-2); border-radius: 8px; }
+
+@media (max-width: 980px) { .form__layout--split { grid-template-columns: 1fr; } }
+@media (max-width: 700px) { .form--columns-2, .form--columns-3 { grid-template-columns: 1fr; } }

@@ -1,300 +1,310 @@
 /*
-        Buttons — Styles & Usage (komplett dokumentiert)
+Buttons — Übersicht
 
-        Übersicht
-        - `.btn` ist die Basis-Klasse für alle Buttons. Kombiniere sie mit
-            Modifier-Klassen, um Aussehen, Größe, Form und Verhalten zu steuern.
-        - Dieses Stylesheet nutzt CSS-Variablen (Theming). Erwartete Variablen:
-                --spacing-button, --font-family-base, --font-weight-medium,
-                --color-primary, --color-secondary-cta, --color-secondary-highlight,
-                --color-white, --color-status-error, --color-focus (optional)
-        - Enthaltene Konzepte: Appearance-Varianten, Größen, Formen (pill),
-            Outline/Ghost-Varianten, Icon-Unterstützung, Ladezustand (Spinner),
-            Disabled/Active-Zustände und Accessibility-Hilfen.
+Zweck:
+- Zentrale Button-Styles, Varianten und Gruppierungen für das Portal.
 
-        Klassen-Referenz (Kurzfassung)
-        - Basis:
-                `.btn` — Anzeige: inline-block; Padding, Schriftschnitt, Transition.
-        - Appearance / Semantik:
-                `.btn-primary` — Primäre Aktion (z. B. Absenden, Speichern).
-                `.btn-secondary` — Sekundäre Aktion (z. B. Abbrechen).
-                `.btn-danger` — Gefährliche/destruktive Aktion (z. B. Löschen).
-                `.btn-link` — Button, der wie ein Link aussieht (transparent, kein Padding).
-        - Varianten:
-                `.btn-outline` — Rahmige Variante (transparenter Hintergrund, sichtbare Border).
-                `.btn-ghost` — Sehr dezente/transparent wirkende Variante.
-        - Größen:
-                `.btn-sm`, `.btn-lg` — Kleine bzw. große Buttons.
-                `.btn-small`, `.btn-large` — Legacy-Aliase (keine zusätzlichen Styles).
-        - Form / Layout:
-                `.btn-pill` — Vollständig abgerundete (Pill-)Form.
-                `.btn-block` — Block-Layout, volle Breite.
-        - Icon-Unterstützung:
-                `.btn .btn-icon` — Icon-Wrapper (für SVG/Icon-Font).
-                `.icon-left` / `.icon-right` — Abstand rechts/links vom Text.
-                `.btn--icon-only` — Quadratförmiger, nur-Icon-Button.
-        - Zustände:
-                `:hover`, `:focus` — Hover-/Fokus-Zustände (sichtbares Feedback).
-                `:active`, `.active` — Gedrückter/aktiver Zustand.
-                `:disabled`, `.disabled` — Deaktiviert (reduzierte Opazität, keine Pointer-Events).
-                `.btn.loading` — Ladezustand; zeigt CSS-Spinner über `::after` an.
+Datei-Struktur (Übersicht):
+- :root — CSS-Variablen und Tokens (z. B. --btn-border-radius).
+- .btn — Basis-Button (Layout, Padding, Border-Radius).
+- Größen-Modifier — .btn--xs .btn--sm .btn--md .btn--lg .btn--xl.
+- Farb-Modifier — .btn--primary, .btn--secondary-cta, .btn--success, .btn--error, etc.
+- Icon-Utilities — .btn__icon, .btn--icon-only, .btn--gap-*.
+- Gruppen — .btn-group (horizontal/vertical), spacing utilities.
 
-        Accessibility / Hinweise
-        - Verwende `aria-label` bei Icon-only Buttons (`.btn--icon-only`) — sonst sind sie
-            für Screenreader nicht selbsterklärend.
-        - Beim Umschalten in den Ladezustand `(.btn.loading)` empfiehlt sich zusätzlich
-            `aria-busy="true"` auf dem Button oder dem relevanten Container.
-        - Der CSS-Spinner verwendet `currentColor` — passe ggf. `color` des Buttons an,
-            damit der Spinner kontrastreich ist.
-        - Fokusring: `:focus-visible` nutzt `--color-focus` oder einen Standard-Ring.
+Wichtige Klassen & Verhalten:
+- .btn: Basis; nutze ein <button> Element für semantischen Markup.
+- .btn--* Größen und Varianten ändern Padding/Color.
+- :hover/:active: visuelle Zustände; [disabled]/.is-disabled: deaktiviert.
+- .btn__icon: Icon innerhalb des Buttons; bei icon-only Buttons aria-label verwenden.
 
-        Beispiele
-        - Hauptaktion: <button class="btn btn-primary">Speichern</button>
-        - Outline abbrechen: <button class="btn btn-outline btn-sm">Abbrechen</button>
-        - Icon-only (zugänglich): <button class="btn btn--icon-only" aria-label="Suche"><span class="btn-icon">🔍</span></button>
-        - Ladezustand: <button class="btn btn-primary loading" aria-busy="true" disabled>Speichern</button>
+Accessibility Hinweise:
+- Verwende native <button> statt <a> wenn möglich (bessere Keyboard-Interaktion).
+- Für deaktivierte Buttons: setze `disabled` (oder `aria-disabled="true"`) und vermeide `pointer-events` hacks.
+- Fokus-Styles beibehalten (outline oder sichtbare Box-Shadow) für Tastaturnutzer.
 
-        Integration
-        - Dieses File ist komponentenorientiert. In Produktivprojekten sollte es
-            in eine zentrale Datei (`app.css`) gebündelt oder per Import eingebunden werden.
-        - Anpassungen: Spinner-Größe/-Farbe lassen sich durch Überschreiben von
-            `.btn.loading::after` ändern.
+Beispiele (HTML):
+    <button class="btn btn--primary btn--md">Speichern</button>
+    <button class="btn btn--icon-only" aria-label="Schließen">
+        <!-- SVG Icon -->
+    </button>
+    <div class="btn-group btn-group--spacing">
+        <button class="btn btn--secondary-cta">Option 1</button>
+        <button class="btn btn--secondary-cta">Option 2</button>
+    </div>
+
+Hinweis:
+- Farben sollten Tokens (z. B. --color-primary) verwenden, damit Design-Änderungen zentral möglich sind.
+- Erweiterungen: outline-Modifier, loading-state, und active/pressed-aria-states.
+
 */
+
+:root {
+    --btn-border-radius: 0px;
+}
 
 .btn {
-    display: inline-block;
-    padding: var(--spacing-button);
-    font-family: var(--font-family-base);
-    font-weight: var(--font-weight-medium);
-    text-align: center;
-    text-decoration: none;
-    border-radius: 4px;
-    transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.btn-primary {
-    background-color: var(--color-primary);
-    color: var(--color-white);
-}
-.btn-primary:hover,
-.btn-primary:focus {
-    background-color: var(--color-secondary-cta);
-    color: var(--color-white);
-}
-
-.btn-secondary {
-    background-color: var(--color-secondary-cta);
-    color: var(--color-white);
-}
-.btn-secondary:hover,
-.btn-secondary:focus {
-    background-color: var(--color-secondary-highlight);
-    color: var(--color-white);
-}
-
-.btn-danger {
-    background-color: var(--color-status-error);
-    color: var(--color-white);
-}
-.btn-danger:hover,
-.btn-danger:focus {
-    background-color: var(--color-status-error);
-    color: var(--color-white);
-}
-
-.btn-link {
-    background-color: transparent;
-    color: var(--color-secondary-cta);
-    padding: 0;
-}
-.btn-link:hover,
-.btn-link:focus {
-    color: var(--color-secondary-highlight);
-    text-decoration: underline;
-}
-
-/* Additional button features: sizes, variants, states, icons, loading, block, accessibility */
-
-/* Sizes */
-.btn-sm {
-    padding: calc(var(--spacing-button) * 0.6);
-    font-size: 0.875rem;
-}
-.btn-lg {
-    padding: calc(var(--spacing-button) * 1.25);
-    font-size: 1.125rem;
-}
-
-/* Pill / rounded */
-.btn-pill {
-    border-radius: 999px;
-}
-
-/* Block / full width */
-.btn-block {
-    display: block;
-    width: 100%;
-}
-
-/* Outline / Ghost variants */
-.btn-outline {
-    background-color: transparent;
-    color: var(--color-primary);
-    border: 1px solid var(--color-primary);
-    padding: calc(var(--spacing-button) - 2px);
-}
-.btn-outline:hover,
-.btn-outline:focus {
-    background-color: var(--color-primary);
-    color: var(--color-white);
-}
-.btn-ghost {
-    background-color: transparent;
-    color: var(--color-secondary-cta);
-    border: 1px solid transparent;
-}
-.btn-ghost:hover,
-.btn-ghost:focus {
-    background-color: rgba(0,0,0,0.03);
-}
-
-/* Icon support */
-.btn .btn-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-}
-.btn .icon-left {
-    margin-right: 0.5em;
-}
-.btn .icon-right {
-    margin-left: 0.5em;
-}
-.btn--icon-only {
-    padding: .5em;
-    width: 2.5em;
-    height: 2.5em;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Disabled / readonly */
-.btn:disabled,
-.btn.disabled,
-button[disabled].btn {
-    opacity: 0.6;
-    pointer-events: none;
-    cursor: not-allowed;
+    width: auto;
+    height: auto;
+    padding: 0.625rem 1.25rem;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: var(--font-weight-regular);
+    color: var(--color-white);
+    border: none;
+    border-radius: var(--btn-border-radius);
+    -webkit-border-radius: var(--btn-border-radius);
+    -moz-border-radius: var(--btn-border-radius);
+    -ms-border-radius: var(--btn-border-radius);
+    -o-border-radius: var(--btn-border-radius);
+    transition: all .2s ease-in-out;
+    -moz-transition: all .2s ease-in-out;
+    -ms-transition: all .2s ease-in-out;
+    -o-transition: all .2s ease-in-out;
+    -webkit-transition: all .2s ease-in-out;
 }
 
-/* Loading state */
-.btn.loading {
-    position: relative;
-    color: transparent !important;
-}
-.btn.loading::after {
-    content: "";
-    box-sizing: border-box;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 1em;
-    height: 1em;
-    margin-top: -0.5em;
-    margin-left: -0.5em;
-    border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.2);
-    border-top-color: currentColor;
-    animation: btn-spin 0.6s linear infinite;
-}
-@keyframes btn-spin {
-    to { transform: rotate(360deg); }
+
+/* Größe */
+.btn--xs {
+    font-size: 0.75rem !important;
+    font-weight: var(--font-weight-light) !important;
+    padding: 0.25rem 0.5rem !important;
 }
 
-/* Active / pressed feedback */
-.btn:active,
-.btn.active {
-    transform: translateY(1px);
-    filter: brightness(0.95);
+.btn--sm {
+    font-size: 0.875rem !important;
+    font-weight: var(--font-weight-regular) !important;   
+    padding: 0.425rem 0.825rem !important;
 }
 
-/* Focus accessibility */
-.btn:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px var(--color-focus, rgba(50, 115, 220, 0.25));
+.btn--md {
+    font-size: 1rem !important;
+    font-weight: var(--font-weight-regular) !important;
+    padding: 0.625rem 1.25rem !important;
 }
 
-/* Utility variants */
-.btn-small { /* legacy alias */ }
-.btn-large { /* legacy alias */ }
+.btn--lg {
+    font-size: 1.25rem !important;
+    font-weight: var(--font-weight-medium) !important;
+    padding: 0.75rem 1.725rem !important;
+}
 
-/* Button grid / tile helpers
-   Use `.btn-grid` to layout a set of buttons as tiles similar to the attached example.
-   Combine with `.container` (or `.container--wide` / `.container--narrow`) to control max-width.
+.btn--xl {
+    font-size: 1.5rem !important;
+    font-weight: var(--font-weight-medium) !important;
+    padding: 0.825rem 2rem !important;
+}
 
-   Example usage:
-   <div class="container container--wide">
-     <div class="btn-grid btn-grid--center">
-       <a class="btn btn-tile" href="#"><span class="btn-icon">🔍</span><span class="btn-text">Suche</span></a>
-       <a class="btn btn-tile" href="#"><span class="btn-icon">📧</span><span class="btn-text">Webmail</span></a>
-       <!-- ... -->
-     </div>
-   </div>
+
+/* Farbe */
+
+/* Dunkel -> Hell */
+.btn--primary {
+    background: var(--color-primary) !important;
+    border: 2px solid var(--color-primary) !important; }
+.btn--primary:hover {
+    background: color-mix(var(--color-primary) 70%) !important;
+    color: var(--color-ink) !important;
+}
+
+.btn--secondary-cta {
+    background: var(--color-secondary-cta) !important;
+    border: 2px solid var(--color-secondary-cta) !important;
+}
+.btn--secondary-cta:hover {
+    background: color-mix(var(--color-secondary-cta) 70%) !important;
+    color: var(--color-ink) !important;
+}
+
+.btn--secondary-highlight {
+    background: var(--color-secondary-highlight) !important;
+    border: 2px solid var(--color-secondary-highlight) !important;
+}
+.btn--secondary-highlight:hover {
+    background: color-mix(var(--color-secondary-highlight) 70%) !important;
+    color: var(--color-ink) !important;
+}
+
+/* Hell -> Dunkel */
+.btn--primary-light {
+    background: color-mix(var(--color-primary) 70%) !important;
+    border: 2px solid var(--color-primary) !important;    
+    color: var(--color-ink) !important;
+}
+.btn--primary-light:hover {
+    background: var(--color-primary) !important;
+    color: var(--color-white) !important;
+}
+
+.btn--secondary-cta-light  {
+    background: color-mix(var(--color-secondary-cta) 70%) !important;
+    border: 2px solid var(--color-secondary-cta) !important;
+    color: var(--color-ink) !important;
+}
+.btn--secondary-cta-light:hover {
+    background: var(--color-secondary-cta) !important;
+    color: var(--color-white) !important;
+}
+
+.btn--secondary-highlight-light  {
+    background: color-mix(var(--color-secondary-highlight) 70%) !important;
+    border: 2px solid var(--color-secondary-highlight) !important;
+    color: var(--color-ink) !important;
+}
+.btn--secondary-highlight-light:hover {
+    background: var(--color-secondary-highlight) !important;
+    color: var(--color-white) !important;
+}
+
+/* Transparent -> Dunkel */
+.btn--primary-transp {
+    background: transparent !important;
+    border: 2px solid var(--color-primary) !important;
+    color: var(--color-ink) !important;
+}
+.btn--primary-transp:hover {
+    background: var(--color-primary) !important;
+    color: var(--color-white) !important;
+}
+
+.btn--secondary-cta-transp {
+    background: transparent !important;
+    border: 2px solid var(--color-secondary-cta) !important;
+    color: var(--color-ink) !important;
+}
+.btn--secondary-cta-transp:hover {
+    background: var(--color-secondary-cta) !important;
+    color: var(--color-white) !important;
+}
+
+.btn--secondary-highlight-transp {
+    background: transparent !important;
+    border: 2px solid var(--color-secondary-highlight) !important;
+    color: var(--color-ink) !important;
+}
+.btn--secondary-highlight-transp:hover {
+    background: var(--color-secondary-highlight) !important;
+    color: var(--color-white) !important;
+}
+
+
+/* Status Farben */
+.btn--success {
+    background: var(--color-status-success) !important;
+    border: 2px solid var(--color-status-success) !important;
+}
+.btn--success:hover {
+    background: color-mix(var(--color-status-success) 70%) !important;
+    color: var(--color-ink) !important;
+}
+
+.btn--error {
+    background: var(--color-status-error) !important;
+    border: 2px solid var(--color-status-error) !important;
+}
+.btn--error:hover {
+    background: color-mix(var(--color-status-error) 70%) !important;
+    color: var(--color-ink) !important;
+}
+
+.btn--warning {
+    background: var(--color-status-warning) !important;
+    border: 2px solid var(--color-status-warning) !important;
+}   
+.btn--warning:hover {
+    background: color-mix(var(--color-status-warning) 70%) !important;
+    color: var(--color-ink) !important;
+}
+
+.btn--info {
+    background: var(--color-status-info) !important;
+    border: 2px solid var(--color-status-info) !important;
+}
+.btn--info:hover {
+    background: color-mix(var(--color-status-info) 70%) !important;
+    color: var(--color-ink) !important;
+}
+
+
+/* Icon */
+.btn-icon--no, .btn-icon { padding-left: 0; }
+
+.btn-icon svg { margin-right: 1rem; }
+
+.btn-icon.btn--xs { padding-left: 0.25rem !important; }
+.btn-icon.btn--sm { padding-left: 0.425rem !important; }
+.btn-icon.btn--md { padding-left: 0.625rem !important; }
+.btn-icon.btn--lg { padding-left: 0.75rem !important; }
+.btn-icon.btn--xl { padding-left: 0.825rem !important; }
+
+.btn--gap-xs svg { margin-right: 0.425rem !important; }
+.btn--gap-sm svg { margin-right: 0.625rem !important; }
+.btn--gap-md svg { margin-right: 0.825rem !important; }
+.btn--gap-lg svg { margin-right: 1.125rem !important; }
+.btn--gap-xl svg { margin-right: 1.425rem !important; }
+
+/* Icon Only */
+.btn--icon-only svg { margin-right: 0 !important; }
+.btn-icon.btn--icon-only.btn--xs { padding: 0.25rem 0.5rem !important; }
+.btn-icon.btn--icon-only.btn--sm { padding: 0.425rem 0.75rem !important; }
+.btn-icon.btn--icon-only.btn--md { padding: 0.625rem 1rem !important; }
+.btn-icon.btn--icon-only.btn--lg { padding: 0.75rem 1.25rem !important; }
+.btn-icon.btn--icon-only.btn--xl { padding: 0.825rem 1.5rem !important; }
+
+
+/* Disabled */
+.btn.is-disabled {
+    background: color-mix(var(--color-ink) 20%) !important;
+    border: 2px solid color-mix(var(--color-ink) 20%) !important;
+}
+.btn.is-disabled:hover {
+    background: color-mix(var(--color-ink) 20%) !important;
+    border: 2px solid color-mix(var(--color-ink) 20%) !important;
+}
+
+
+
+/*
+    Button Group
 */
-.btn-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1rem;
-    align-items: stretch;
-    justify-items: stretch;
-}
-.btn-grid--center { justify-items: center; }
-.btn-grid--compact { gap: .5rem; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
 
-.btn-grid .btn {
-    width: 100%;
-    display: inline-flex;
-    align-items: center;
+div.btn-group {
+    width: auto;
+    display: flex;
     justify-content: flex-start;
-    gap: .75rem;
-    text-align: left;
-    min-height: 48px;
-    padding: .75rem 1rem;
-    box-sizing: border-box;
+    align-items: flex-start;
+    gap: 0.5rem;
 }
 
-.btn.btn-tile {
-    background-color: var(--color-surface, #dceafe);
-    color: var(--color-ink, #07152a);
-    border-radius: 6px;
-    border: 1px solid rgba(0,0,0,0.04);
-    box-shadow: 0 1px 0 rgba(0,0,0,0.02);
-    transition: transform .12s ease, box-shadow .12s ease;
-}
-.btn.btn-tile:hover,
-.btn.btn-tile:focus {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(13,31,57,0.08);
-}
+/* Richtung */
+.btn-group--vertical { flex-direction: column !important; }
+.btn-group--horizontal { flex-direction: row !important; }
 
-.btn.btn-tile .btn-icon {
-    flex: 0 0 auto;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.4em;
-    height: 1.4em;
-    font-size: 1.1em;
-}
-.btn.btn-tile .btn-text {
-    flex: 1 1 auto;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
 
-@media (max-width: 420px) {
-    .btn-grid { gap: .5rem; }
-    .btn-grid .btn { padding: .6rem .75rem; min-height: 44px; }
-}
+/* Richtung */
+.btn-group--main-start { justify-content: flex-start !important; }
+.btn-group--main-center { justify-content: center !important; }
+.btn-group--main-end { justify-content: flex-end !important; }
+.btn-group--main-space-between { justify-content: space-between !important; }
+.btn-group--main-space-around { justify-content: space-around !important; }
+.btn-group--main-space-evenly { justify-content: space-evenly !important; }
+
+.btn-group--sec-start { align-items: flex-start !important; }
+.btn-group--sec-end { align-items: flex-end !important; }
+.btn-group--sec-center { align-items: center !important; }
+.btn-group--sec-stretch { align-items: stretch !important; }
+
+
+/* Abstand */
+.btn-group--gap-xs { gap: 0.425rem !important; }
+.btn-group--gap-sm { gap: 0.75rem !important; }
+.btn-group--gap-md { gap: 1.25rem !important; }
+.btn-group--gap-lg { gap: 1.825rem !important; }
+.btn-group--gap-xl { gap: 2.5rem !important; }
+
+
+/* Titel und Untertitel */

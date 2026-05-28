@@ -1,0 +1,41 @@
+/* Search component
+	Bereich
+	- Suchleiste mit Eingabefeld, Button und Ergebnisliste / Autocomplete-Fläche.
+
+	Ziel
+	- Eine kompakte, tokenbasierte Suchkomponente für Filter, Seiten- und Inhaltsuche.
+	- Optional mit Dropdown-Ergebnissen und klarer Ergebnisdarstellung.
+
+	Grundprinzip
+	- `.c-search` ist der äußere Suchcontainer.
+	- `.c-search__input` und `.c-search__button` bilden das Kern-Interface.
+	- `.c-search__results` und `.c-search__result` dienen als Ergebnis-/Vorschlagsliste.
+
+	Wichtige Klassen
+	- Basis: `.c-search`, `.c-search--horizontal`, `.c-search--compact`
+	- Felder: `.c-search__input`, `.c-search__button`
+	- Ergebnisbereich: `.c-search__results`, `.c-search__result`
+
+	Strukturhinweise
+	- Die Ergebnisschicht sollte im umgebenden Layout positioniert werden.
+	- Für kleine Viewports wird die Suchleiste leicht kompakter.
+
+	Hinweise zur Verwendung
+	- Gut geeignet für globale Suche, Filterleisten und Autocomplete-Dialoge.
+	- Für komplexere Suche mit mehreren Feldern die Form-Komponente kombinieren.
+*/
+
+.c-search { display:flex; gap: var(--spacing-2); align-items:center; background: var(--color-white); border: 1px solid rgba(15,17,42,0.06); padding: 0.25rem 0.5rem; border-radius: 8px; }
+.c-search__input { border: none; outline: none; flex: 1 1 auto; padding: var(--spacing-input); font-family: var(--font-family-base); color: var(--color-ink); }
+.c-search__input::placeholder { color: rgba(15,17,42,0.5); }
+.c-search--horizontal { width: 100%; }
+.c-search--compact { max-width: 420px; }
+
+.c-search__button { background: var(--color-primary); color: var(--color-white); border: none; padding: 8px 10px; border-radius: 8px; cursor:pointer; }
+
+/* suggestion dropdown */
+.c-search__results { position: absolute; background: var(--color-white); box-shadow: 0 8px 24px rgba(2,6,23,0.08); border-radius: 8px; margin-top: .5rem; width: 100%; z-index: 60; max-height: 320px; overflow:auto; }
+.c-search__result { padding: .5rem 1rem; cursor: pointer; border-bottom: 1px solid rgba(15,17,42,0.04); }
+.c-search__result:hover { background: rgba(15,17,42,0.03); }
+
+@media (max-width: 520px) { .c-search { padding: 0.25rem; } }

@@ -1,0 +1,44 @@
+/* Grids component
+	Bereich
+	- Flexible Grid-Utilities für Karten, Medien, Listen und modulare Inhaltsflächen.
+
+	Ziel
+	- Wiederkehrende Grid-Layouts ohne individuelle Seiten-CSS-Regeln bereitstellen.
+	- Eine saubere Basis für adaptive Kacheln, Medienansichten und Mischlayouts schaffen.
+
+	Grundprinzip
+	- `.grid` ist das allgemeine Auto-Fit-Grid.
+	- Zusätzliche Modifikatoren ändern Spaltenzahl, Centering oder Masonry-Verhalten.
+
+	Wichtige Klassen
+	- Basis: `.grid`, `.grid-item`
+	- Spalten: `.grid--2col`, `.grid--3col`, `.grid--4col`
+	- Varianten: `.grid--masonry`, `.grid--center`
+
+	Strukturhinweise
+	- Für Inhaltselemente mit gleicher Breite das Basis-Grid verwenden.
+	- Für streng definierte Spalten die Varianten `.grid--2col` bis `.grid--4col` nutzen.
+	- `.grid--center` eignet sich für Symbole, Übersichten und zentrierte Tiles.
+
+	Hinweise zur Verwendung
+	- Die Komponente ist bewusst generisch und kann für Karten, Medien oder Tool-Panels verwendet werden.
+	- Breakpoints sind bereits enthalten, damit bei kleinen Bildschirmen ein einspaltiges Layout entsteht.
+*/
+
+.grid {
+	display:grid;
+	gap: var(--spacing-3);
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.grid--2col { grid-template-columns: repeat(2, 1fr); }
+.grid--3col { grid-template-columns: repeat(3, 1fr); }
+.grid--4col { grid-template-columns: repeat(4, 1fr); }
+
+.grid-item { background: var(--color-white); padding: var(--spacing-2); border-radius:8px; border:1px solid rgba(15,17,42,0.04); }
+
+/* masonry-like flow */
+.grid--masonry { grid-auto-rows: 8px; }
+.grid--center { justify-items: center; align-items: start; }
+
+@media (max-width: 720px) { .grid--3col, .grid--4col { grid-template-columns: 1fr; } }

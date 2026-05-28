@@ -1,4 +1,29 @@
-/* Hero component - tiles and tile colors (reusable) */
+/* Hero component
+  Bereich
+  - Startseiten-Hero, Teaser-Kacheln und klickbare Segment-Flächen.
+
+  Ziel
+  - Große Einstiegsflächen mit klarer visueller Hierarchie bereitstellen.
+  - Verschiedene Themen oder Bereiche als nebeneinander liegende Kacheln abbilden.
+
+  Grundprinzip
+  - `.hero__tiles` ist der Container.
+  - `.hero__tile` ist die eigentliche Kachel.
+  - Farbvarianten werden über Modifier gesteuert.
+
+  Wichtige Klassen
+  - Container: `.hero__tiles`
+  - Kachel: `.hero__tile`
+  - Varianten: `.hero__tile--a`, `.hero__tile--b`, `.hero__tile--c`, `.hero__tile--d`
+
+  Strukturhinweise
+  - Die Kacheln sind gleichmäßig verteilt und füllen die verfügbare Breite.
+  - Für mobile Ansichten stapeln sie sich untereinander.
+
+  Hinweise zur Verwendung
+  - Gut geeignet für Startseiten, Landingpages und schnelle Bereichsverlinkungen.
+  - Farbwerte sollten über Tokens und `color-mix()` gesteuert bleiben.
+*/
 
 .hero__tiles {
   position: relative;
