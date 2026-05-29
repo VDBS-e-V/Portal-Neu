@@ -6,24 +6,17 @@
 		</div>
 		<div class="header-top-areas">
 			<ul class="header-top-areas-list">
-				<?php
-				$currPath = $path ?? (isset($_SERVER['REQUEST_URI']) ? parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) : '/');
-				$isAdmin = str_starts_with((string)$currPath, '/development/web-control');
-				if (!empty($headerAreas)):
-					foreach ($headerAreas as $ha):
-						$slug = (string) ($ha['slug'] ?? '');
-						$areaUrl = ($slug === '' || $slug === 'main') ? '/' : ('/' . ltrim($slug, '/'));
-						$adminHref = '/development/web-control/areas/select?area_id=' . urlencode((string)($ha['id'] ?? ''));
-						$href = $isAdmin ? $adminHref : $areaUrl;
-						$selected = isset($current_area['id']) && (string)$current_area['id'] === (string)($ha['id'] ?? '');
-				?>
-						<li class="header-top-areas-list-item<?= $selected ? ' is-active' : '' ?>">
-							<a href="<?= htmlspecialchars($href, ENT_QUOTES, 'UTF-8') ?>" class="link--no-style"<?= $selected ? ' aria-current="true"' : '' ?>><?= htmlspecialchars((string)($ha['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></a>
+				<?php if (!empty($headerAreas)): ?>
+					<?php foreach ($headerAreas as $ha): ?>
+						<?php
+							$slug = (string) ($ha['slug'] ?? '');
+							$areaUrl = ($slug === '' || $slug === 'main') ? '/' : ('/' . ltrim($slug, '/'));
+						?>
+						<li class="header-top-areas-list-item">
+							<a href="<?= htmlspecialchars($areaUrl, ENT_QUOTES, 'UTF-8') ?>" class="link--no-style"><?= htmlspecialchars((string)($ha['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></a>
 						</li>
-					<?php
-					endforeach;
-				endif;
-				?>
+					<?php endforeach; ?>
+				<?php endif; ?>
 			</ul>
 		</div>
 	</div>

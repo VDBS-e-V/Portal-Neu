@@ -40,30 +40,16 @@ final class PhpRenderer implements Renderer
                 // ignore header areas on error
             }
 
-            // expose resolved current_area from Router (if present)
-            try {
-                if ($this->container->has('current_area')) {
-                    $global['current_area'] = $this->container->get('current_area');
-                }
-            } catch (\Throwable $e) {
-                // ignore
-            }
-
             try {
                 if ($this->container->has(\App\Repository\MenuRepository::class)
                     && $this->container->has(\App\Repository\MenuItemRepository::class)) {
                     $menuRepo = $this->container->get(\App\Repository\MenuRepository::class);
                     $menuItemRepo = $this->container->get(\App\Repository\MenuItemRepository::class);
 
-                    // determine selected area id with priority: parameters['area'] -> container current_area -> parameters area_id -> headerAreas fallback
+                    // determine selected area id: prefer template params, fall back to first header area
                     $selectedAreaId = null;
                     if (isset($parameters['area']) && is_array($parameters['area']) && isset($parameters['area']['id'])) {
                         $selectedAreaId = (int) $parameters['area']['id'];
-                    } elseif ($this->container->has('current_area')) {
-                        $ca = $this->container->get('current_area');
-                        if (is_array($ca) && !empty($ca['id'])) {
-                            $selectedAreaId = (int) $ca['id'];
-                        }
                     } elseif (isset($parameters['area_id'])) {
                         $selectedAreaId = (int) $parameters['area_id'];
                     } elseif (isset($parameters['areaId'])) {

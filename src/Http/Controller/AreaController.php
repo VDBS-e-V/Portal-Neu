@@ -158,18 +158,4 @@ final class AreaController extends Controller
 
         return new Response($ok ? 302 : 500, ['Location' => '/development/web-control/areas'], '');
     }
-
-    public function select(Request $request): Response
-    {
-        $id = isset($request->query['area_id']) ? (int) $request->query['area_id'] : 0;
-        if ($id > 0) {
-            if (session_status() === PHP_SESSION_NONE) {
-                @session_start();
-            }
-            $_SESSION['selected_area_id'] = $id;
-        }
-
-        $referer = $request->server['HTTP_REFERER'] ?? '/development/web-control/areas';
-        return new Response(302, ['Location' => $referer], '');
-    }
 }

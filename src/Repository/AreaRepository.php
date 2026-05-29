@@ -61,15 +61,6 @@ final class AreaRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 
-    public function findBySlug(string $slug): array
-    {
-        $sql = "SELECT * FROM {$this->table} WHERE slug = :slug LIMIT 1";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['slug' => $slug]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ?: [];
-    }
-
     public function update(int $id, array $data): bool
     {
         if (empty($data)) {

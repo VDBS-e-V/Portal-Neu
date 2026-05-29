@@ -13,14 +13,20 @@ return [
 	new Route('GET', '/health', HomeController::class, 'health'),
 	new Route('GET', '/api/health', HomeController::class, 'apiHealth'),
 
-    
+	// Areas management
+	new Route('GET', '/areas', AreaController::class, 'index'),
+	new Route('GET', '/areas/create', AreaController::class, 'createForm'),
+	new Route('POST', '/areas/create', AreaController::class, 'create'),
+	new Route('GET', '/areas/edit', AreaController::class, 'editForm'),
+	new Route('POST', '/areas/edit', AreaController::class, 'edit'),
+	new Route('POST', '/areas/delete', AreaController::class, 'delete'),
+
 	// Development web control: Areas
 	new Route('GET', '/development/web-control/areas', AreaController::class, 'index'),
 	new Route('GET', '/development/web-control/areas/create', AreaController::class, 'createForm'),
 	new Route('POST', '/development/web-control/areas/create', AreaController::class, 'create'),
 	new Route('GET', '/development/web-control/areas/edit', AreaController::class, 'editForm'),
 	new Route('POST', '/development/web-control/areas/edit', AreaController::class, 'edit'),
-	new Route('GET', '/development/web-control/areas/select', AreaController::class, 'select'),
 	new Route('POST', '/development/web-control/areas/delete', AreaController::class, 'delete'),
 
 	// Development web control: Menus
@@ -31,8 +37,6 @@ return [
 	new Route('POST', '/development/web-control/menus/edit', MenuController::class, 'edit'),
 	new Route('POST', '/development/web-control/menus/delete', MenuController::class, 'delete'),
 
-
-    // StyleGuide
 	new Route('GET', '/styleguide', StyleGuideController::class, 'index'),
 	new Route('GET', '/styleguide/buttons', StyleGuideController::class, 'buttons'),
     new Route('GET', '/styleguide/buttons/generator', StyleGuideController::class, 'buttonGenerator'),
