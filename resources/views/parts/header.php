@@ -45,11 +45,11 @@
 
 		</div>
 		<div class="header-bottom-user">
-			<div class="header-bottom-user-avatar">
+			<button class="header-bottom-user-avatar" popovertarget="user-popover">
 				<img src="/assets/images/avatars/default.jpg" alt="User Avatar">
-			</div>
+			</button>
 
-			<div class="header-user-popover">
+			<div class="header-user-popover" id="user-popover" popover>
 				<ul class="header-user-popover-list">
 					<li class="header-user-popover-list-item">
 						<a href="/profile" class="link--no-style">Profile</a>

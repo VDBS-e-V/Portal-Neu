@@ -49,12 +49,61 @@
   -o-transition: all .3s ease-in-out;
 }
 
-.hero__tile:hover { filter: brightness(0.95); }
 
-.hero__tile--a { background: color-mix(var(--color-accent-lime) 60%, transparent); }
-.hero__tile--b { background: color-mix(var(--color-primary) 60%, transparent); }
-.hero__tile--c { background: color-mix(var(--color-accent-amber) 60%, transparent); }
-.hero__tile--d { background: color-mix(var(--color-status-info) 60%, transparent); }
+.hero__tile {
+    transition: all .35s ease-in-out;
+    -webkit-transition: all .35s ease-in-out;
+    -moz-transition: all .35s ease-in-out;
+    -ms-transition: all .35s ease-in-out;
+    -o-transition: all .35s ease-in-out;
+}
+.hero__tile:hover {
+    text-decoration: none;
+}
+
+.hero__tile--a {
+    background: color-mix(var(--color-accent-amber) 60%, transparent);
+    color: var(--color-ink);
+}
+.hero__tile--b {
+    background: color-mix(var(--color-accent-teal) 60%, transparent);
+    color: var(--color-ink);    
+}
+.hero__tile--c {
+    background: color-mix(var(--color-accent-berry) 60%, transparent);
+    color: var(--color-ink);
+}
+.hero__tile--d {
+    background: color-mix(var(--color-accent-sun) 60%, transparent);
+    color: var(--color-ink);
+}
+.hero__tile--e {
+    background: color-mix(var(--color-accent-lime) 60%, transparent);
+    color: var(--color-ink);
+}
+
+/* Hover */
+.hero__tile--a:hover {
+    background: color-mix(var(--color-accent-amber) 100%, transparent);
+    color: var(--color-white);
+}
+.hero__tile--b:hover {
+    background: color-mix(var(--color-accent-teal) 100%, transparent);
+    color: var(--color-white);    
+}
+.hero__tile--c:hover {
+    background: color-mix(var(--color-accent-berry) 100%, transparent);
+    color: var(--color-white);
+}
+.hero__tile--d:hover {
+    background: color-mix(var(--color-accent-sun) 100%, transparent);
+    color: var(--color-ink);
+}
+.hero__tile--e:hover {
+    background: color-mix(var(--color-accent-lime) 100%, transparent);
+    color: var(--color-ink);
+}
+
 
 @media (max-width: 720px) {
   .hero__tile { padding: var(--spacing-3); }

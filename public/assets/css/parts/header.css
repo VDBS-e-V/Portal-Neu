@@ -177,29 +177,41 @@ div.header-bottom-user {
     gap: var(--spacing-gap);
 }
 
-div.header-bottom-user-avatar {
+button.header-bottom-user-avatar {
     width: 56px;
     height: 56px;
     border-radius: 50%;
     overflow: hidden;
+
+    /* Override Buttons Defaults */
+    background: none;
+    border: none;
+    padding: 0;
 }
 
-div.header-bottom-user-avatar img {
+button.header-bottom-user-avatar img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    cursor: pointer;
 }
 
-div.header-bottom-user .header-user-popover {
+#user-popover {
     display: none;
-    position: absolute;
-    top: 100%;
-    right: 0;
+    position: fixed;
+    top: 147px;
+    right: 10px;
     background-color: var(--color-white);
     border: 1px solid var(--color-ink);
     border-radius: 4px;
     padding: var(--spacing-2);
+    margin: 0;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 999;
+}
+
+#user-popover:popover-open {
+    display: flex !important;
 }
 
 div.header-bottom-user-login {

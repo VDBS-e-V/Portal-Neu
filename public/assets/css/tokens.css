@@ -38,6 +38,9 @@
     --spacing-5: 2rem;    /* 32px */
     --spacing-6: 2.5rem;  /* 40px */
     --spacing-7: 3rem;    /* 48px */
+    --spacing-8: 3.5rem;  /* 56px */
+    --spacing-9: 4rem; /* 64px; */
+    --spacing-10: 5rem; /* 80px; */
 
     --spacing-page: clamp(0.75rem, 4vw, 3.125rem); /* 12px - 50px (responsive) */
     --spacing-header: 3rem; /* 64px (Abstand unter Header) */
