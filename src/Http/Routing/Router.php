@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Routing;
 
+use App\Bootstrap\Container;
 use App\Http\Controller\Controller;
 use App\Http\Request\Request;
 use App\Http\Response\HtmlResponse;
@@ -17,8 +18,11 @@ final class Router
     /** @var array<int, Route> */
     private array $routes = [];
 
-    public function __construct(private Renderer $renderer)
+    private Container $container;
+
+    public function __construct(Container $container)
     {
+        $this->container = $container;
     }
 
     public function add(Route $route): void
@@ -34,7 +38,14 @@ final class Router
             }
 
             $controllerClass = $route->controller;
-            $controller = new $controllerClass($this->renderer);
+
+            if ($this->container->has($controllerClass)) {
+                $controller = $this->container->get($controllerClass);
+            } else {
+                /** @var Renderer $renderer */
+                $renderer = $this->container->get(Renderer::class);
+                $controller = new $controllerClass($renderer);
+            }
 
             if (!$controller instanceof Controller) {
                 throw new RuntimeException('Route controller must extend ' . Controller::class);
@@ -48,7 +59,9 @@ final class Router
             }
 
             if (is_string($response)) {
-                return new HtmlResponse($response);
+                /** @var Renderer $renderer */
+                $renderer = $this->container->get(Renderer::class);
+                return new HtmlResponse($renderer->renderPage($response));
             }
 
             throw new RuntimeException('Controller action must return a response or string.');
@@ -61,7 +74,10 @@ final class Router
             ], 404);
         }
 
-        return new HtmlResponse($this->renderer->renderPage('pages/errors/404', [
+        /** @var Renderer $renderer */
+        $renderer = $this->container->get(Renderer::class);
+
+        return new HtmlResponse($renderer->renderPage('pages/errors/404', [
             'title' => '404',
             'areaName' => 'Fehler',
             'pageTitle' => '404 - Nicht gefunden',

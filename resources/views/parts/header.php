@@ -6,15 +6,17 @@
 		</div>
 		<div class="header-top-areas">
 			<ul class="header-top-areas-list">
-                <li class="header-top-areas-list-item">
-                    <a href="/" class="link--no-style">Start</a>
-                </li>
-                <li class="header-top-areas-list-item">
-                    <a href="/dev" class="link--no-style">Development</a>
-                </li>
-                <li class="header-top-areas-list-item">
-                    <a href="/styleguide" class="link--no-style">Style Guide</a>
-                </li>
+				<?php if (!empty($headerAreas)): ?>
+					<?php foreach ($headerAreas as $ha): ?>
+						<?php
+							$slug = (string) ($ha['slug'] ?? '');
+							$areaUrl = ($slug === '' || $slug === 'main') ? '/' : ('/' . ltrim($slug, '/'));
+						?>
+						<li class="header-top-areas-list-item">
+							<a href="<?= htmlspecialchars($areaUrl, ENT_QUOTES, 'UTF-8') ?>" class="link--no-style"><?= htmlspecialchars((string)($ha['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></a>
+						</li>
+					<?php endforeach; ?>
+				<?php endif; ?>
 			</ul>
 		</div>
 	</div>
@@ -26,29 +28,28 @@
 		</div>
 		<div class="header-bottom-nav">
 			<ul class="header-bottom-nav-list">
-                <li class="header-bottom-nav-list-item">
-                    <a href="/ueber-das-portal" class="link--no-style">Über das Portal</a>
-                </li>
-                <li class="header-bottom-nav-list-item">
-                    <a href="/zugang-zum-portal" class="link--no-style">Zugang zum Portal</a>
-                </li>
-                <li class="header-bottom-nav-list-item">
-                    <a href="/faq" class="link--no-style">FAQ</a>
-                </li>
-                <li class="header-bottom-nav-list-item">
-                    <a href="/kontakt" class="link--no-style">Kontakt</a>
-                </li>
+				<?php if (!empty($headerMenus)): ?>
+					<?php foreach ($headerMenus as $mi): ?>
+						<li class="header-bottom-nav-list-item">
+							<?php
+								$url = (string) ($mi['url'] ?? ('/' . ltrim((string)($mi['slug'] ?? ''), '/')));
+								$title = (string) ($mi['title'] ?? ($mi['name'] ?? ''));
+							?>
+							<a href="<?= htmlspecialchars($url, ENT_QUOTES, 'UTF-8') ?>" class="link--no-style"><?= htmlspecialchars($title, ENT_QUOTES, 'UTF-8') ?></a>
+						</li>
+					<?php endforeach; ?>
+				<?php endif; ?>
 			</ul>
 		</div>
 		<div class="header-bottom-search">
 
 		</div>
 		<div class="header-bottom-user">
-			<div class="header-bottom-user-avatar">
+			<button class="header-bottom-user-avatar" popovertarget="user-popover">
 				<img src="/assets/images/avatars/default.jpg" alt="User Avatar">
-			</div>
+			</button>
 
-			<div class="header-user-popover">
+			<div class="header-user-popover" id="user-popover" popover>
 				<ul class="header-user-popover-list">
 					<li class="header-user-popover-list-item">
 						<a href="/profile" class="link--no-style">Profile</a>
