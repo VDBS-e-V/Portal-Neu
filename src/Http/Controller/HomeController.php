@@ -12,7 +12,7 @@ final class HomeController extends Controller
     public function index(Request $request): Response
     {
         return $this->html('pages/home/index', [
-            'title' => 'VDBS Portal',
+            'title' => 'Startseite',
             'areaName' => 'VDBS Portal',
             'pageTitle' => 'Startseite',
             'areaRootLink' => '/',

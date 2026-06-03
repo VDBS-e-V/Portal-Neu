@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controller\StyleGuideController;
 use App\Http\Controller\HomeController;
-use App\Http\Controller\AreaController;
-use App\Http\Controller\MenuController;
+use App\Http\Controller\DevelopmentController;
 use App\Http\Routing\Route;
 
 return [
@@ -14,28 +13,28 @@ return [
 	new Route('GET', '/api/health', HomeController::class, 'apiHealth'),
 
 	// Areas management
-	new Route('GET', '/areas', AreaController::class, 'index'),
-	new Route('GET', '/areas/create', AreaController::class, 'createForm'),
-	new Route('POST', '/areas/create', AreaController::class, 'create'),
-	new Route('GET', '/areas/edit', AreaController::class, 'editForm'),
-	new Route('POST', '/areas/edit', AreaController::class, 'edit'),
-	new Route('POST', '/areas/delete', AreaController::class, 'delete'),
+	new Route('GET', '/areas', DevelopmentController::class, 'areasIndex'),
+	new Route('GET', '/areas/create', DevelopmentController::class, 'areasCreateForm'),
+	new Route('POST', '/areas/create', DevelopmentController::class, 'areasCreate'),
+	new Route('GET', '/areas/edit', DevelopmentController::class, 'areasEditForm'),
+	new Route('POST', '/areas/edit', DevelopmentController::class, 'areasEdit'),
+	new Route('POST', '/areas/delete', DevelopmentController::class, 'areasDelete'),
 
 	// Development web control: Areas
-	new Route('GET', '/development/web-control/areas', AreaController::class, 'index'),
-	new Route('GET', '/development/web-control/areas/create', AreaController::class, 'createForm'),
-	new Route('POST', '/development/web-control/areas/create', AreaController::class, 'create'),
-	new Route('GET', '/development/web-control/areas/edit', AreaController::class, 'editForm'),
-	new Route('POST', '/development/web-control/areas/edit', AreaController::class, 'edit'),
-	new Route('POST', '/development/web-control/areas/delete', AreaController::class, 'delete'),
+	new Route('GET', '/development/web-control/areas', DevelopmentController::class, 'areasIndex'),
+	new Route('GET', '/development/web-control/areas/create', DevelopmentController::class, 'areasCreateForm'),
+	new Route('POST', '/development/web-control/areas/create', DevelopmentController::class, 'areasCreate'),
+	new Route('GET', '/development/web-control/areas/edit', DevelopmentController::class, 'areasEditForm'),
+	new Route('POST', '/development/web-control/areas/edit', DevelopmentController::class, 'areasEdit'),
+	new Route('POST', '/development/web-control/areas/delete', DevelopmentController::class, 'areasDelete'),
 
 	// Development web control: Menus
-	new Route('GET', '/development/web-control/menus', MenuController::class, 'index'),
-	new Route('GET', '/development/web-control/menus/create', MenuController::class, 'createForm'),
-	new Route('POST', '/development/web-control/menus/create', MenuController::class, 'create'),
-	new Route('GET', '/development/web-control/menus/edit', MenuController::class, 'editForm'),
-	new Route('POST', '/development/web-control/menus/edit', MenuController::class, 'edit'),
-	new Route('POST', '/development/web-control/menus/delete', MenuController::class, 'delete'),
+	new Route('GET', '/development/web-control/menus', DevelopmentController::class, 'menusIndex'),
+	new Route('GET', '/development/web-control/menus/create', DevelopmentController::class, 'menusCreateForm'),
+	new Route('POST', '/development/web-control/menus/create', DevelopmentController::class, 'menusCreate'),
+	new Route('GET', '/development/web-control/menus/edit', DevelopmentController::class, 'menusEditForm'),
+	new Route('POST', '/development/web-control/menus/edit', DevelopmentController::class, 'menusEdit'),
+	new Route('POST', '/development/web-control/menus/delete', DevelopmentController::class, 'menusDelete'),
 
 	new Route('GET', '/styleguide', StyleGuideController::class, 'index'),
 	new Route('GET', '/styleguide/buttons', StyleGuideController::class, 'buttons'),

@@ -6,11 +6,8 @@ use App\Bootstrap\Container;
 use App\Http\Routing\Router;
 use App\Presentation\Templating\PhpRenderer;
 use App\Presentation\Templating\Renderer;
-use PDO;
-use PDOException;
-use RuntimeException;
-use App\Http\Controller\AreaController;
-use App\Http\Controller\MenuController;
+// Built-in global classes (PDO, PDOException, RuntimeException) don't need importing
+use App\Http\Controller\DevelopmentController;
 use App\Repository\AreaRepository;
 use App\Repository\MenuRepository;
 use App\Repository\MenuItemRepository;
@@ -56,14 +53,11 @@ return [
     UserRepository::class => static function (Container $container): UserRepository {
         return new UserRepository($container->get(PDO::class));
     },
-    AreaController::class => static function (Container $container): AreaController {
-        return new AreaController($container->get(Renderer::class), $container->get(AreaRepository::class));
-    },
-    MenuController::class => static function (Container $container): MenuController {
-        return new MenuController(
+    DevelopmentController::class => static function (Container $container): DevelopmentController {
+        return new DevelopmentController(
             $container->get(Renderer::class),
-            $container->get(MenuRepository::class),
-            $container->get(AreaRepository::class)
+            $container->get(AreaRepository::class),
+            $container->get(MenuRepository::class)
         );
     },
 ];
