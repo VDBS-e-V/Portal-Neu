@@ -52,7 +52,13 @@
 	.hero { min-height: 360px; }
 	.hero__tiles { flex-direction: column; width: auto; margin-left: 0; }
 }
-.page-meta { padding: 24px 0; }
+
+/* Übersicht Portal */
+#uebersicht-portal div.btn-group {
+	max-width: 800px;
+	margin: 0 auto;
+}
+
 </style>
 
 <div class="hero" role="banner" aria-label="Hero - Willkommen">
@@ -72,11 +78,18 @@
 </div>
 
 <section id="uebersicht-portal">
-	<div class="container_uebersicht">
-		<div class="btn-group" aria-label="Schnellzugriff">
-			<a class="btn btn--primary btn--md" href="/">Start</a>
-			<a class="btn btn--outline btn--md" href="/development">Development</a>
-			<a class="btn btn--ghost btn--md" href="/styleguide">Styleguide</a>
+	<div class="btn-group btn-group--horizontal btn-group--main-center btn-group--gap-md" role="group" aria-label="Optionen Übersicht Portal">
+		<div class="btn-group__title-container">
+			<h1 class="btn-group__title">Das VDBS Serviceportal</h1>
+			<h2 class="btn-group__subtitle">
+				Das VDBS Serviceportal ist Ihre zentrale Anlaufstelle für alle Informationen und Dienstleistungen rund um den VDBS. Hier finden Sie alle Bereiche des VDBS Serviceportals.
+			</h2>
 		</div>
-	</div>
+
+        <a href="/vorstand" class="link--no-style"><button class="btn btn--secondary-cta-light btn--md">Vorstand</button></a>
+        <a href="/development" class="link--no-style"><button class="btn btn--secondary-cta-light btn--md">Development</button></a>
+        <a href="/styleguide" class="link--no-style"><button class="btn btn--secondary-cta-light btn--md">StyleGuide</button></a>
+        <a href="/teamende" class="link--no-style"><button class="btn btn--secondary-cta-light btn--md">Teamende</button></a>
+        <a href="/mitglieder" class="link--no-style"><button class="btn btn--secondary-cta-light btn--md">Mitglieder</button></a>
+    </div>
 </section>

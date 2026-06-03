@@ -97,34 +97,31 @@ Erweiterungen:
 /* Dunkel -> Hell */
 .btn--primary {
     background: var(--color-primary) !important;
-    border: 2px solid var(--color-primary) !important; }
+}
 .btn--primary:hover {
-    background: color-mix(var(--color-primary) 70%) !important;
+    background: color-mix(var(--color-primary) 30%) !important;
     color: var(--color-ink) !important;
 }
 
 .btn--secondary-cta {
     background: var(--color-secondary-cta) !important;
-    border: 2px solid var(--color-secondary-cta) !important;
 }
 .btn--secondary-cta:hover {
-    background: color-mix(var(--color-secondary-cta) 70%) !important;
+    background: color-mix(var(--color-secondary-cta) 30%) !important;
     color: var(--color-ink) !important;
 }
 
 .btn--secondary-highlight {
     background: var(--color-secondary-highlight) !important;
-    border: 2px solid var(--color-secondary-highlight) !important;
 }
 .btn--secondary-highlight:hover {
-    background: color-mix(var(--color-secondary-highlight) 70%) !important;
+    background: color-mix(var(--color-secondary-highlight) 30%) !important;
     color: var(--color-ink) !important;
 }
 
 /* Hell -> Dunkel */
 .btn--primary-light {
-    background: color-mix(var(--color-primary) 70%) !important;
-    border: 2px solid var(--color-primary) !important;    
+    background: color-mix(var(--color-primary) 30%) !important;
     color: var(--color-ink) !important;
 }
 .btn--primary-light:hover {
@@ -133,8 +130,7 @@ Erweiterungen:
 }
 
 .btn--secondary-cta-light  {
-    background: color-mix(var(--color-secondary-cta) 70%) !important;
-    border: 2px solid var(--color-secondary-cta) !important;
+    background: color-mix(var(--color-secondary-cta) 30%) !important;
     color: var(--color-ink) !important;
 }
 .btn--secondary-cta-light:hover {
@@ -143,8 +139,7 @@ Erweiterungen:
 }
 
 .btn--secondary-highlight-light  {
-    background: color-mix(var(--color-secondary-highlight) 70%) !important;
-    border: 2px solid var(--color-secondary-highlight) !important;
+    background: color-mix(var(--color-secondary-highlight) 30%) !important;
     color: var(--color-ink) !important;
 }
 .btn--secondary-highlight-light:hover {
@@ -155,7 +150,6 @@ Erweiterungen:
 /* Transparent -> Dunkel */
 .btn--primary-transp {
     background: transparent !important;
-    border: 2px solid var(--color-primary) !important;
     color: var(--color-ink) !important;
 }
 .btn--primary-transp:hover {
@@ -165,7 +159,6 @@ Erweiterungen:
 
 .btn--secondary-cta-transp {
     background: transparent !important;
-    border: 2px solid var(--color-secondary-cta) !important;
     color: var(--color-ink) !important;
 }
 .btn--secondary-cta-transp:hover {
@@ -175,7 +168,6 @@ Erweiterungen:
 
 .btn--secondary-highlight-transp {
     background: transparent !important;
-    border: 2px solid var(--color-secondary-highlight) !important;
     color: var(--color-ink) !important;
 }
 .btn--secondary-highlight-transp:hover {
@@ -190,7 +182,7 @@ Erweiterungen:
     border: 2px solid var(--color-status-success) !important;
 }
 .btn--success:hover {
-    background: color-mix(var(--color-status-success) 70%) !important;
+    background: color-mix(var(--color-status-success) 30%) !important;
     color: var(--color-ink) !important;
 }
 
@@ -199,7 +191,7 @@ Erweiterungen:
     border: 2px solid var(--color-status-error) !important;
 }
 .btn--error:hover {
-    background: color-mix(var(--color-status-error) 70%) !important;
+    background: color-mix(var(--color-status-error) 30%) !important;
     color: var(--color-ink) !important;
 }
 
@@ -208,7 +200,7 @@ Erweiterungen:
     border: 2px solid var(--color-status-warning) !important;
 }   
 .btn--warning:hover {
-    background: color-mix(var(--color-status-warning) 70%) !important;
+    background: color-mix(var(--color-status-warning) 30%) !important;
     color: var(--color-ink) !important;
 }
 
@@ -217,7 +209,7 @@ Erweiterungen:
     border: 2px solid var(--color-status-info) !important;
 }
 .btn--info:hover {
-    background: color-mix(var(--color-status-info) 70%) !important;
+    background: color-mix(var(--color-status-info) 30%) !important;
     color: var(--color-ink) !important;
 }
 
@@ -300,20 +292,35 @@ div.btn-group {
 
 
 /* Titel und Untertitel */
-.btn-group__title {
+div.btn-group__title-container {
     width: 100%;
-    font-size: 1.25rem;
-    font-weight: var(--font-weight-medium);
-    color: var(--color-ink);
-    margin-bottom: 0.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+.btn-group:has(.btn-group__title-container) {
+    flex-wrap: wrap;
+}
+
+.btn-group__title {
+    width: clamp(50px, 70%, 900px);
+    margin: 0 auto;
+    font-size: 2.5rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    margin-bottom: 0.75rem;
+    text-align: center;
 }
 
 .btn-group__subtitle {
-    width: 100%;
-    font-size: 0.875rem;
+    width: clamp(50px, 70%, 900px);
+    margin: 0 auto;
+    font-size: 1rem;
     font-weight: var(--font-weight-regular);
     color: var(--color-ink);
-    margin-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
 }
 
 /* Ausrichtung von Titel und Untertitel */

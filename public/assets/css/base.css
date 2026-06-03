@@ -67,9 +67,6 @@ body {
     color: var(--color-ink);
 }
 
-a { color: var(--color-secondary-cta); text-decoration: none; }
-a:hover { text-decoration: underline; }
-
 code, pre { font-family: "Courier New", Courier, monospace; background-color: var(--color-white); padding: 0.2em 0.4em; border-radius: 4px; }
 
 hr {

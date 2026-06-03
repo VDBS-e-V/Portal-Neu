@@ -1,29 +1,25 @@
 <?php declare(strict_types=1); ?>
 
 <div class="error-page">
-	<div class="error-panel">
-		<div class="error-code">500</div>
-		<div class="error-body">
-			<h1 class="error-title"><?= htmlspecialchars($title ?? '500 – Serverfehler', ENT_QUOTES, 'UTF-8') ?></h1>
-			<p class="error-subtitle">Es ist ein interner Fehler aufgetreten. Wir arbeiten an einer Lösung.</p>
+	<div class="error-text">
+		<h1 class="error-code">500</h1>
+		<h2 class="error-title">Serverfehler aufgetreten</h2>
+		<p class="error-subtitle">
+			Es ist ein unerwarteter Fehler auf dem Server aufgetreten. Bitte versuchen Sie es später erneut oder kontaktieren Sie den Support, wenn das Problem weiterhin besteht. Wir entschuldigen uns für die Unannehmlichkeiten und arbeiten daran, das Problem so schnell wie möglich zu beheben.
+		</p>
 
-			<div class="error-meta">
-				<ul>
-					<li>Path: <code><?= htmlspecialchars($path ?? '', ENT_QUOTES, 'UTF-8') ?></code></li>
-					<li>Now: <code><?= htmlspecialchars($now ?? '', ENT_QUOTES, 'UTF-8') ?></code></li>
-				</ul>
-			</div>
-
-			<div class="error-actions">
-				<a class="btn btn-primary" href="/" title="Zur Startseite">
-					<svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9.5z"/></svg>
-					Zur Startseite
-				</a>
-				<a class="btn btn-secondary" href="/kontakt" title="Kontakt / Support">
-					<svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 6.5v11a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-11a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1zm1 0l8 5 8-5"/></svg>
-					Kontakt / Support
-				</a>
-			</div>
+		<div class="btn-group btn-group--vertical">
+			<button class="btn btn--secondary-cta btn-icon" type="button" onclick="window.location.href='/'">
+				<svg class="vdb-icon vdb-icon--current vdb-icon--regular vdb-icon--md"><use href="/assets/icons/vdb-icons.svg#icon-home"></use></svg>
+				zur Startseite
+			</button>
+			<button class="btn btn--secondary-cta-transp btn-icon" type="button" onclick="window.location.href='/kontakt?form=it-support&title=Serverfehler%20500&referrer=' + encodeURIComponent(window.location.href)">
+				<svg class="vdb-icon vdb-icon--current vdb-icon--regular vdb-icon--md"><use href="/assets/icons/vdb-icons.svg#icon-contact-form"></use></svg>
+				Kontakt aufnehmen
+			</button>
 		</div>
+	</div>
+	<div class="error-image">
+		<img src="/assets/images/errors/server-fehler.png" alt="Illustration: Serverfehler" />< 
 	</div>
 </div>
