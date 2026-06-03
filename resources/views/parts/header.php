@@ -50,18 +50,107 @@
 			</button>
 
 			<div class="header-user-popover" id="user-popover" popover>
+				<div class="popover-header">
+					<div class="popover-avatar">
+						<img src="/assets/images/avatars/default.jpg" alt="Avatar">
+					</div>
+					<div class="popover-user">
+						<div class="popover-name">Jan Brand</div>
+						<div class="popover-username">
+							<svg class="vdb-icon vdb-icon--sm vdb-icon--medium vdb-icon--current" aria-hidden="true"><use href="/assets/icons/vdb-icons.svg#icon-profile"></use></svg>
+							<span class="popover-username-text">jan.brand</span>
+						</div>
+					</div>
+				</div>
+				<hr class="popover-sep">
 				<ul class="header-user-popover-list">
 					<li class="header-user-popover-list-item">
-						<a href="/profile" class="link--no-style">Profile</a>
+						<a href="/profile" class="link--no-style">
+							<span class="popover-icon">
+								<svg class="vdb-icon vdb-icon--lg vdb-icon--bold" aria-hidden="true"><use href="/assets/icons/vdb-icons.svg#icon-user"></use></svg>
+							</span>
+							<span>Mein Profil</span>
+						</a>
 					</li>
 					<li class="header-user-popover-list-item">
-						<a href="/settings" class="link--no-style">Settings</a>
+						<a href="/settings" class="link--no-style">
+							<span class="popover-icon">
+								<svg class="vdb-icon vdb-icon--lg vdb-icon--bold" aria-hidden="true"><use href="/assets/icons/vdb-icons.svg#icon-settings"></use></svg>
+							</span>
+							<span>Kontoeinstellungen</span>
+						</a>
 					</li>
 					<li class="header-user-popover-list-item">
-						<a href="/logout" class="link--no-style">Logout</a>
+						<a href="/tickets" class="link--no-style">
+							<span class="popover-icon">
+								<svg class="vdb-icon vdb-icon--lg vdb-icon--bold" aria-hidden="true"><use href="/assets/icons/vdb-icons.svg#icon-inbox"></use></svg>
+							</span>
+							<span>Meine Tickets</span>
+						</a>
 					</li>
 				</ul>
+				<hr class="popover-sep">
+				<ul class="header-user-popover-list">
+					<li class="header-user-popover-list-item">
+						<a href="/contact" class="link--no-style">
+							<span class="popover-icon">
+								<svg class="vdb-icon vdb-icon--lg vdb-icon--bold" aria-hidden="true"><use href="/assets/icons/vdb-icons.svg#icon-mail"></use></svg>
+							</span>
+							<span>Kontakt</span>
+						</a>
+					</li>
+					<li class="header-user-popover-list-item">
+						<a href="/faq" class="link--no-style">
+							<span class="popover-icon">
+								<svg class="vdb-icon vdb-icon--lg vdb-icon--bold" aria-hidden="true"><use href="/assets/icons/vdb-icons.svg#icon-book"></use></svg>
+							</span>
+							<span>FAQ</span>
+						</a>
+					</li>
+					<li class="header-user-popover-list-item">
+						<a href="/help" class="link--no-style">
+							<span class="popover-icon">
+								<svg class="vdb-icon vdb-icon--lg vdb-icon--bold" aria-hidden="true"><use href="/assets/icons/vdb-icons.svg#icon-help"></use></svg>
+							</span>
+							<span>Hilfe</span>
+						</a>
+					</li>
+				</ul>
+				<hr class="popover-sep">
+				<a href="/logout" class="header-user-popover-logout link--no-style">
+					<span class="popover-icon">
+						<svg class="vdb-icon vdb-icon--lg vdb-icon--bold" aria-hidden="true"><use href="/assets/icons/vdb-icons.svg#icon-logout"></use></svg>
+					</span>
+					<span>Abmelden</span>
+				</a>
 			</div>
+
+			<script>
+			// Simple popover toggle using existing attributes
+			(function(){
+				function closeAll() {
+					document.querySelectorAll('.header-user-popover[open]').forEach(function(el){ el.removeAttribute('open'); });
+				}
+
+				document.addEventListener('click', function(e){
+					var btn = e.target.closest('[popovertarget]');
+					if (btn) {
+						var id = btn.getAttribute('popovertarget');
+						var pop = document.getElementById(id);
+						if (pop) {
+							var isOpen = pop.hasAttribute('open');
+							if (isOpen) { pop.removeAttribute('open'); }
+							else { closeAll(); pop.setAttribute('open', ''); }
+						}
+						return;
+					}
+					// click outside: close
+					if (!e.target.closest('.header-user-popover')) { closeAll(); }
+				});
+
+				document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeAll(); });
+			})();
+			</script>
 
 			<div class="header-bottom-user-login">
 

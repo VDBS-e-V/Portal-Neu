@@ -196,23 +196,81 @@ button.header-bottom-user-avatar img {
     cursor: pointer;
 }
 
-#user-popover {
+.header-user-popover {
     display: none;
     position: fixed;
     top: 147px;
-    right: 10px;
+    right: var(--spacing-page);
+    left: auto;
     background-color: var(--color-white);
-    border: 1px solid var(--color-ink);
-    border-radius: 4px;
+    border: 1px solid color-mix(var(--color-ink) 10%, transparent);
     padding: var(--spacing-2);
     margin: 0;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     z-index: 999;
+    /* Default width increased for a wider appearance */
+    width: max-content;
+    min-width: 260px;
+    border-radius: 6px;
 }
 
-#user-popover:popover-open {
+/* Support common toggle methods: class, attribute, or [open] */
+.header-user-popover.popover-open,
+.header-user-popover[popover-open],
+.header-user-popover[open] {
     display: flex !important;
+    right: var(--spacing-page);
+    left: auto;
+    flex-direction: column;
 }
+
+.header-user-popover .popover-header {
+    display: flex;
+    gap: var(--spacing-gap);
+    align-items: center;
+    padding: var(--spacing-1) var(--spacing-2);
+}
+
+.popover-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex: 0 0 60px;
+}
+.popover-avatar img { width:100%; height:100%; object-fit:cover; display:block }
+
+.popover-user .popover-name {
+    font-size: 1.25rem; /* ~20px */
+    font-family: var(--font-family-base);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    line-height: 1.15;
+    margin-bottom: 0.25rem;
+}
+.popover-user .popover-username {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    color: color-mix(var(--color-ink) 60%, transparent);
+    font-size: 0.85rem; /* ~13.6px */
+    line-height: 1.2;
+}
+.popover-username-text { display: inline-block }
+
+.popover-sep { border: none; border-top: 1px solid color-mix(var(--color-ink) 20%, transparent); margin: var(--spacing-2); }
+
+.header-user-popover-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .125rem }
+.header-user-popover-list-item { margin: 0 }
+.header-user-popover-list-item a { display:flex; align-items:center; gap: .4rem; padding: .3rem .9rem; color: color-mix(var(--color-ink) 80%, transparent); text-decoration: none; font-size: 1rem }
+.header-user-popover-list-item a:hover { background: color-mix(var(--color-ink) 4%, transparent); color: var(--color-ink) }
+
+.popover-icon { width: 24px; height: 24px; display:inline-flex; align-items:center; justify-content:center; flex:0 0 24px }
+.popover-icon .vdb-icon { display:block; width:1.25rem; height:1.25rem; color: color-mix(var(--color-ink) 80%, transparent) }
+.header-user-popover-list-item a:hover .popover-icon .vdb-icon { color: var(--color-ink) }
+
+.header-user-popover-logout { display:flex; align-items:center; gap:.6rem; padding: var(--spacing-1) var(--spacing-2)   ; color: var(--color-primary, #0b5fff); font-weight: var(--font-weight-medium) }
+.header-user-popover-logout .popover-icon .vdb-icon { color: var(--color-primary, #0b5fff) }
 
 div.header-bottom-user-login {
     display: none;
