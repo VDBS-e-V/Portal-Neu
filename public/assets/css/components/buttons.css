@@ -336,3 +336,46 @@ div.btn-group__title-container {
 .btn-group--title-end .btn-group__subtitle {
     text-align: right !important;
 }
+
+/* Additional variants used by forms and style guides */
+.btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(47, 191, 113, 0.12);
+}
+
+.btn--outline {
+    background: var(--color-white) !important;
+    color: var(--color-ink) !important;
+    border: 1px solid rgba(15, 17, 42, 0.12) !important;
+}
+
+.btn--outline:hover {
+    background: rgba(15, 17, 42, 0.03) !important;
+    border-color: rgba(15, 17, 42, 0.18) !important;
+}
+
+.btn--ghost {
+    background: transparent !important;
+    color: var(--color-ink) !important;
+    border: 1px solid transparent !important;
+}
+
+.btn--ghost:hover {
+    background: rgba(15, 17, 42, 0.04) !important;
+}
+
+.btn--danger {
+    background: var(--color-status-error) !important;
+    border: 1px solid var(--color-status-error) !important;
+    color: var(--color-white) !important;
+}
+
+.btn--danger:hover {
+    background: rgba(239, 68, 68, 0.85) !important;
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
