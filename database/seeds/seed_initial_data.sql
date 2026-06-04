@@ -1,193 +1,87 @@
--- Seed: seed_initial_data.sql
--- Insert default roles, permissions, groups, admin user (replace password hash)
-START TRANSACTION;
+INSERT INTO `pt_areas` (`area_key`, `icon`, `name`, `description`, `start_path`, `is_active`, `is_external`, `sort_order`) VALUES
+  ('portal', 'icon-home', 'Portal', 'Portal Startbereich', '/', 1, 0, 10),
+  ('identity', 'icon-shield', 'Identity Service', 'Identity Verwaltung', '/identity', 1, 0, 20),
+  ('bibliocollect', 'icon-library', 'Bibliocollect', 'Schulbibliothek und Bestand', '/bibliocollect', 1, 0, 30),
+  ('methodenmatrix', 'icon-methods', 'MethodenMatrix', 'Methoden und Materialkatalog', '/methodenmatrix', 1, 0, 40),
+  ('development', 'icon-server', 'Development', 'Entwicklungswerkzeuge', '/development', 1, 0, 90),
+  ('styleguide', 'icon-layout', 'Style Guide', 'UI Komponenten und Patterns', '/styleguide', 1, 0, 100);
 
--- Roles
-INSERT INTO `ids_roles` (`name`,`slug`,`description`) VALUES
-  ('Administrator','admin','Full access'),
-  ('Editor','editor','Edit access'),
-  ('User','user','Basic user');
+INSERT INTO `pt_menus` (`area_id`, `name`, `slug`, `is_default`)
+SELECT a.id, CONCAT(a.name, ' Menü'), CONCAT(a.area_key, '.main'), 1
+FROM `pt_areas` a;
 
--- Permissions
-INSERT INTO `ids_permissions` (`action`,`description`) VALUES
-  ('areas.view','View areas'),
-  ('areas.edit','Edit areas'),
-  ('areas.manage','Manage areas'),
-  ('users.manage','Manage users');
+INSERT INTO `ids_permission_groups` (`group_key`, `name`, `description`, `is_system`) VALUES
+  ('portal.administrator', 'Portal Administrator', 'Voller Zugriff auf das Portal', 1),
+  ('portal.system_administrator', 'Portal System Administrator', 'Systemweite technische Verwaltung im Portal', 1),
+  ('portal.developer', 'Portal Developer', 'Entwicklung und technische Tools im Portal', 1),
+  ('portal.vorstand', 'Portal Vorstand', 'Vorstandsrolle im Portal', 1),
+  ('portal.geschaeftsfuehrung', 'Portal Geschaeftsfuehrung', 'Geschaeftsfuehrung im Portal', 1),
+  ('portal.geschaeftsstelle', 'Portal Geschaeftsstelle', 'Geschaeftsstelle im Portal', 1),
+  ('portal.teamende', 'Portal Teamende', 'Teamrolle im Portal', 1),
+  ('portal.mitglied', 'Portal Mitglied', 'Mitgliedsrolle im Portal', 1),
+  ('identity.administrator', 'Identity Administrator', 'Identity Verwaltung', 1),
+  ('bibliocollect.administrator', 'Bibliocollect Administrator', 'Voller Zugriff auf Bibliocollect', 1),
+  ('bibliocollect.developer', 'Bibliocollect Developer', 'Entwicklung in Bibliocollect', 1),
+  ('bibliocollect.verwaltung', 'Bibliocollect Verwaltung', 'Verwaltungsrolle in Bibliocollect', 1),
+  ('bibliocollect.mitarbeiter', 'Bibliocollect Mitarbeiter', 'Mitarbeitendenrolle in Bibliocollect', 1),
+  ('methodenmatrix.gast', 'MethodenMatrix Gast', 'Gastzugang MethodenMatrix', 1),
+  ('methodenmatrix.teamende', 'MethodenMatrix Teamende', 'Teamrolle MethodenMatrix', 1),
+  ('methodenmatrix.verwaltung', 'MethodenMatrix Verwaltung', 'Verwaltungsrolle MethodenMatrix', 1),
+  ('methodenmatrix.administration', 'MethodenMatrix Administration', 'Administration MethodenMatrix', 1);
 
--- Map role -> permissions
--- admin -> all permissions
-INSERT INTO `ids_role_permissions` (`role_id`,`permission_id`)
-  SELECT r.id, p.id FROM `ids_roles` r CROSS JOIN `ids_permissions` p WHERE r.slug='admin';
+INSERT INTO `pt_permission_group_area_access` (`permission_group_id`, `area_id`)
+SELECT pg.id, a.id
+FROM `ids_permission_groups` pg
+JOIN `pt_areas` a
+  ON (
+    (pg.group_key LIKE 'portal.%' AND a.area_key = 'portal')
+    OR (pg.group_key LIKE 'identity.%' AND a.area_key = 'identity')
+    OR (pg.group_key LIKE 'bibliocollect.%' AND a.area_key = 'bibliocollect')
+    OR (pg.group_key LIKE 'methodenmatrix.%' AND a.area_key = 'methodenmatrix')
+  );
 
--- editor -> areas.view + areas.edit
-INSERT INTO `ids_role_permissions` (`role_id`,`permission_id`)
-  SELECT r.id, p.id FROM `ids_roles` r JOIN `ids_permissions` p ON p.action IN ('areas.view','areas.edit') WHERE r.slug='editor';
+INSERT INTO `ids_users` (`user_uuid`, `identity_subject`, `email`, `display_name`, `password_hash`, `status`)
+VALUES (UNHEX('<USER_UUID>'), 'local.admin', 'admin@example.org', 'Admin User', '<BCRYPT_HASH>', 'active');
 
--- Groups
-INSERT INTO `ids_groups` (`name`,`slug`,`description`) VALUES
-  ('Administrators','administrators','Site administrators'),
-  ('Editors','editors','Content editors'),
-  ('Users','users','End users');
+INSERT INTO `ids_user_permission_groups` (`user_id`, `permission_group_id`)
+SELECT u.id, pg.id
+FROM `ids_users` u
+JOIN `ids_permission_groups` pg ON pg.group_key IN (
+  'portal.administrator',
+  'identity.administrator',
+  'bibliocollect.administrator',
+  'methodenmatrix.administration'
+)
+WHERE u.email = 'admin@example.org';
 
--- Admin user (replace <BCRYPT_HASH> below with a hash generated locally):
--- php -r "echo password_hash('ChangeMe123!', PASSWORD_DEFAULT).PHP_EOL;"
-INSERT INTO `ids_users` (`user_uuid`,`username`,`email`,`password_hash`,`first_name`,`last_name`,`is_active`) VALUES
-  (UNHEX('<USER_UUID>'),'admin','admin@example.org','<BCRYPT_HASH>','Admin','User',1);
+INSERT INTO `pt_ticket_types` (`type_key`, `name`, `description`, `is_active`) VALUES
+  ('general', 'Allgemein', 'Allgemeine Anfrage', 1),
+  ('seminar_request', 'Seminaranfrage', 'Anfrage zu Seminaren', 1),
+  ('technical', 'Technisch', 'Technischer Support', 1),
+  ('account', 'Account', 'Anfragen zu Nutzerkonten', 1);
 
--- Map admin user into Administrators group and admin role
-INSERT INTO `ids_user_groups` (`user_id`,`group_id`,`role`)
-  SELECT u.id, g.id, 'owner' FROM `ids_users` u JOIN `ids_groups` g WHERE u.username='admin' AND g.slug='administrators';
+INSERT INTO `cod_schools` (`school_key`, `name`, `school_code`, `street`, `house_number`, `postal_code`, `city`, `country`, `status`) VALUES
+  ('school_demo', 'Demo Schule', 'DEMO-001', 'Musterstrasse', '1', '12345', 'Berlin', 'DE', 'active');
 
-INSERT INTO `ids_user_roles` (`user_id`,`role_id`)
-  SELECT u.id, r.id FROM `ids_users` u JOIN `ids_roles` r WHERE u.username='admin' AND r.slug='admin';
+INSERT INTO `cod_seminar_templates` (`template_key`, `title`, `description`, `default_duration_minutes`, `is_active`) VALUES
+  ('template_intro', 'Einfuehrungsseminar', 'Baseline Seminarvorlage', 180, 1);
 
--- Default area
-INSERT INTO `pt_areas` (`name`,`slug`,`description`,`is_public`) VALUES
-  ('Main','main','Default area',1);
+INSERT INTO `pt_menu_items` (`menu_id`, `parent_id`, `title`, `slug`, `url`, `route_name`, `target`, `order_index`, `level`, `is_active`)
+SELECT m.id, NULL, 'Start', 'start', a.start_path, NULL, NULL, 10, 1, 1
+FROM `pt_menus` m
+JOIN `pt_areas` a ON a.id = m.area_id;
 
--- Map Administrators group to default area with management permissions
-INSERT INTO `pt_areas_groups` (`area_id`,`group_id`,`permissions`)
-  SELECT a.id, g.id, JSON_ARRAY('view','edit','manage') FROM `pt_areas` a JOIN `ids_groups` g WHERE a.slug='main' AND g.slug='administrators';
+INSERT INTO `pt_menu_items` (`menu_id`, `parent_id`, `title`, `slug`, `url`, `route_name`, `target`, `order_index`, `level`, `is_active`)
+SELECT m.id, NULL, 'Bereiche', 'areas', '/development/web-control/areas', NULL, NULL, 20, 1, 1
+FROM `pt_menus` m
+WHERE m.slug = 'portal.main';
 
--- Menus: create a default menu for the Main area and example items (max 3 levels)
-INSERT INTO `pt_menus` (`area_id`,`name`,`slug`,`is_default`,`created_at`)
-  SELECT id,'Main Menu','main-menu',1,NOW() FROM `pt_areas` WHERE slug='main' LIMIT 1;
+INSERT INTO `pt_menu_items` (`menu_id`, `parent_id`, `title`, `slug`, `url`, `route_name`, `target`, `order_index`, `level`, `is_active`)
+SELECT m.id, NULL, 'Menüs', 'menus', '/development/web-control/menus', NULL, NULL, 30, 1, 1
+FROM `pt_menus` m
+WHERE m.slug = 'portal.main';
 
-SET @menu_id = (SELECT id FROM `pt_menus` WHERE slug='main-menu' LIMIT 1);
-
--- Top-level items
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@menu_id,NULL,'Home','home','/','home','icon-home',1,1,1,NOW());
-SET @home_id = LAST_INSERT_ID();
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@menu_id,NULL,'Dashboard','dashboard','/dashboard','dashboard','icon-dashboard',2,1,1,NOW());
-SET @dashboard_id = LAST_INSERT_ID();
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@menu_id,NULL,'About','about','/about','about','icon-info',3,1,1,NOW());
-SET @about_id = LAST_INSERT_ID();
-
--- Second-level under Dashboard
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@menu_id,@dashboard_id,'Analytics','dashboard-analytics','/dashboard/analytics','dashboard.analytics','icon-analytics',1,2,1,NOW());
-SET @analytics_id = LAST_INSERT_ID();
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@menu_id,@dashboard_id,'Reports','dashboard-reports','/dashboard/reports','dashboard.reports','icon-reports',2,2,1,NOW());
-SET @reports_id = LAST_INSERT_ID();
-
--- Third-level under Analytics
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@menu_id,@analytics_id,'Realtime','dashboard-analytics-realtime','/dashboard/analytics/realtime','dashboard.analytics.realtime','icon-realtime',1,3,1,NOW());
-
-
-COMMIT;
-
--- Additional Areas: development + styleguide
-START TRANSACTION;
-
-INSERT INTO `pt_areas` (`name`,`slug`,`description`,`is_public`) VALUES
-  ('Development','development','Developer control area',1),
-  ('Style Guide','styleguide','UI style guide area',1);
-
--- Development: create default control menu
-INSERT INTO `pt_menus` (`area_id`,`name`,`slug`,`is_default`,`created_at`)
-  SELECT id,'Development Control','development-control-menu',1,NOW() FROM `pt_areas` WHERE slug='development' LIMIT 1;
-SET @dev_menu_id = (SELECT id FROM `pt_menus` WHERE slug='development-control-menu' LIMIT 1);
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@dev_menu_id,NULL,'Areas','areas','/development/web-control/areas','development.webcontrol.areas','icon-areas',1,1,1,NOW());
-SET @dev_areas_item = LAST_INSERT_ID();
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@dev_menu_id,NULL,'Menus','menus','/development/web-control/menus','development.webcontrol.menus','icon-menus',2,1,1,NOW());
-SET @dev_menus_item = LAST_INSERT_ID();
-
--- Style Guide: create default menu with entries matching routes
-INSERT INTO `pt_menus` (`area_id`,`name`,`slug`,`is_default`,`created_at`)
-  SELECT id,'Style Guide Menu','styleguide-menu',1,NOW() FROM `pt_areas` WHERE slug='styleguide' LIMIT 1;
-SET @style_menu_id = (SELECT id FROM `pt_menus` WHERE slug='styleguide-menu' LIMIT 1);
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@style_menu_id,NULL,'Overview','styleguide-overview','/styleguide','styleguide.index','icon-styleguide',1,1,1,NOW());
-SET @sg_overview = LAST_INSERT_ID();
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@style_menu_id,NULL,'Buttons','styleguide-buttons','/styleguide/buttons','styleguide.buttons','icon-buttons',2,1,1,NOW());
-SET @sg_buttons = LAST_INSERT_ID();
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@style_menu_id,NULL,'Buttons Generator','styleguide-buttons-generator','/styleguide/buttons/generator','styleguide.buttons.generator','icon-buttons-gen',3,1,1,NOW());
-SET @sg_buttons_gen = LAST_INSERT_ID();
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@style_menu_id,NULL,'Cards','styleguide-cards','/styleguide/cards','styleguide.cards','icon-cards',4,1,1,NOW());
-SET @sg_cards = LAST_INSERT_ID();
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@style_menu_id,NULL,'Containers','styleguide-containers','/styleguide/containers','styleguide.containers','icon-containers',5,1,1,NOW());
-SET @sg_containers = LAST_INSERT_ID();
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@style_menu_id,NULL,'Error Pages','styleguide-error-pages','/styleguide/error-pages','styleguide.errorPages','icon-error',6,1,1,NOW());
-SET @sg_error = LAST_INSERT_ID();
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@style_menu_id,NULL,'Forms','styleguide-forms','/styleguide/forms','styleguide.forms','icon-forms',7,1,1,NOW());
-SET @sg_forms = LAST_INSERT_ID();
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@style_menu_id,NULL,'Grids','styleguide-grids','/styleguide/grids','styleguide.grids','icon-grids',8,1,1,NOW());
-SET @sg_grids = LAST_INSERT_ID();
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@style_menu_id,NULL,'Hero','styleguide-hero','/styleguide/hero','styleguide.hero','icon-hero',9,1,1,NOW());
-SET @sg_hero = LAST_INSERT_ID();
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@style_menu_id,NULL,'Icons','styleguide-icons','/styleguide/icons','styleguide.icons','icon-icons',10,1,1,NOW());
-SET @sg_icons = LAST_INSERT_ID();
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@style_menu_id,NULL,'Links','styleguide-links','/styleguide/links','styleguide.links','icon-links',11,1,1,NOW());
-SET @sg_links = LAST_INSERT_ID();
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@style_menu_id,NULL,'Lists','styleguide-lists','/styleguide/lists','styleguide.lists','icon-lists',12,1,1,NOW());
-SET @sg_lists = LAST_INSERT_ID();
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@style_menu_id,NULL,'Pop-ups','styleguide-popups','/styleguide/pop-ups','styleguide.popups','icon-popups',13,1,1,NOW());
-SET @sg_popups = LAST_INSERT_ID();
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@style_menu_id,NULL,'Search','styleguide-search','/styleguide/search','styleguide.search','icon-search',14,1,1,NOW());
-SET @sg_search = LAST_INSERT_ID();
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@style_menu_id,NULL,'Sections','styleguide-sections','/styleguide/sections','styleguide.sections','icon-sections',15,1,1,NOW());
-SET @sg_sections = LAST_INSERT_ID();
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@style_menu_id,NULL,'Stats Grid','styleguide-stats-grid','/styleguide/stats-grid','styleguide.statsGrid','icon-stats',16,1,1,NOW());
-SET @sg_stats = LAST_INSERT_ID();
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@style_menu_id,NULL,'Status Messages','styleguide-status-messages','/styleguide/status-messages','styleguide.statusMessages','icon-status',17,1,1,NOW());
-SET @sg_status = LAST_INSERT_ID();
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@style_menu_id,NULL,'Submenu','styleguide-submenu','/styleguide/submenu','styleguide.submenu','icon-submenu',18,1,1,NOW());
-SET @sg_submenu = LAST_INSERT_ID();
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@style_menu_id,NULL,'Tables','styleguide-tables','/styleguide/tables','styleguide.tables','icon-tables',19,1,1,NOW());
-SET @sg_tables = LAST_INSERT_ID();
-
-INSERT INTO `pt_menu_items` (`menu_id`,`parent_id`,`title`,`slug`,`url`,`route_name`,`icon`,`order_index`,`level`,`is_active`,`created_at`)
-  VALUES (@style_menu_id,NULL,'Blog Post','styleguide-blog-post','/styleguide/blog-post','styleguide.blogPost','icon-blog',20,1,1,NOW());
-SET @sg_blog = LAST_INSERT_ID();
-
-COMMIT;
+INSERT INTO `pt_menu_items` (`menu_id`, `parent_id`, `title`, `slug`, `url`, `route_name`, `target`, `order_index`, `level`, `is_active`)
+SELECT m.id, NULL, 'Style Guide', 'styleguide', '/styleguide', NULL, NULL, 40, 1, 1
+FROM `pt_menus` m
+WHERE m.slug = 'portal.main';

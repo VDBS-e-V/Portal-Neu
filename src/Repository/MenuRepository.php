@@ -4,24 +4,20 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
-use PDO;
 use InvalidArgumentException;
+use PDO;
 
 final class MenuRepository
 {
-    private PDO $pdo;
-    private string $table = 'pt_menus';
-
-    public function __construct(PDO $pdo)
+    public function __construct(private PDO $pdo)
     {
-        $this->pdo = $pdo;
     }
 
     private function validateColumns(array $columns): void
     {
-        foreach ($columns as $col) {
-            if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $col)) {
-                throw new InvalidArgumentException("Invalid column name: {$col}");
+        foreach ($columns as $column) {
+            if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $column)) {
+                throw new InvalidArgumentException("Invalid column name: {$column}");
             }
         }
     }
@@ -31,43 +27,48 @@ final class MenuRepository
         if (empty($data)) {
             return 0;
         }
-        $cols = array_keys($data);
-        $this->validateColumns($cols);
-        $columns = implode(', ', $cols);
-        $placeholders = ':' . implode(', :', $cols);
 
-        $sql = "INSERT INTO {$this->table} ({$columns}) VALUES ({$placeholders})";
+        $columns = array_keys($data);
+        $this->validateColumns($columns);
+
+        $sql = sprintf(
+            'INSERT INTO pt_menus (%s) VALUES (%s)',
+            implode(', ', $columns),
+            ':' . implode(', :', $columns)
+        );
+
         $stmt = $this->pdo->prepare($sql);
         if (!$stmt->execute($data)) {
             return 0;
         }
+
         $id = $this->pdo->lastInsertId();
         return $id === '' ? 0 : (int) $id;
     }
 
     public function find(int $id): array
     {
-        $sql = "SELECT * FROM {$this->table} WHERE id = :id LIMIT 1";
-        $stmt = $this->pdo->prepare($sql);
+        $stmt = $this->pdo->prepare('SELECT * FROM pt_menus WHERE id = :id LIMIT 1');
         $stmt->execute(['id' => $id]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ?: [];
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
     }
 
     public function findAll(): array
     {
-        $sql = "SELECT * FROM {$this->table}";
-        $stmt = $this->pdo->query($sql);
+        $stmt = $this->pdo->query('SELECT * FROM pt_menus ORDER BY area_id ASC, name ASC');
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    public function findForArea(int $areaId): array
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM pt_menus WHERE area_id = :area_id LIMIT 1');
+        $stmt->execute(['area_id' => $areaId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
     }
 
     public function findDefaultForArea(int $areaId): array
     {
-        $sql = "SELECT * FROM {$this->table} WHERE area_id = :area_id AND is_default = 1 LIMIT 1";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['area_id' => $areaId]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ?: [];
+        return $this->findForArea($areaId);
     }
 
     public function update(int $id, array $data): bool
@@ -75,11 +76,13 @@ final class MenuRepository
         if (empty($data)) {
             return false;
         }
-        $cols = array_keys($data);
-        $this->validateColumns($cols);
-        $set = implode(', ', array_map(fn ($c) => "{$c} = :{$c}", $cols));
 
-        $sql = "UPDATE {$this->table} SET {$set} WHERE id = :id";
+        $columns = array_keys($data);
+        $this->validateColumns($columns);
+
+        $set = implode(', ', array_map(static fn (string $column): string => "{$column} = :{$column}", $columns));
+        $sql = sprintf('UPDATE pt_menus SET %s WHERE id = :id', $set);
+
         $stmt = $this->pdo->prepare($sql);
         $params = $data;
         $params['id'] = $id;
@@ -88,8 +91,7 @@ final class MenuRepository
 
     public function delete(int $id): bool
     {
-        $sql = "DELETE FROM {$this->table} WHERE id = :id";
-        $stmt = $this->pdo->prepare($sql);
+        $stmt = $this->pdo->prepare('DELETE FROM pt_menus WHERE id = :id');
         return (bool) $stmt->execute(['id' => $id]);
     }
 }

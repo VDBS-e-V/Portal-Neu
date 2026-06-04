@@ -17,11 +17,12 @@ $user = 'root'
 Get-ChildItem database/migrations/*.sql | ForEach-Object { mysql -u $user -p $dbName < $_.FullName }
 ```
 
-Run seed (after generating a bcrypt hash for the admin password and replacing `<BCRYPT_HASH>`):
+Run seed (the CLI replaces `<USER_UUID>` and `<BCRYPT_HASH>` automatically):
 ```
-mysql -u <user> -p <database> < database/seeds/seed_initial_data.sql
+SEED_ADMIN_PASSWORD="ChangeMe123!" php bin/console seed
 ```
 
 Notes:
-- Replace `<BCRYPT_HASH>` in `seed_initial_data.sql` with a secure hash produced locally (e.g. `php -r "echo password_hash('ChangeMe123!', PASSWORD_DEFAULT).PHP_EOL;"`).
+- `php bin/console seed` prompts for an admin password if `SEED_ADMIN_PASSWORD` is not set.
+- The seed runner injects a random `<USER_UUID>` value and hashes the provided admin password before executing the SQL.
 - Migrations assume MySQL >= 5.7 for `JSON` support. Adjust types if needed.

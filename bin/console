@@ -15,6 +15,7 @@ if (is_file($envFile)) {
 }
 
 $command = $argv[1] ?? '';
+$options = parseOptions($argv);
 
 if ($command === 'routes') {
     foreach (Routes::load() as $route) {
@@ -37,12 +38,12 @@ if ($command === 'migrate' || $command === 'migrate:status' || $command === 'see
     }
 
     if ($command === 'seed') {
-        runSeed();
+        runSeed($options);
         exit(0);
     }
 }
 
-fwrite(STDERR, "Usage: php bin/console routes|migrate|migrate:status|seed\n");
+fwrite(STDERR, "Usage: php bin/console routes|migrate|migrate:status|seed [--reset] [--admin-password=...] [--no-prompt]\n");
 exit(1);
 
 function getPdo(): PDO
@@ -82,6 +83,60 @@ function listSqlFiles(string $dir): array
     return array_values($all);
 }
 
+function parseOptions(array $argv): array
+{
+    $options = [];
+
+    foreach (array_slice($argv, 2) as $argument) {
+        if (!str_starts_with($argument, '--')) {
+            continue;
+        }
+
+        $argument = substr($argument, 2);
+        $position = strpos($argument, '=');
+
+        if ($position === false) {
+            $options[$argument] = true;
+            continue;
+        }
+
+        $key = substr($argument, 0, $position);
+        $value = substr($argument, $position + 1);
+        $options[$key] = $value;
+    }
+
+    return $options;
+}
+
+function readSqlFile(string $path): string
+{
+    $sql = file_get_contents($path);
+    if ($sql === false) {
+        fwrite(STDERR, "Failed to read $path\n");
+        exit(1);
+    }
+
+    return $sql;
+}
+
+function executeSqlStatements(PDO $pdo, string $sql, string $sourceLabel): void
+{
+    $statements = preg_split('/;\s*\n/', $sql);
+    if ($statements === false) {
+        fwrite(STDERR, "Failed to parse SQL in $sourceLabel\n");
+        exit(1);
+    }
+
+    foreach ($statements as $statement) {
+        $statement = trim($statement);
+        if ($statement === '' || str_starts_with($statement, '--')) {
+            continue;
+        }
+
+        $pdo->exec($statement);
+    }
+}
+
 function runMigrate(): void
 {
     $pdo = getPdo();
@@ -115,24 +170,9 @@ function runMigrate(): void
 
         $path = $dir . DIRECTORY_SEPARATOR . $file;
         echo "Running: $file\n";
-        $sql = file_get_contents($path);
-        if ($sql === false) {
-            fwrite(STDERR, "Failed to read $path\n");
-            exit(1);
-        }
-
         try {
             $pdo->beginTransaction();
-
-            // attempt to execute the SQL; split statements by semicolon+newline to be safer
-            $stmts = preg_split('/;\s*\n/', $sql);
-            foreach ($stmts as $s) {
-                $s = trim($s);
-                if ($s === '') {
-                    continue;
-                }
-                $pdo->exec($s);
-            }
+            executeSqlStatements($pdo, readSqlFile($path), $path);
 
             // ensure migrations table exists before inserting (it will after running 0000)
             $pdo->prepare('INSERT INTO `__migrations` (migration, batch) VALUES (?, ?)')->execute([$file, $batch]);
@@ -191,7 +231,73 @@ function runMigrateStatus(): void
     }
 }
 
-function runSeed(): void
+function resetSeedData(PDO $pdo): void
+{
+    $tables = [];
+    try {
+        $tables = $pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN) ?: [];
+    } catch (PDOException $e) {
+        return;
+    }
+
+    $tables = array_values(array_filter($tables, static fn ($table): bool => $table !== '__migrations'));
+
+    if (empty($tables)) {
+        return;
+    }
+
+    $pdo->exec('SET FOREIGN_KEY_CHECKS=0');
+    foreach ($tables as $table) {
+        $tableName = str_replace('`', '``', (string) $table);
+        $pdo->exec("DELETE FROM `{$tableName}`");
+    }
+    $pdo->exec('SET FOREIGN_KEY_CHECKS=1');
+}
+
+function resolveSeedPassword(array $options): string
+{
+    $password = (string) ($options['admin-password'] ?? (getenv('SEED_ADMIN_PASSWORD') ?: ''));
+    if ($password !== '') {
+        return $password;
+    }
+
+    if (!empty($options['no-prompt'])) {
+        fwrite(STDERR, "Seed admin password is required. Use SEED_ADMIN_PASSWORD or --admin-password=...\n");
+        exit(1);
+    }
+
+    fwrite(STDOUT, "Enter admin password for seed (will be hashed): ");
+    $password = trim((string) fgets(STDIN));
+    if ($password === '') {
+        fwrite(STDERR, "No password provided; aborting seed.\n");
+        exit(1);
+    }
+
+    return $password;
+}
+
+function replaceSeedPlaceholders(string $sql, array $options): string
+{
+    if (strpos($sql, '<USER_UUID>') !== false) {
+        try {
+            $hex = bin2hex(random_bytes(16));
+        } catch (Exception $e) {
+            $hex = str_replace('.', '', uniqid('', true));
+            $hex = substr(str_pad($hex, 32, '0'), 0, 32);
+        }
+
+        $sql = str_replace('<USER_UUID>', $hex, $sql);
+    }
+
+    if (strpos($sql, '<BCRYPT_HASH>') !== false) {
+        $hash = password_hash(resolveSeedPassword($options), PASSWORD_DEFAULT);
+        $sql = str_replace('<BCRYPT_HASH>', addslashes($hash), $sql);
+    }
+
+    return $sql;
+}
+
+function runSeed(array $options): void
 {
     $pdo = getPdo();
     $dir = dirname(__DIR__) . '/database/seeds';
@@ -202,52 +308,18 @@ function runSeed(): void
         return;
     }
 
+    if (!empty($options['reset'])) {
+        echo "Resetting seed data...\n";
+        resetSeedData($pdo);
+    }
+
     foreach ($files as $file) {
         $path = $dir . DIRECTORY_SEPARATOR . $file;
         echo "Seeding: $file\n";
-        $sql = file_get_contents($path);
-        if ($sql === false) {
-            fwrite(STDERR, "Failed to read $path\n");
-            exit(1);
-        }
-
-        // Replace placeholder user UUID if present
-        if (strpos($sql, '<USER_UUID>') !== false) {
-            try {
-                $hex = bin2hex(random_bytes(16));
-            } catch (Exception $e) {
-                // fallback to using uniqid-based hex
-                $hex = str_replace('.', '', uniqid('', true));
-                $hex = substr(str_pad($hex, 32, '0'), 0, 32);
-            }
-            $sql = str_replace('<USER_UUID>', $hex, $sql);
-        }
-
-        // Replace placeholder bcrypt hash if present
-        if (strpos($sql, '<BCRYPT_HASH>') !== false) {
-            $password = getenv('SEED_ADMIN_PASSWORD');
-            if ($password === false || $password === '') {
-                fwrite(STDOUT, "Enter admin password for seed (will be hashed): ");
-                $password = trim(fgets(STDIN));
-                if ($password === '') {
-                    fwrite(STDERR, "No password provided; aborting seed.\n");
-                    exit(1);
-                }
-            }
-            $hash = password_hash($password, PASSWORD_DEFAULT);
-            $sql = str_replace('<BCRYPT_HASH>', addslashes($hash), $sql);
-        }
-
         try {
             $pdo->beginTransaction();
-            $stmts = preg_split('/;\s*\n/', $sql);
-            foreach ($stmts as $s) {
-                $s = trim($s);
-                if ($s === '') {
-                    continue;
-                }
-                $pdo->exec($s);
-            }
+            $sql = replaceSeedPlaceholders(readSqlFile($path), $options);
+            executeSqlStatements($pdo, $sql, $path);
             try {
                 if ($pdo->inTransaction()) {
                     $pdo->commit();
@@ -262,7 +334,11 @@ function runSeed(): void
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
-            fwrite(STDERR, "Failed to seed $file: " . $e->getMessage() . "\n");
+            $message = $e->getMessage();
+            if (strpos($message, 'Duplicate entry') !== false && empty($options['reset'])) {
+                $message .= "\nHint: the seed data already exists. Re-run with --reset to clear and reseed the database.";
+            }
+            fwrite(STDERR, "Failed to seed $file: " . $message . "\n");
             exit(1);
         }
     }

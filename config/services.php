@@ -3,14 +3,15 @@
 declare(strict_types=1);
 
 use App\Bootstrap\Container;
+use App\Http\Controller\HomeController;
 use App\Http\Routing\Router;
 use App\Presentation\Templating\PhpRenderer;
 use App\Presentation\Templating\Renderer;
 // Built-in global classes (PDO, PDOException, RuntimeException) don't need importing
 use App\Http\Controller\DevelopmentController;
 use App\Repository\AreaRepository;
-use App\Repository\MenuRepository;
 use App\Repository\MenuItemRepository;
+use App\Repository\MenuRepository;
 use App\Repository\UserRepository;
 
 return [
@@ -43,6 +44,12 @@ return [
     },
     AreaRepository::class => static function (Container $container): AreaRepository {
         return new AreaRepository($container->get(PDO::class));
+    },
+    HomeController::class => static function (Container $container): HomeController {
+        return new HomeController(
+            $container->get(Renderer::class),
+            $container->get(AreaRepository::class)
+        );
     },
     MenuRepository::class => static function (Container $container): MenuRepository {
         return new MenuRepository($container->get(PDO::class));

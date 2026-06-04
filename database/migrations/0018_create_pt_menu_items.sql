@@ -1,5 +1,3 @@
--- Migration: 0013_create_pt_menu_items.sql
--- Creates hierarchical menu items (max 3 levels enforced by CHECK)
 CREATE TABLE IF NOT EXISTS `pt_menu_items` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `menu_id` BIGINT UNSIGNED NOT NULL,
@@ -14,9 +12,9 @@ CREATE TABLE IF NOT EXISTS `pt_menu_items` (
   `level` TINYINT UNSIGNED NOT NULL DEFAULT 1,
   `is_active` TINYINT(1) DEFAULT 1,
   `settings` JSON DEFAULT NULL,
-  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `deleted_at` TIMESTAMP NULL DEFAULT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted_at` DATETIME NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_pt_menu_items_menu_id` (`menu_id`),
   KEY `idx_pt_menu_items_parent_id` (`parent_id`),

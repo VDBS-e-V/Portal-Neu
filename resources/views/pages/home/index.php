@@ -118,6 +118,14 @@
 			</h2>
 		</div>
 
+        <?php        
+        foreach ($areas as $area) {
+            ?>
+            <a href="<?php echo $area["link"] ?>" class="link--no-style"><button class="btn btn--secondary-cta-light btn--md"><?php echo $area["name"] ?></button></a>
+            <?php
+        }    
+        ?>
+
         <a href="/vorstand" class="link--no-style"><button class="btn btn--secondary-cta-light btn--md">Vorstand</button></a>
         <a href="/development" class="link--no-style"><button class="btn btn--secondary-cta-light btn--md">Development</button></a>
         <a href="/styleguide" class="link--no-style"><button class="btn btn--secondary-cta-light btn--md">StyleGuide</button></a>

@@ -9,8 +9,8 @@
 				<?php if (!empty($headerAreas)): ?>
 					<?php foreach ($headerAreas as $ha): ?>
 						<?php
-							$slug = (string) ($ha['slug'] ?? '');
-							$areaUrl = ($slug === '' || $slug === 'main') ? '/' : ('/' . ltrim($slug, '/'));
+							$startPath = (string) ($ha['start_path'] ?? '/');
+							$areaUrl = $startPath !== '' ? $startPath : '/';
 						?>
 						<li class="header-top-areas-list-item">
 							<a href="<?= htmlspecialchars($areaUrl, ENT_QUOTES, 'UTF-8') ?>" class="link--no-style"><?= htmlspecialchars((string)($ha['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></a>

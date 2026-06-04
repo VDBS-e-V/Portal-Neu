@@ -46,34 +46,21 @@ final class PhpRenderer implements Renderer
                     $menuRepo = $this->container->get(\App\Repository\MenuRepository::class);
                     $menuItemRepo = $this->container->get(\App\Repository\MenuItemRepository::class);
 
-                    // determine selected area id: prefer template params, fall back to first header area
-                    $selectedAreaId = null;
-                    if (isset($parameters['area']) && is_array($parameters['area']) && isset($parameters['area']['id'])) {
-                        $selectedAreaId = (int) $parameters['area']['id'];
-                    } elseif (isset($parameters['area_id'])) {
-                        $selectedAreaId = (int) $parameters['area_id'];
-                    } elseif (isset($parameters['areaId'])) {
-                        $selectedAreaId = (int) $parameters['areaId'];
-                    } elseif (!empty($global['headerAreas'])) {
-                        $first = $global['headerAreas'][0] ?? null;
-                        $selectedAreaId = $first && isset($first['id']) ? (int) $first['id'] : null;
-                    }
+                    $selectedAreaId = $this->resolveAreaIdForHeader($parameters, $global['headerAreas'] ?? []);
 
-                    if ($selectedAreaId) {
-                        $defaultMenu = $menuRepo->findDefaultForArea($selectedAreaId);
-                        if (!empty($defaultMenu) && isset($defaultMenu['id'])) {
-                            $global['headerMenus'] = $menuItemRepo->findByMenuIdAndParent((int) $defaultMenu['id'], null);
-                        } else {
-                            $global['headerMenus'] = [];
+                    if ($selectedAreaId !== null && $selectedAreaId > 0) {
+                        $areaMenu = $menuRepo->findForArea($selectedAreaId);
+                        if (!empty($areaMenu) && isset($areaMenu['id'])) {
+                            $global['headerMenus'] = $menuItemRepo->findByMenuIdAndParent((int) $areaMenu['id'], null);
                         }
-                    } else {
-                        $global['headerMenus'] = [];
                     }
                 }
             } catch (\Throwable $e) {
                 // ignore header menus on error
             }
         }
+
+        $global['headerMenus'] = $global['headerMenus'] ?? [];
 
         $parameters = array_merge($global, $parameters);
 
@@ -97,5 +84,66 @@ final class PhpRenderer implements Renderer
         })($file, $parameters);
 
         return (string) ob_get_clean();
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     * @param array<int, array<string, mixed>> $headerAreas
+     */
+    private function resolveAreaIdForHeader(array $parameters, array $headerAreas): ?int
+    {
+        if (isset($parameters['area']) && is_array($parameters['area']) && isset($parameters['area']['id'])) {
+            return (int) $parameters['area']['id'];
+        }
+
+        if (isset($parameters['area_id'])) {
+            return (int) $parameters['area_id'];
+        }
+
+        if (isset($parameters['areaId'])) {
+            return (int) $parameters['areaId'];
+        }
+
+        $path = (string) ($parameters['path'] ?? '/');
+        $bestMatch = null;
+        $bestLength = -1;
+
+        foreach ($headerAreas as $area) {
+            if (!isset($area['id'])) {
+                continue;
+            }
+
+            $startPath = trim((string) ($area['start_path'] ?? '/'));
+            if ($startPath === '') {
+                $startPath = '/';
+            }
+
+            $matches = $startPath === '/'
+                ? true
+                : $path === $startPath || str_starts_with($path, rtrim($startPath, '/') . '/');
+
+            if (!$matches) {
+                continue;
+            }
+
+            $length = strlen($startPath);
+            if ($length > $bestLength) {
+                $bestLength = $length;
+                $bestMatch = (int) $area['id'];
+            }
+        }
+
+        if ($bestMatch !== null) {
+            return $bestMatch;
+        }
+
+        if (!empty($headerAreas)) {
+            $firstArea = $headerAreas[0] ?? null;
+            if (is_array($firstArea) && isset($firstArea['id'])) {
+                return (int) $firstArea['id'];
+            }
+        }
+
+        return null;
     }
 }

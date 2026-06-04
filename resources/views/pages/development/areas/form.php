@@ -13,10 +13,14 @@
     <?php
     $area = $area ?? [];
     $id = $area['id'] ?? '';
+    $areaKey = $area['area_key'] ?? '';
+    $icon = $area['icon'] ?? '';
     $name = $area['name'] ?? '';
-    $slug = $area['slug'] ?? '';
     $description = $area['description'] ?? '';
-    $isPublic = !empty($area['is_public']) ? 1 : 0;
+    $startPath = $area['start_path'] ?? '/';
+    $isActive = !empty($area['is_active']) ? 1 : 0;
+    $isExternal = !empty($area['is_external']) ? 1 : 0;
+    $sortOrder = $area['sort_order'] ?? 0;
     $action = $id === '' ? '/development/web-control/areas/create' : '/development/web-control/areas/edit';
     ?>
 
@@ -30,8 +34,18 @@
         </div>
 
         <div class="form__field">
-            <label class="form__label" for="area-slug">Slug</label>
-            <input class="form__input" id="area-slug" type="text" name="slug" value="<?= htmlspecialchars((string)$slug, ENT_QUOTES, 'UTF-8') ?>" />
+            <label class="form__label" for="area-key">Area Key</label>
+            <input class="form__input" id="area-key" type="text" name="area_key" value="<?= htmlspecialchars((string)$areaKey, ENT_QUOTES, 'UTF-8') ?>" />
+        </div>
+
+        <div class="form__field">
+            <label class="form__label" for="area-icon">Icon</label>
+            <input class="form__input" id="area-icon" type="text" name="icon" value="<?= htmlspecialchars((string)$icon, ENT_QUOTES, 'UTF-8') ?>" placeholder="icon-home" />
+        </div>
+
+        <div class="form__field">
+            <label class="form__label" for="area-start-path">Startpfad</label>
+            <input class="form__input" id="area-start-path" type="text" name="start_path" value="<?= htmlspecialchars((string)$startPath, ENT_QUOTES, 'UTF-8') ?>" />
         </div>
 
         <div class="form__field">
@@ -40,8 +54,19 @@
         </div>
 
         <div class="form__field">
+            <label class="form__label" for="area-sort-order">Sortierung</label>
+            <input class="form__input" id="area-sort-order" type="number" name="sort_order" value="<?= htmlspecialchars((string)$sortOrder, ENT_QUOTES, 'UTF-8') ?>" />
+        </div>
+
+        <div class="form__field">
             <label class="form__label">
-                <input type="checkbox" name="is_public" value="1" <?= $isPublic ? 'checked' : '' ?> /> Öffentlich
+                <input type="checkbox" name="is_active" value="1" <?= $isActive ? 'checked' : '' ?> /> Aktiv
+            </label>
+        </div>
+
+        <div class="form__field">
+            <label class="form__label">
+                <input type="checkbox" name="is_external" value="1" <?= $isExternal ? 'checked' : '' ?> /> Externes System
             </label>
         </div>
 
