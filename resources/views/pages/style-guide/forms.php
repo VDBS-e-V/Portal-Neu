@@ -1,23 +1,85 @@
 <?php declare(strict_types=1); ?>
 
-<?php
-$intro = 'Formularelemente mit Labels, Eingaben und Aktionsleiste.';
-$examples = [[
-    'title' => 'Formularfeld',
-    'lead' => 'Einfaches Such- oder Eingabefeld mit Aktionen.',
-    'html' => <<<'HTML'
-<form class="form">
-    <label class="form__label" for="demo-name">Name</label>
-    <input class="form__input" id="demo-name" name="demo-name" type="text" placeholder="Max Mustermann">
+<form action="">
+    <div class="form_container">
 
-    <label class="form__label" for="demo-message">Nachricht</label>
-    <textarea class="form__textarea" id="demo-message" name="demo-message" rows="4" placeholder="Ihre Nachricht"></textarea>
+        <div class="form_title">
+            <h2>Beispiel Formular</h2>
+        </div>
 
-    <div class="btn-group" aria-label="Formularaktionen">
-        <button class="btn btn--primary btn--md" type="submit">Speichern</button>
-        <button class="btn btn--ghost btn--md" type="reset">Zurücksetzen</button>
+        <div class="form_section_title coolor__primary">
+            <h4>Text Eingaben</h4>
+        </div>
+
+        <div class="form_item">
+            <label for="input-text">Input Text</label>
+            <input type="text" id="input-text" name="input-text">
+        </div>
+
+        <div class="form_item">
+            <label for="input-email">Input E-Mail</label>
+            <input type="email" id="input-email" name="input-email">
+        </div>
+
+        <div class="form_item">
+            <label for="input-password">Input Passwort</label>
+            <input type="password" id="input-password" name="input-password">
+        </div>
+
+        <div class="form_item">
+            <label for="input-search">Input Suche</label>
+            <input type="search" id="input-search" name="input-search">
+        </div>
+
+        <div class="form_item">
+            <label for="input-url">Input URL</label>
+            <input type="url" id="input-url" name="input-urlurl">
+        </div>
+
+
+        <div class="form_section_title coolor__secondary_cta">
+            <h4>Nummer Eingaben</h4>
+        </div>
+
+        <div class="form_item">
+            <label for="input-number">Input Nummern</label>
+            <input type="number" id="input-number" name="input-number">
+        </div>
+
+        <div class="form_item">
+            <label for="input-tel">Input Telefon</label>
+            <input type="tel" id="input-tel" name="input-tel">
+        </div>
+        
+
+        <div class="form_section_title coolor__secondary_highlight">
+            <h4>Zeitpunkt Eingaben</h4>
+        </div>
+
+        <div class="form_item">
+            <label for="input-date">Input Datum</label>
+            <input type="date" id="input-date" name="input-date">
+        </div>        
+
+        <div class="form_item">
+            <label for="input-datetime-local">Input Zeitstempel</label>
+            <input type="datetime-local" id="input-datetime-local" name="input-datetime-local">
+        </div>
+
+        <div class="form_item">
+            <label for="input-month">Input Monat</label>
+            <input type="month" id="input-month" name="input-month">
+        </div>
+
+        <div class="form_item">
+            <label for="input-time">Input Zeit</label>
+            <input type="time" id="input-time" name="input-time">
+        </div>
+
+        <div class="form_item">
+            <label for="input-week">Input Week</label>
+            <input type="week" id="input-week" name="input-week">
+        </div>
+
     </div>
 </form>
-HTML,
-]];
-require __DIR__ . '/_component-page.php';
