@@ -81,5 +81,57 @@
             <input type="week" id="input-week" name="input-week">
         </div>
 
+        <div class="form_section_title coolor__secondary_highlight">
+            <h4>Weitere Eingaben</h4>
+        </div>
+
+        <div class="form_item">
+            <label for="">Textarea</label>
+            <textarea name="" id=""></textarea>
+        </div>
+
+        <div class="form_item">
+            <label for="">Select</label>
+            <select name="" id="">
+                <option value="option-1">Option 1</option>
+                <option value="option-2">Option 2</option>
+                <option value="option-3">Option 3</option>
+                <option value="option-4">Option 4</option>
+            </select>
+        </div>
+
+        <div class="form_item">
+            <label for="">Select Multi</label>
+            <select name="" id="" multiple>
+                <option value="option-1">Option 1</option>
+                <option value="option-2">Option 2</option>
+                <option value="option-3">Option 3</option>
+                <option value="option-4">Option 4</option>
+            </select>
+        </div>
+
+        <div class="form_item">
+            <label for="">Datalist</label>
+            <input type="text" list="example">
+            <datalist id="example">
+                <option value="option-1">Option 1</option>
+                <option value="option-2">Option 2</option>
+                <option value="option-3">Option 3</option>
+                <option value="option-4">Option 4</option>
+            </datalist>
+        </div>
+
+        <div class="form_item span__full">
+            <label for="">TinyMCE</label>
+            <textarea id="mytextarea" style="width: 100%;">Hello, World!</textarea>
+            <script>
+            tinymce.init({
+                selector: '#mytextarea',
+                height: 500,
+                license_key: 'gpl'
+            });
+            </script>
+        </div>
+
     </div>
 </form>

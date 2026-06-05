@@ -65,6 +65,11 @@ form {
     gap: 1.5rem clamp(0.5rem, 3vw, 3rem);
 }
 
+.form_container.colums__1 { grid-template-columns: repeat(1, 1fr); }
+.form_container.colums__2 { grid-template-columns: repeat(2, 1fr); }
+.form_container.colums__3 { grid-template-columns: repeat(3, 1fr); }
+.form_container.colums__4 { grid-template-columns: repeat(4, 1fr); }
+
 /* Title */
 .form_title {
     grid-column: 1/-1;
@@ -114,6 +119,11 @@ form {
     gap: 0;
 }
 
+.form_item.span__2col { grid-column: span 2; }
+.form_item.span__3col { grid-column: span 3; }
+.form_item.span__4col { grid-column: span 4; }
+.form_item.span__full { grid-column: 1/-1; }
+
 .form_item label {
     width: 100%;
     text-align: left;
@@ -123,11 +133,14 @@ form {
     margin-bottom: 0.375rem;
 }
 
-.form_item input {
+.form_item input,
+.form_item select,
+.form_item textarea {
     width: 100%;
     outline: none;
     border: none;
     border-bottom: 2px solid color-mix(var(--color-ink), 60% transparent);
+    background: none;
     color: color-mix(var(--color-ink), 20% transparent);
     font-size: 1rem;
     font-weight: var(--font-weight-regular);
@@ -195,3 +208,48 @@ form {
 .form_item input[type="time"] {}
 
 .form_item input[type="week"] {}
+
+
+.form_item select[multiple] {
+    width: 100%;
+    height: min(7rem, 10rem);
+    padding: 0.375rem 0.25rem;
+    border: none;
+    border-bottom: 2px solid color-mix(var(--color-ink), 60% transparent);
+    background-color: #ffffff;
+    color: var(--color-ink);
+    font-size: 1rem;
+    font-weight: var(--font-weight-regular);
+    line-height: 1.4;
+    outline: none;
+    appearance: auto;
+    -webkit-appearance: auto;
+    -moz-appearance: auto;
+}
+
+.form_item select[multiple]:hover,
+.form_item select[multiple]:focus,
+.form_item select[multiple]:focus-visible {
+    outline: none;
+    border: none;
+    border-bottom: 2px solid var(--color-secondary-highlight);
+    color: var(--color-ink);
+    background-color: #ffffff;
+}
+
+.form_item select[multiple]:disabled {
+    background-color: #f5f5f5;
+    border-bottom: 2px solid color-mix(var(--color-ink), 60% transparent);
+    color: color-mix(var(--color-ink), 10% transparent);
+}
+
+.form_item select[multiple] option {
+    padding: 0.4rem 0.6rem;
+    color: var(--color-ink);
+    background-color: #ffffff;
+}
+
+.form_item select[multiple] option:checked {
+    background-color: rgba(112, 89, 140, 0.15);
+    color: var(--color-ink);
+}
