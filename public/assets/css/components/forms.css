@@ -147,11 +147,31 @@ form {
     color: var(--color-ink)
 }
 
-.form_item input:invalid {
+/*.form_item input:valid {
+    border-bottom: 2px solid var(--color-status-success);
+    color: var(--color-status-success);
+}*/
+
+.form_item input:invalid,
+.form_item input:user-invalid {
     border-bottom: 2px solid var(--color-status-error);
     color: var(--color-status-error);
 }
 
+.form_item input:read-only,
+.form_item input:disabled {    
+    background: color-mix(var(--color-ink) 5%);
+    border-bottom: 2px solid color-mix(var(--color-ink), 60% transparent);
+    color: color-mix(var(--color-ink), 10% transparent);
+}
+.form_item input:read-only:hover,
+.form_item input:disabled:hover {    
+    border-bottom: 2px solid color-mix(var(--color-ink), 60% transparent);
+    color: color-mix(var(--color-ink), 20% transparent);
+}
+
+
+/* Typen */
 .form_item input[type="text"] {}
 
 .form_item input[type="email"] {}
