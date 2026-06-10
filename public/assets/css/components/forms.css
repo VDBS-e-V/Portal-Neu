@@ -1,269 +1,1746 @@
 /*
-Formular-Komponente für den Style Guide.
+Forms — Komponenten-Styling
+==============================================================================
+Zweck
+------------------------------------------------------------------------------
+Diese Datei definiert ein einheitliches Formularsystem für das VDBS Portal.
 
-Diese Datei definiert das visuelle Grundgerüst für Formulare und deren einzelne
-Bestandteile. Die Struktur ist bewusst einfach gehalten, damit sie für viele
-Formulararten wiederverwendbar bleibt.
+Sie ist zuständig für:
+- Formular-Layouts
+- Formularfelder
+- Labels, Hilfetexte und Fehlermeldungen
+- Eingabefelder, Selects und Textareas
+- Checkboxen, Radios und Switches
+- Datei-Uploads
+- Suchfelder
+- Formular-Aktionen
+- Fokus-, Hover-, Fehler-, Erfolgs- und Disabled-Zustände
+- Kompatibilität mit vorhandenen Klassen aus älteren Formularen
 
-Aufbau:
-- `form`:
-  Grundcontainer für das gesamte Formular. Hier können später globale
-  Form-Styles, Abstände oder Layout-Regeln ergänzt werden.
-- `.form_container`:
-  Das Haupt-Layout des Formulars. Es nutzt ein Grid mit 4 Spalten, damit
-  Formularfelder flexibel nebeneinander angeordnet werden können.
-  Der Abstand zwischen Spalten und Zeilen ist responsiv und passt sich je nach
-  Bildschirmgröße an.
-- `.form_title`:
-  Überschrift des Formulars. Sie spannt sich über die komplette Breite und
-  dient als klarer Einstieg in den Formularbereich.
-- `.form_section_title`:
-  Abschnittsüberschrift für thematische Gruppen wie Text-Eingaben, Zahlen oder
-  Zeitfelder. Diese Überschriften trennen die Inhalte optisch voneinander und
-  verbessern die Lesbarkeit.
-- `.form_item`:
-  Einzelnes Formularfeld inklusive Label und Input. Die Elemente sind unter-
-  einander angeordnet, damit das Formular ruhig, sauber und leicht scannbar wirkt.
 
-Typografie und Farblogik:
-- Labels sind bewusst kleiner und leichter gesetzt, damit sie nicht mit den
-  eigentlichen Eingabefeldern konkurrieren.
-- Inputs und Überschriften verwenden die globalen Farbvariablen aus dem
-  Design-System.
-- Die Farbvarianten mit `coolor__primary`, `coolor__secondary_cta` und
-  `coolor__secondary_highlight` erlauben thematische Hervorhebungen einzelner
-  Bereiche.
+Grundprinzip
+------------------------------------------------------------------------------
+Ein Formular besteht idealerweise aus:
 
-Interaktionsverhalten:
-- Beim Hover, Fokus und `focus-visible` wird das aktive Feld mit der
-  Highlight-Farbe unterstrichen.
-- Dadurch erkennt der Nutzer sofort, welches Feld gerade aktiv ist.
-- Ungültige Eingaben werden über `:invalid` mit der Error-Farbe markiert, damit
-  Validierungsprobleme direkt sichtbar sind.
+<form class="form">
+    <div class="form__grid form__grid--2">
+        <div class="form__title">
+            <h2>Formulartitel</h2>
+            <p>Kurze Erklärung zum Formular.</p>
+        </div>
 
-Eingabetypen:
-- Für verschiedene `input[type="..."]` sind leere Selektoren vorbereitet.
-  Diese dienen als Platzhalter für spätere Typ-spezifische Anpassungen,
-  zum Beispiel bei Breiten, Icons, Sonderabständen oder browserabhängigen
-  Feinanpassungen.
+        <div class="form__field">
+            <label class="form__label" for="name">Name</label>
+            <input class="form__control" id="name" name="name" type="text">
+            <p class="form__hint">Bitte geben Sie Ihren vollständigen Namen ein.</p>
+        </div>
 
-Ziel:
-- Einheitliche Darstellung aller Formulare
-- Gute Lesbarkeit
-- Klare visuelle Trennung der Bereiche
-- Leichte Erweiterbarkeit für neue Formularfelder und Varianten
+        <div class="form__actions">
+            <button class="btn btn--primary btn--md" type="submit">Speichern</button>
+        </div>
+    </div>
+</form>
+
+
+Bestehende / alte Klassen
+------------------------------------------------------------------------------
+Die alte Struktur bleibt bewusst kompatibel:
+
+<form>
+    <div class="form_container colums__2">
+        <div class="form_title">
+            <h2>Formulartitel</h2>
+        </div>
+
+        <div class="form_item">
+            <label for="email">E-Mail</label>
+            <input id="email" type="email">
+        </div>
+    </div>
+</form>
+
+Diese Datei unterstützt daher beide Schreibweisen:
+
+Neu:
+- .form
+- .form__grid
+- .form__title
+- .form__section-title
+- .form__field
+- .form__label
+- .form__control
+- .form__hint
+- .form__message
+- .form__actions
+
+Alt / Kompatibilität:
+- .form_container
+- .form_title
+- .form_section_title
+- .form_item
+- .span__2col
+- .span__3col
+- .span__4col
+- .span__full
+- .colums__1
+- .colums__2
+- .colums__3
+- .colums__4
+
+
+Farblogik
+------------------------------------------------------------------------------
+Alle Farben kommen aus tokens.css.
+
+Direkte Farben:
+- --color-ink
+- --color-white
+- --color-surface-bg
+- --color-primary
+- --color-secondary-cta
+- --color-secondary-highlight
+- --color-status-success
+- --color-status-error
+- --color-status-warning
+- --color-status-info
+
+Einheitliche Farbmischungen:
+- Subtile Flächen:
+  color-mix(in srgb, var(--color-ink) 4%, var(--color-white))
+
+- Subtile Linien:
+  color-mix(in srgb, var(--color-ink) 18%, transparent)
+
+- Hover-Flächen:
+  color-mix(in srgb, var(--color-ink) 6%, var(--color-white))
+
+- Fokus-Flächen:
+  color-mix(in srgb, var(--color-secondary-cta) 10%, var(--color-white))
+
+- Fokus-Ring:
+  color-mix(in srgb, var(--color-primary) 32%, transparent)
+
+
+Layouts
+==============================================================================
+
+1. Einspaltiges Formular
+------------------------------------------------------------------------------
+
+<form class="form">
+    <div class="form__grid form__grid--1">
+        ...
+    </div>
+</form>
+
+
+2. Zweispaltiges Formular
+------------------------------------------------------------------------------
+
+<form class="form">
+    <div class="form__grid form__grid--2">
+        <div class="form__field">
+            <label class="form__label" for="first_name">Vorname</label>
+            <input class="form__control" id="first_name" type="text">
+        </div>
+
+        <div class="form__field">
+            <label class="form__label" for="last_name">Nachname</label>
+            <input class="form__control" id="last_name" type="text">
+        </div>
+    </div>
+</form>
+
+
+3. Vier-Spalten-Grid mit breiten Feldern
+------------------------------------------------------------------------------
+
+<form class="form">
+    <div class="form__grid form__grid--4">
+        <div class="form__field form__field--span-2">
+            ...
+        </div>
+
+        <div class="form__field form__field--span-full">
+            ...
+        </div>
+    </div>
+</form>
+
+
+4. Formular mit Abschnittstiteln
+------------------------------------------------------------------------------
+
+<form class="form">
+    <div class="form__grid form__grid--2">
+        <div class="form__title">
+            <h2>Profil bearbeiten</h2>
+            <p>Aktualisieren Sie Ihre persönlichen Daten.</p>
+        </div>
+
+        <div class="form__section-title">
+            <h3>Persönliche Daten</h3>
+            <p>Name, E-Mail-Adresse und Kontaktinformationen.</p>
+        </div>
+
+        ...
+    </div>
+</form>
+
+
+Formularfelder
+==============================================================================
+
+1. Textfeld
+------------------------------------------------------------------------------
+
+<div class="form__field">
+    <label class="form__label" for="name">Name</label>
+    <input class="form__control" id="name" name="name" type="text">
+</div>
+
+
+2. Pflichtfeld
+------------------------------------------------------------------------------
+
+<div class="form__field">
+    <label class="form__label" for="email">
+        E-Mail-Adresse <span class="form__required">*</span>
+    </label>
+
+    <input class="form__control" id="email" name="email" type="email" required>
+    <p class="form__hint">Wir nutzen diese Adresse nur für Rückfragen.</p>
+</div>
+
+
+3. Feld mit Fehler
+------------------------------------------------------------------------------
+
+<div class="form__field is-invalid">
+    <label class="form__label" for="email">E-Mail-Adresse</label>
+    <input class="form__control" id="email" type="email" aria-invalid="true">
+    <p class="form__message form__message--error">Bitte geben Sie eine gültige E-Mail-Adresse ein.</p>
+</div>
+
+
+4. Erfolgreiches Feld
+------------------------------------------------------------------------------
+
+<div class="form__field is-valid">
+    <label class="form__label" for="username">Benutzername</label>
+    <input class="form__control" id="username" type="text">
+    <p class="form__message form__message--success">Der Benutzername ist verfügbar.</p>
+</div>
+
+
+5. Textarea
+------------------------------------------------------------------------------
+
+<div class="form__field form__field--span-full">
+    <label class="form__label" for="message">Nachricht</label>
+    <textarea class="form__control" id="message" rows="6"></textarea>
+</div>
+
+
+6. Select
+------------------------------------------------------------------------------
+
+<div class="form__field">
+    <label class="form__label" for="topic">Thema</label>
+    <select class="form__control" id="topic">
+        <option>Allgemeine Anfrage</option>
+        <option>Technischer Support</option>
+    </select>
+</div>
+
+
+7. Checkbox
+------------------------------------------------------------------------------
+
+<div class="form__check">
+    <input class="form__check-input" id="privacy" type="checkbox">
+    <label class="form__check-label" for="privacy">
+        Ich akzeptiere die Datenschutzhinweise.
+    </label>
+</div>
+
+
+8. Radio-Gruppe
+------------------------------------------------------------------------------
+
+<fieldset class="form__fieldset">
+    <legend class="form__legend">Kontaktweg</legend>
+
+    <div class="form__choice-group">
+        <div class="form__check">
+            <input class="form__check-input" id="contact_email" name="contact" type="radio">
+            <label class="form__check-label" for="contact_email">E-Mail</label>
+        </div>
+
+        <div class="form__check">
+            <input class="form__check-input" id="contact_phone" name="contact" type="radio">
+            <label class="form__check-label" for="contact_phone">Telefon</label>
+        </div>
+    </div>
+</fieldset>
+
+
+9. Switch
+------------------------------------------------------------------------------
+
+<div class="form__switch">
+    <input class="form__switch-input" id="newsletter" type="checkbox">
+    <label class="form__switch-label" for="newsletter">
+        Newsletter abonnieren
+    </label>
+</div>
+
+
+10. Datei-Upload
+------------------------------------------------------------------------------
+
+<div class="form__field">
+    <label class="form__label" for="file">Datei hochladen</label>
+    <input class="form__control form__control--file" id="file" type="file">
+</div>
+
+
+11. Suchfeld mit Icon
+------------------------------------------------------------------------------
+
+<div class="form__field">
+    <label class="form__label" for="search">Suche</label>
+
+    <div class="form__input-icon">
+        <svg class="vdb-icon" aria-hidden="true">
+            <use href="/assets/icons/vdb-icons.svg#icon-search"></use>
+        </svg>
+
+        <input class="form__control" id="search" type="search" placeholder="Suchbegriff eingeben">
+    </div>
+</div>
+
+
+12. Aktionen mit Buttons
+------------------------------------------------------------------------------
+
+<div class="form__actions">
+    <button class="btn btn--primary btn--md" type="submit">Speichern</button>
+    <button class="btn btn--primary-transp btn--md" type="button">Abbrechen</button>
+</div>
+
+
+13. Komplettes Kopierformular mit möglichst vielen Feldtypen
+--------------------------------------------------------------------------
+Dieses Beispiel ist als Baukasten gedacht. Es enthält fast alle vorgesehenen
+Formular-Elemente und kann in eine andere Datei kopiert und dort reduziert,
+umsortiert oder erweitert werden.
+
+<form class="form form--card" action="#" method="post" enctype="multipart/form-data">
+    <div class="form__grid form__grid--4">
+
+        <div class="form__title form__title--center">
+            <h2>Beispiel-Formular</h2>
+            <p>
+                Dieses Formular zeigt verschiedene Felder, Zustände,
+                Abschnittstitel, Hinweise und Button-Aktionen.
+            </p>
+        </div>
+
+
+        <div class="form__notice form__notice--info">
+            <strong>Hinweis:</strong>
+            Felder mit <span class="form__required">*</span> sind Pflichtfelder.
+        </div>
+
+
+        <div class="form__section-title form__section-title--primary">
+            <h3>Persönliche Daten</h3>
+            <p>Grundlegende Angaben zur Person.</p>
+        </div>
+
+
+        <div class="form__field form__field--span-2">
+            <label class="form__label" for="first_name">
+                Vorname <span class="form__required">*</span>
+            </label>
+            <input class="form__control" id="first_name" name="first_name" type="text" required>
+            <p class="form__hint">Bitte geben Sie Ihren Vornamen ein.</p>
+        </div>
+
+
+        <div class="form__field form__field--span-2">
+            <label class="form__label" for="last_name">
+                Nachname <span class="form__required">*</span>
+            </label>
+            <input class="form__control" id="last_name" name="last_name" type="text" required>
+        </div>
+
+
+        <div class="form__field form__field--span-2">
+            <label class="form__label" for="email">
+                E-Mail-Adresse <span class="form__required">*</span>
+            </label>
+            <input
+                class="form__control"
+                id="email"
+                name="email"
+                type="email"
+                required
+                aria-describedby="email_hint"
+            >
+            <p class="form__hint" id="email_hint">
+                Wir nutzen diese Adresse nur für Rückfragen.
+            </p>
+        </div>
+
+
+        <div class="form__field form__field--span-2">
+            <label class="form__label" for="phone">Telefonnummer</label>
+            <input class="form__control" id="phone" name="phone" type="tel" placeholder="+49 ...">
+        </div>
+
+
+        <div class="form__field form__field--span-2">
+            <label class="form__label" for="password">Passwort</label>
+            <input class="form__control" id="password" name="password" type="password">
+        </div>
+
+
+        <div class="form__field form__field--span-2">
+            <label class="form__label" for="website">Website</label>
+            <input class="form__control" id="website" name="website" type="url" placeholder="https://...">
+        </div>
+
+
+        <div class="form__section-title form__section-title--secondary-cta">
+            <h3>Organisation</h3>
+            <p>Angaben zu Rolle, Bereich und Zuständigkeit.</p>
+        </div>
+
+
+        <div class="form__field form__field--span-2">
+            <label class="form__label" for="role">Rolle</label>
+            <select class="form__control" id="role" name="role">
+                <option value="">Bitte auswählen</option>
+                <option value="member">Mitglied</option>
+                <option value="team">Team</option>
+                <option value="board">Vorstand</option>
+                <option value="admin">Administration</option>
+            </select>
+        </div>
+
+
+        <div class="form__field form__field--span-2">
+            <label class="form__label" for="area">Bereich</label>
+            <select class="form__control" id="area" name="area">
+                <option value="">Bitte auswählen</option>
+                <option value="portal">Portal</option>
+                <option value="support">Support</option>
+                <option value="bibliothek">Bibliothek</option>
+                <option value="demokratiebildung">Demokratiebildung</option>
+            </select>
+        </div>
+
+
+        <div class="form__field form__field--span-full">
+            <label class="form__label" for="interests">Interessen / Zuständigkeiten</label>
+            <select class="form__control" id="interests" name="interests[]" multiple>
+                <option value="workshops">Workshops</option>
+                <option value="schulbibliotheken">Schulbibliotheken</option>
+                <option value="serviceportal">Serviceportal</option>
+                <option value="veranstaltungen">Veranstaltungen</option>
+                <option value="verwaltung">Verwaltung</option>
+            </select>
+            <p class="form__hint">
+                Mehrfachauswahl ist möglich.
+            </p>
+        </div>
+
+
+        <div class="form__section-title form__section-title--secondary-highlight">
+            <h3>Zeiten und Zahlen</h3>
+            <p>Beispiele für Datums-, Zeit- und Zahlenfelder.</p>
+        </div>
+
+
+        <div class="form__field">
+            <label class="form__label" for="age">Alter</label>
+            <input class="form__control" id="age" name="age" type="number" min="0" max="120">
+        </div>
+
+
+        <div class="form__field">
+            <label class="form__label" for="date">Datum</label>
+            <input class="form__control" id="date" name="date" type="date">
+        </div>
+
+
+        <div class="form__field">
+            <label class="form__label" for="time">Uhrzeit</label>
+            <input class="form__control" id="time" name="time" type="time">
+        </div>
+
+
+        <div class="form__field">
+            <label class="form__label" for="datetime">Datum und Uhrzeit</label>
+            <input class="form__control" id="datetime" name="datetime" type="datetime-local">
+        </div>
+
+
+        <div class="form__field">
+            <label class="form__label" for="month">Monat</label>
+            <input class="form__control" id="month" name="month" type="month">
+        </div>
+
+
+        <div class="form__field">
+            <label class="form__label" for="week">Woche</label>
+            <input class="form__control" id="week" name="week" type="week">
+        </div>
+
+
+        <div class="form__field">
+            <label class="form__label" for="color">Farbe</label>
+            <input class="form__control" id="color" name="color" type="color">
+        </div>
+
+
+        <div class="form__field">
+            <label class="form__label" for="range">Priorität</label>
+            <input class="form__control" id="range" name="range" type="range" min="1" max="10">
+        </div>
+
+
+        <div class="form__section-title">
+            <h3>Suche und Nachricht</h3>
+            <p>Beispiele für Suchfeld, Textarea und Inline-Gruppe.</p>
+        </div>
+
+
+        <div class="form__field form__field--span-full">
+            <label class="form__label" for="search">Suche mit Icon</label>
+
+            <div class="form__input-icon">
+                <svg class="vdb-icon" aria-hidden="true">
+                    <use href="/assets/icons/vdb-icons.svg#icon-search"></use>
+                </svg>
+
+                <input
+                    class="form__control"
+                    id="search"
+                    name="search"
+                    type="search"
+                    placeholder="Suchbegriff eingeben"
+                >
+            </div>
+        </div>
+
+
+        <div class="form__field form__field--span-full">
+            <label class="form__label" for="quick_search">Inline-Suche</label>
+
+            <div class="form__inline-group">
+                <input
+                    class="form__control"
+                    id="quick_search"
+                    name="quick_search"
+                    type="search"
+                    placeholder="Suchen..."
+                >
+
+                <button class="btn btn--primary btn--md" type="button">
+                    Suchen
+                </button>
+            </div>
+        </div>
+
+
+        <div class="form__field form__field--span-full">
+            <label class="form__label" for="message">
+                Nachricht <span class="form__required">*</span>
+            </label>
+
+            <textarea
+                class="form__control"
+                id="message"
+                name="message"
+                rows="6"
+                required
+                placeholder="Schreiben Sie hier Ihre Nachricht..."
+            ></textarea>
+        </div>
+
+
+        <div class="form__section-title">
+            <h3>Auswahlfelder</h3>
+            <p>Checkboxen, Radio-Buttons und Switches.</p>
+        </div>
+
+
+        <fieldset class="form__fieldset">
+            <legend class="form__legend">Kontaktweg</legend>
+
+            <div class="form__choice-group form__choice-group--horizontal">
+                <div class="form__check">
+                    <input
+                        class="form__check-input"
+                        id="contact_email"
+                        name="contact_way"
+                        type="radio"
+                        value="email"
+                    >
+                    <label class="form__check-label" for="contact_email">
+                        E-Mail
+                    </label>
+                </div>
+
+                <div class="form__check">
+                    <input
+                        class="form__check-input"
+                        id="contact_phone"
+                        name="contact_way"
+                        type="radio"
+                        value="phone"
+                    >
+                    <label class="form__check-label" for="contact_phone">
+                        Telefon
+                    </label>
+                </div>
+
+                <div class="form__check">
+                    <input
+                        class="form__check-input"
+                        id="contact_none"
+                        name="contact_way"
+                        type="radio"
+                        value="none"
+                    >
+                    <label class="form__check-label" for="contact_none">
+                        Keine Präferenz
+                    </label>
+                </div>
+            </div>
+        </fieldset>
+
+
+        <fieldset class="form__fieldset">
+            <legend class="form__legend">Optionen</legend>
+
+            <div class="form__choice-group">
+                <div class="form__check">
+                    <input
+                        class="form__check-input"
+                        id="privacy"
+                        name="privacy"
+                        type="checkbox"
+                        required
+                    >
+                    <label class="form__check-label" for="privacy">
+                        Ich akzeptiere die Datenschutzhinweise.
+                        <small>Dieses Feld ist erforderlich.</small>
+                    </label>
+                </div>
+
+                <div class="form__check">
+                    <input
+                        class="form__check-input"
+                        id="copy"
+                        name="copy"
+                        type="checkbox"
+                    >
+                    <label class="form__check-label" for="copy">
+                        Ich möchte eine Kopie meiner Anfrage erhalten.
+                    </label>
+                </div>
+            </div>
+        </fieldset>
+
+
+        <div class="form__field form__field--span-full">
+            <div class="form__switch">
+                <input
+                    class="form__switch-input"
+                    id="newsletter"
+                    name="newsletter"
+                    type="checkbox"
+                >
+
+                <label class="form__switch-label" for="newsletter">
+                    Newsletter abonnieren
+                </label>
+            </div>
+        </div>
+
+
+        <div class="form__section-title">
+            <h3>Dateien und besondere Zustände</h3>
+            <p>Datei-Upload, Read-only, Disabled, Erfolg und Fehler.</p>
+        </div>
+
+
+        <div class="form__field form__field--span-2">
+            <label class="form__label" for="file">Datei hochladen</label>
+            <input
+                class="form__control form__control--file"
+                id="file"
+                name="file"
+                type="file"
+            >
+        </div>
+
+
+        <div class="form__field form__field--span-2">
+            <label class="form__label" for="readonly">Read-only Feld</label>
+            <input
+                class="form__control"
+                id="readonly"
+                name="readonly"
+                type="text"
+                value="Dieser Wert kann nicht bearbeitet werden"
+                readonly
+            >
+        </div>
+
+
+        <div class="form__field form__field--span-2">
+            <label class="form__label" for="disabled">Disabled Feld</label>
+            <input
+                class="form__control"
+                id="disabled"
+                name="disabled"
+                type="text"
+                value="Dieses Feld ist deaktiviert"
+                disabled
+            >
+        </div>
+
+
+        <div class="form__field form__field--span-2 is-valid">
+            <label class="form__label" for="valid_example">Gültiges Feld</label>
+            <input
+                class="form__control"
+                id="valid_example"
+                name="valid_example"
+                type="text"
+                value="Alles korrekt"
+            >
+            <p class="form__message form__message--success">
+                Die Eingabe wurde erfolgreich geprüft.
+            </p>
+        </div>
+
+
+        <div class="form__field form__field--span-2 is-invalid">
+            <label class="form__label" for="invalid_example">Fehlerhaftes Feld</label>
+            <input
+                class="form__control"
+                id="invalid_example"
+                name="invalid_example"
+                type="text"
+                value="Fehler"
+                aria-invalid="true"
+                aria-describedby="invalid_example_error"
+            >
+            <p class="form__message form__message--error" id="invalid_example_error">
+                Bitte überprüfen Sie diese Eingabe.
+            </p>
+        </div>
+
+
+        <div class="form__notice form__notice--success">
+            <strong>Erfolg:</strong>
+            Diese Meldung kann nach erfolgreichem Speichern angezeigt werden.
+        </div>
+
+
+        <div class="form__notice form__notice--warning">
+            <strong>Achtung:</strong>
+            Diese Meldung weist auf eine wichtige Bedingung hin.
+        </div>
+
+
+        <div class="form__notice form__notice--error">
+            <strong>Fehler:</strong>
+            Diese Meldung kann bei einem Formularfehler angezeigt werden.
+        </div>
+
+
+        <div class="form__actions form__actions--right">
+            <button class="btn btn--primary-transp btn--md" type="reset">
+                Zurücksetzen
+            </button>
+
+            <button class="btn btn--primary-light btn--md" type="button">
+                Zwischenspeichern
+            </button>
+
+            <button class="btn btn--primary btn--md" type="submit">
+                Absenden
+            </button>
+        </div>
+
+    </div>
+</form>
+
+
+Barrierefreiheit
+------------------------------------------------------------------------------
+- Labels immer mit for="" und id="" verbinden.
+- Pflichtfelder zusätzlich semantisch über required auszeichnen.
+- Fehlermeldungen mit aria-describedby verbinden.
+- Ungültige Felder mit aria-invalid="true" kennzeichnen.
+- Fieldsets und Legends für zusammengehörige Checkboxen/Radios verwenden.
+- Fokus-Stile nicht entfernen.
+- Placeholder niemals als Ersatz für Labels verwenden.
+
+
+Empfohlene Kombination mit buttons.css
+------------------------------------------------------------------------------
+Formularaktionen sollten die vorhandenen Button-Klassen nutzen:
+
+<button class="btn btn--primary btn--md" type="submit">Speichern</button>
+<button class="btn btn--primary-light btn--md" type="button">Zwischenspeichern</button>
+<button class="btn btn--primary-transp btn--md" type="button">Abbrechen</button>
+
+
+Empfohlene Kombination mit containers.css
+------------------------------------------------------------------------------
+Formulare können innerhalb von Container-Slots verwendet werden:
+
+<section class="section--surface">
+    <div class="container container--text-only container--narrow">
+        <form class="form">
+            ...
+        </form>
+    </div>
+</section>
 */
 
 
-form {
+/* ==========================================================================
+   Tokens
+   ========================================================================== */
 
+:root {
+    --form-radius: 0px;
+
+    --form-grid-gap-row: var(--spacing-5, 2rem);
+    --form-grid-gap-column: clamp(var(--spacing-3, 1rem), 4vw, var(--spacing-7, 3rem));
+
+    --form-field-gap: 0.425rem;
+    --form-section-gap: var(--spacing-6, 2.5rem);
+
+    --form-label-size: 0.95rem;
+    --form-label-weight: var(--font-weight-medium, 600);
+
+    --form-control-size: 1rem;
+    --form-control-weight: var(--font-weight-regular, 500);
+    --form-control-line-height: 1.45;
+
+    --form-control-padding-block: 0.725rem;
+    --form-control-padding-inline: 0.825rem;
+
+    --form-control-border-width: 2px;
+
+    --form-color-text: var(--color-ink);
+    --form-color-muted: color-mix(in srgb, var(--color-ink) 68%, var(--color-white));
+    --form-color-placeholder: color-mix(in srgb, var(--color-ink) 48%, var(--color-white));
+
+    --form-color-bg: var(--color-white);
+    --form-color-bg-subtle: color-mix(in srgb, var(--color-ink) 4%, var(--color-white));
+    --form-color-bg-hover: color-mix(in srgb, var(--color-ink) 6%, var(--color-white));
+    --form-color-bg-disabled: color-mix(in srgb, var(--color-ink) 7%, var(--color-white));
+
+    --form-color-border: color-mix(in srgb, var(--color-ink) 18%, transparent);
+    --form-color-border-hover: color-mix(in srgb, var(--color-ink) 28%, transparent);
+    --form-color-border-focus: var(--color-secondary-cta);
+
+    --form-color-focus-bg: color-mix(in srgb, var(--color-secondary-cta) 10%, var(--color-white));
+    --form-color-focus-ring: color-mix(in srgb, var(--color-primary) 32%, transparent);
+
+    --form-color-success: var(--color-status-success);
+    --form-color-error: var(--color-status-error);
+    --form-color-warning: var(--color-status-warning);
+    --form-color-info: var(--color-status-info);
+
+    --form-message-size: 0.875rem;
+
+    --form-check-size: 1.125rem;
+    --form-switch-width: 2.75rem;
+    --form-switch-height: 1.5rem;
+    --form-switch-thumb-size: 1rem;
+
+    --form-transition: 180ms ease-in-out;
 }
 
+
+/* ==========================================================================
+   Formular-Basis
+   ========================================================================== */
+
+.form,
+form {
+    color: var(--form-color-text);
+}
+
+.form {
+    width: 100%;
+}
+
+.form--surface {
+    padding: var(--spacing-5, 2rem);
+    background: var(--color-surface-bg);
+}
+
+.form--card {
+    padding: var(--spacing-5, 2rem);
+    background: var(--color-white);
+    border: 1px solid var(--form-color-border);
+    border-radius: var(--form-radius);
+}
+
+
+/* ==========================================================================
+   Grid / Layout
+   ========================================================================== */
+
+.form__grid,
 .form_container {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem clamp(0.5rem, 3vw, 3rem);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--form-grid-gap-row) var(--form-grid-gap-column);
+    align-items: start;
 }
 
-.form_container.colums__1 { grid-template-columns: repeat(1, 1fr); }
-.form_container.colums__2 { grid-template-columns: repeat(2, 1fr); }
-.form_container.colums__3 { grid-template-columns: repeat(3, 1fr); }
-.form_container.colums__4 { grid-template-columns: repeat(4, 1fr); }
+.form__grid--1,
+.form_container.colums__1,
+.form_container.columns__1 {
+    grid-template-columns: minmax(0, 1fr);
+}
 
-/* Title */
+.form__grid--2,
+.form_container.colums__2,
+.form_container.columns__2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.form__grid--3,
+.form_container.colums__3,
+.form_container.columns__3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.form__grid--4,
+.form_container.colums__4,
+.form_container.columns__4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.form__grid--compact {
+    --form-grid-gap-row: var(--spacing-3, 1rem);
+    --form-grid-gap-column: var(--spacing-3, 1rem);
+}
+
+.form__grid--loose {
+    --form-grid-gap-row: var(--spacing-7, 3rem);
+    --form-grid-gap-column: var(--spacing-7, 3rem);
+}
+
+
+/* ==========================================================================
+   Titel und Abschnittstitel
+   ========================================================================== */
+
+.form__title,
 .form_title {
-    grid-column: 1/-1;
-    margin: 0 0 1.5rem;
+    grid-column: 1 / -1;
+    margin: 0 0 var(--spacing-3, 1rem);
 }
 
-.form_title h2 {
+.form__title h1,
+.form__title h2,
+.form__title h3,
+.form_title h1,
+.form_title h2,
+.form_title h3 {
     width: 100%;
     margin: 0;
-    padding: 0;
+
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: var(--font-weight-bold, 700);
+    line-height: 1.1;
+
+    color: var(--color-ink);
+}
+
+.form__title p,
+.form_title p {
+    max-width: 58rem;
+    margin: var(--spacing-2, 0.5rem) 0 0;
+
+    color: var(--form-color-muted);
+    font-size: 1rem;
+    line-height: 1.55;
+}
+
+.form__title--center,
+.form_title.form_title--center {
     text-align: center;
-    font-size: 3rem;
-    font-weight: var(--font-weight-medium);
-    color: var(--color-ink);
 }
 
-.form_title.coolor__primary h4 { color: var(--color-primary); }
-.form_title.coolor__secondary_cta h4 { color: var(--color-secondary-cta); }
-.form_title.coolor__secondary_highlight h4 { color: var(--color-secondary-highlight); }
+.form__title--center p,
+.form_title.form_title--center p {
+    margin-inline: auto;
+}
 
-/* Section Title */
+.form__section-title,
 .form_section_title {
-    grid-column: 1/-1;
-    margin: 3rem 0 0.5rem;
+    grid-column: 1 / -1;
+    margin: var(--form-section-gap) 0 0;
 }
 
+.form__section-title h2,
+.form__section-title h3,
+.form__section-title h4,
+.form_section_title h2,
+.form_section_title h3,
 .form_section_title h4 {
-    width: 100%;
     margin: 0;
-    padding: 0;
-    text-align: left;
-    font-size: 1.75rem;
-    font-weight: var(--font-weight-medium);
+
+    font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+    font-weight: var(--font-weight-bold, 700);
+    line-height: 1.2;
+
     color: var(--color-ink);
 }
 
-.form_section_title.coolor__primary h4 { color: var(--color-primary); }
-.form_section_title.coolor__secondary_cta h4 { color: var(--color-secondary-cta); }
-.form_section_title.coolor__secondary_highlight h4 { color: var(--color-secondary-highlight); }
+.form__section-title p,
+.form_section_title p {
+    max-width: 56rem;
+    margin: var(--spacing-2, 0.5rem) 0 0;
 
-/* Form Items */
+    color: var(--form-color-muted);
+    line-height: 1.55;
+}
+
+
+/* Farbvarianten für Titel */
+
+.form__title--primary h1,
+.form__title--primary h2,
+.form__title--primary h3,
+.form_title.coolor__primary h1,
+.form_title.coolor__primary h2,
+.form_title.coolor__primary h3,
+.form_title.color__primary h1,
+.form_title.color__primary h2,
+.form_title.color__primary h3,
+.form__section-title--primary h2,
+.form__section-title--primary h3,
+.form__section-title--primary h4,
+.form_section_title.coolor__primary h2,
+.form_section_title.coolor__primary h3,
+.form_section_title.coolor__primary h4,
+.form_section_title.color__primary h2,
+.form_section_title.color__primary h3,
+.form_section_title.color__primary h4 {
+    color: var(--color-primary);
+}
+
+.form__title--secondary-cta h1,
+.form__title--secondary-cta h2,
+.form__title--secondary-cta h3,
+.form_title.coolor__secondary_cta h1,
+.form_title.coolor__secondary_cta h2,
+.form_title.coolor__secondary_cta h3,
+.form_title.color__secondary_cta h1,
+.form_title.color__secondary_cta h2,
+.form_title.color__secondary_cta h3,
+.form__section-title--secondary-cta h2,
+.form__section-title--secondary-cta h3,
+.form__section-title--secondary-cta h4,
+.form_section_title.coolor__secondary_cta h2,
+.form_section_title.coolor__secondary_cta h3,
+.form_section_title.coolor__secondary_cta h4,
+.form_section_title.color__secondary_cta h2,
+.form_section_title.color__secondary_cta h3,
+.form_section_title.color__secondary_cta h4 {
+    color: var(--color-secondary-cta);
+}
+
+.form__title--secondary-highlight h1,
+.form__title--secondary-highlight h2,
+.form__title--secondary-highlight h3,
+.form_title.coolor__secondary_highlight h1,
+.form_title.coolor__secondary_highlight h2,
+.form_title.coolor__secondary_highlight h3,
+.form_title.color__secondary_highlight h1,
+.form_title.color__secondary_highlight h2,
+.form_title.color__secondary_highlight h3,
+.form__section-title--secondary-highlight h2,
+.form__section-title--secondary-highlight h3,
+.form__section-title--secondary-highlight h4,
+.form_section_title.coolor__secondary_highlight h2,
+.form_section_title.coolor__secondary_highlight h3,
+.form_section_title.coolor__secondary_highlight h4,
+.form_section_title.color__secondary_highlight h2,
+.form_section_title.color__secondary_highlight h3,
+.form_section_title.color__secondary_highlight h4 {
+    color: var(--color-secondary-highlight);
+}
+
+
+/* ==========================================================================
+   Formularfelder
+   ========================================================================== */
+
+.form__field,
 .form_item {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
-    gap: 0;
+    gap: var(--form-field-gap);
+
+    min-width: 0;
 }
 
-.form_item.span__2col { grid-column: span 2; }
-.form_item.span__3col { grid-column: span 3; }
-.form_item.span__4col { grid-column: span 4; }
-.form_item.span__full { grid-column: 1/-1; }
+.form__field--span-2,
+.form_item.span__2col {
+    grid-column: span 2;
+}
 
+.form__field--span-3,
+.form_item.span__3col {
+    grid-column: span 3;
+}
+
+.form__field--span-4,
+.form_item.span__4col {
+    grid-column: span 4;
+}
+
+.form__field--span-full,
+.form_item.span__full {
+    grid-column: 1 / -1;
+}
+
+.form__field--inline {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-3, 1rem);
+}
+
+
+/* ==========================================================================
+   Labels, Hinweise und Meldungen
+   ========================================================================== */
+
+.form__label,
 .form_item label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+
     width: 100%;
+    margin: 0;
+
+    color: var(--form-color-muted);
+    font-size: var(--form-label-size);
+    font-weight: var(--form-label-weight);
+    line-height: 1.35;
     text-align: left;
-    font-size: 1rem;
-    font-weight: var(--font-weight-light);
-    color: color-mix(var(--color-ink), 20% transparent);
-    margin-bottom: 0.375rem;
 }
 
+.form__required {
+    color: var(--form-color-error);
+    font-weight: var(--font-weight-bold, 700);
+}
+
+.form__hint {
+    margin: 0;
+
+    color: var(--form-color-muted);
+    font-size: var(--form-message-size);
+    line-height: 1.45;
+}
+
+.form__message {
+    margin: 0;
+
+    color: var(--form-color-muted);
+    font-size: var(--form-message-size);
+    font-weight: var(--font-weight-regular, 500);
+    line-height: 1.45;
+}
+
+.form__message--success,
+.form__field.is-valid .form__message {
+    color: var(--form-color-success);
+}
+
+.form__message--error,
+.form__field.is-invalid .form__message,
+.form_item.is-invalid .form__message {
+    color: var(--form-color-error);
+}
+
+.form__message--warning {
+    color: var(--form-color-warning);
+}
+
+.form__message--info {
+    color: var(--form-color-info);
+}
+
+
+/* ==========================================================================
+   Controls: Input, Select, Textarea
+   ========================================================================== */
+
+.form__control,
 .form_item input,
 .form_item select,
 .form_item textarea {
     width: 100%;
+    min-width: 0;
+
+    padding: var(--form-control-padding-block) var(--form-control-padding-inline);
+
+    color: var(--form-color-text);
+    background: var(--form-color-bg);
+    border: var(--form-control-border-width) solid var(--form-color-border);
+    border-radius: var(--form-radius);
     outline: none;
-    border: none;
-    border-bottom: 2px solid color-mix(var(--color-ink), 60% transparent);
-    background: none;
-    color: color-mix(var(--color-ink), 20% transparent);
-    font-size: 1rem;
-    font-weight: var(--font-weight-regular);
-    padding: 0.375rem 0.25rem;
-    transition: all .3s ease-in-out;
-    -webkit-transition: all .3s ease-in-out;
-    -moz-transition: all .3s ease-in-out;
-    -ms-transition: all .3s ease-in-out;
-    -o-transition: all .3s ease-in-out;
+
+    font: inherit;
+    font-size: var(--form-control-size);
+    font-weight: var(--form-control-weight);
+    line-height: var(--form-control-line-height);
+
+    transition:
+        background-color var(--form-transition),
+        border-color var(--form-transition),
+        color var(--form-transition),
+        box-shadow var(--form-transition);
 }
 
+.form__control::placeholder,
+.form_item input::placeholder,
+.form_item textarea::placeholder {
+    color: var(--form-color-placeholder);
+    opacity: 1;
+}
+
+.form__control:hover,
 .form_item input:hover,
+.form_item select:hover,
+.form_item textarea:hover {
+    background: var(--form-color-bg-hover);
+    border-color: var(--form-color-border-hover);
+}
+
+.form__control:focus,
+.form__control:focus-visible,
 .form_item input:focus,
-.form_item input:focus-visible {
-    border: none;
-    border-bottom: 2px solid var(--color-secondary-highlight);
-    color: var(--color-ink)
+.form_item input:focus-visible,
+.form_item select:focus,
+.form_item select:focus-visible,
+.form_item textarea:focus,
+.form_item textarea:focus-visible {
+    color: var(--form-color-text);
+    background: var(--form-color-focus-bg);
+    border-color: var(--form-color-border-focus);
+    box-shadow: 0 0 0 4px var(--form-color-focus-ring);
 }
 
-/*.form_item input:valid {
-    border-bottom: 2px solid var(--color-status-success);
-    color: var(--color-status-success);
-}*/
-
-.form_item input:invalid,
-.form_item input:user-invalid {
-    border-bottom: 2px solid var(--color-status-error);
-    color: var(--color-status-error);
+textarea.form__control,
+.form_item textarea {
+    min-height: 8rem;
+    resize: vertical;
 }
 
-.form_item input:read-only,
-.form_item input:disabled {    
-    background: color-mix(var(--color-ink) 5%);
-    border-bottom: 2px solid color-mix(var(--color-ink), 60% transparent);
-    color: color-mix(var(--color-ink), 10% transparent);
+select.form__control,
+.form_item select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    background-image:
+        linear-gradient(45deg, transparent 50%, currentColor 50%),
+        linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position:
+        calc(100% - 1.05rem) 50%,
+        calc(100% - 0.75rem) 50%;
+    background-size:
+        0.35rem 0.35rem,
+        0.35rem 0.35rem;
+    background-repeat: no-repeat;
+
+    padding-right: 2.25rem;
 }
-.form_item input:read-only:hover,
-.form_item input:disabled:hover {    
-    border-bottom: 2px solid color-mix(var(--color-ink), 60% transparent);
-    color: color-mix(var(--color-ink), 20% transparent);
-}
 
-
-/* Typen */
-.form_item input[type="text"] {}
-
-.form_item input[type="email"] {}
-
-.form_item input[type="password"] {}
-
-.form_item input[type="search"] {}
-
-.form_item input[type="url"] {}
-
-.form_item input[type="number"] {}
-
-.form_item input[type="tel"] {}
-
-.form_item input[type="date"] {}
-
-.form_item input[type="datetime-local"] {}
-
-.form_item input[type="month"] {}
-
-.form_item input[type="time"] {}
-
-.form_item input[type="week"] {}
-
-
+select.form__control[multiple],
 .form_item select[multiple] {
-    width: 100%;
-    height: min(7rem, 10rem);
-    padding: 0.375rem 0.25rem;
-    border: none;
-    border-bottom: 2px solid color-mix(var(--color-ink), 60% transparent);
-    background-color: #ffffff;
-    color: var(--color-ink);
-    font-size: 1rem;
-    font-weight: var(--font-weight-regular);
-    line-height: 1.4;
-    outline: none;
+    min-height: 8rem;
+    padding-right: var(--form-control-padding-inline);
+
     appearance: auto;
     -webkit-appearance: auto;
     -moz-appearance: auto;
+
+    background-image: none;
 }
 
-.form_item select[multiple]:hover,
-.form_item select[multiple]:focus,
-.form_item select[multiple]:focus-visible {
-    outline: none;
-    border: none;
-    border-bottom: 2px solid var(--color-secondary-highlight);
-    color: var(--color-ink);
-    background-color: #ffffff;
-}
-
-.form_item select[multiple]:disabled {
-    background-color: #f5f5f5;
-    border-bottom: 2px solid color-mix(var(--color-ink), 60% transparent);
-    color: color-mix(var(--color-ink), 10% transparent);
-}
-
+select.form__control[multiple] option,
 .form_item select[multiple] option {
     padding: 0.4rem 0.6rem;
-    color: var(--color-ink);
-    background-color: #ffffff;
 }
 
+select.form__control[multiple] option:checked,
 .form_item select[multiple] option:checked {
-    background-color: rgba(112, 89, 140, 0.15);
     color: var(--color-ink);
+    background: color-mix(in srgb, var(--color-secondary-cta) 24%, var(--color-white));
 }
 
 
-/* TinyMCE */
+/* ==========================================================================
+   Control-Varianten
+   ========================================================================== */
+
+.form__control--underline {
+    padding-inline: 0;
+
+    background: transparent;
+    border-top: 0;
+    border-inline: 0;
+    border-radius: 0;
+}
+
+.form__control--filled {
+    background: var(--form-color-bg-subtle);
+    border-color: transparent;
+}
+
+.form__control--file {
+    padding: 0.625rem;
+}
+
+.form__control--file::file-selector-button {
+    margin-right: var(--spacing-3, 1rem);
+    padding: 0.5rem 0.875rem;
+
+    color: var(--color-ink);
+    background: color-mix(in srgb, var(--color-primary) 70%, var(--color-white));
+    border: 0;
+    border-radius: var(--form-radius);
+
+    font: inherit;
+    font-weight: var(--font-weight-regular, 500);
+    cursor: pointer;
+}
+
+.form__control--file::file-selector-button:hover {
+    background: var(--color-primary);
+}
+
+
+/* ==========================================================================
+   Input mit Icon
+   ========================================================================== */
+
+.form__input-icon {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+}
+
+.form__input-icon .vdb-icon {
+    position: absolute;
+    left: var(--form-control-padding-inline);
+
+    color: var(--form-color-muted);
+    pointer-events: none;
+}
+
+.form__input-icon .form__control {
+    padding-left: calc(var(--form-control-padding-inline) + 1.75rem);
+}
+
+
+/* ==========================================================================
+   Validierung und Zustände
+   ========================================================================== */
+
+.form__field.is-valid .form__control,
+.form_item.is-valid input,
+.form_item.is-valid select,
+.form_item.is-valid textarea {
+    border-color: var(--form-color-success);
+}
+
+.form__field.is-invalid .form__control,
+.form_item.is-invalid input,
+.form_item.is-invalid select,
+.form_item.is-invalid textarea,
+.form__control[aria-invalid="true"],
+.form_item input[aria-invalid="true"],
+.form_item select[aria-invalid="true"],
+.form_item textarea[aria-invalid="true"] {
+    border-color: var(--form-color-error);
+}
+
+.form__control:user-invalid,
+.form_item input:user-invalid,
+.form_item select:user-invalid,
+.form_item textarea:user-invalid {
+    border-color: var(--form-color-error);
+}
+
+.form__control:user-valid,
+.form_item input:user-valid,
+.form_item select:user-valid,
+.form_item textarea:user-valid {
+    border-color: var(--form-color-success);
+}
+
+.form__control:disabled,
+.form__control[readonly],
+.form_item input:disabled,
+.form_item input:read-only,
+.form_item select:disabled,
+.form_item textarea:disabled,
+.form_item textarea:read-only {
+    color: color-mix(in srgb, var(--color-ink) 54%, var(--color-white));
+    background: var(--form-color-bg-disabled);
+    border-color: var(--form-color-border);
+
+    cursor: not-allowed;
+}
+
+.form__control[readonly],
+.form_item input:read-only,
+.form_item textarea:read-only {
+    cursor: default;
+}
+
+
+/* ==========================================================================
+   Fieldset, Legend und Gruppen
+   ========================================================================== */
+
+.form__fieldset {
+    grid-column: 1 / -1;
+
+    min-width: 0;
+    margin: 0;
+    padding: var(--spacing-4, 1.5rem);
+
+    border: 1px solid var(--form-color-border);
+    border-radius: var(--form-radius);
+}
+
+.form__legend {
+    padding: 0 var(--spacing-2, 0.5rem);
+
+    color: var(--color-ink);
+    font-size: 1rem;
+    font-weight: var(--font-weight-bold, 700);
+}
+
+.form__choice-group {
+    display: grid;
+    gap: var(--spacing-2, 0.5rem);
+}
+
+.form__choice-group--horizontal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-3, 1rem);
+}
+
+
+/* ==========================================================================
+   Checkboxen und Radios
+   ========================================================================== */
+
+.form__check {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-2, 0.5rem);
+
+    color: var(--form-color-text);
+}
+
+.form__check-input {
+    width: var(--form-check-size);
+    height: var(--form-check-size);
+    margin: 0.15em 0 0;
+
+    accent-color: var(--color-primary);
+    flex: 0 0 auto;
+}
+
+.form__check-label {
+    color: var(--form-color-text);
+    line-height: 1.45;
+}
+
+.form__check-label small {
+    display: block;
+    margin-top: 0.2rem;
+
+    color: var(--form-color-muted);
+}
+
+
+/* ==========================================================================
+   Switch
+   ========================================================================== */
+
+.form__switch {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3, 1rem);
+}
+
+.form__switch-input {
+    position: relative;
+
+    width: var(--form-switch-width);
+    height: var(--form-switch-height);
+    margin: 0;
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    background: color-mix(in srgb, var(--color-ink) 20%, var(--color-white));
+    border-radius: 999px;
+    cursor: pointer;
+
+    transition:
+        background-color var(--form-transition),
+        box-shadow var(--form-transition);
+}
+
+.form__switch-input::before {
+    content: "";
+
+    position: absolute;
+    top: 50%;
+    left: 0.25rem;
+
+    width: var(--form-switch-thumb-size);
+    height: var(--form-switch-thumb-size);
+
+    background: var(--color-white);
+    border-radius: 999px;
+
+    transform: translateY(-50%);
+    transition: transform var(--form-transition);
+}
+
+.form__switch-input:checked {
+    background: var(--color-primary);
+}
+
+.form__switch-input:checked::before {
+    transform: translate(
+        calc(var(--form-switch-width) - var(--form-switch-thumb-size) - 0.5rem),
+        -50%
+    );
+}
+
+.form__switch-input:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--form-color-focus-ring);
+}
+
+.form__switch-label {
+    color: var(--form-color-text);
+    font-weight: var(--font-weight-regular, 500);
+}
+
+
+/* ==========================================================================
+   Suchfeld / kompakte Input-Gruppe
+   ========================================================================== */
+
+.form__inline-group {
+    display: flex;
+    align-items: stretch;
+    gap: var(--spacing-2, 0.5rem);
+}
+
+.form__inline-group .form__control {
+    flex: 1 1 auto;
+}
+
+.form__inline-group .btn {
+    flex: 0 0 auto;
+}
+
+
+/* ==========================================================================
+   Formularaktionen
+   ========================================================================== */
+
+.form__actions {
+    grid-column: 1 / -1;
+
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--spacing-3, 1rem);
+
+    margin-top: var(--spacing-3, 1rem);
+}
+
+.form__actions--right {
+    justify-content: flex-end;
+}
+
+.form__actions--center {
+    justify-content: center;
+}
+
+.form__actions--between {
+    justify-content: space-between;
+}
+
+.form__actions--stack {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.form__actions--stack .btn {
+    width: 100%;
+}
+
+
+/* ==========================================================================
+   Formularhinweise / Alerts
+   ========================================================================== */
+
+.form__notice {
+    grid-column: 1 / -1;
+
+    padding: var(--spacing-3, 1rem);
+
+    color: var(--color-ink);
+    background: var(--form-color-bg-subtle);
+    border: 1px solid var(--form-color-border);
+    border-left: 4px solid var(--color-secondary-cta);
+    border-radius: var(--form-radius);
+}
+
+.form__notice--success {
+    background: color-mix(in srgb, var(--color-status-success) 12%, var(--color-white));
+    border-left-color: var(--color-status-success);
+}
+
+.form__notice--error {
+    background: color-mix(in srgb, var(--color-status-error) 12%, var(--color-white));
+    border-left-color: var(--color-status-error);
+}
+
+.form__notice--warning {
+    background: color-mix(in srgb, var(--color-status-warning) 14%, var(--color-white));
+    border-left-color: var(--color-status-warning);
+}
+
+.form__notice--info {
+    background: color-mix(in srgb, var(--color-status-info) 12%, var(--color-white));
+    border-left-color: var(--color-status-info);
+}
+
+
+/* ==========================================================================
+   TinyMCE / Rich Text Editor
+   ========================================================================== */
+
 .tox-tinymce {
-    border-radius: 0px !important;
-    -webkit-border-radius: 0px !important;
-    -moz-border-radius: 0px !important;
-    -ms-border-radius: 0px !important;
-    -o-border-radius: 0px !important;
-    border: 1px solid color-mix(var(--color-ink) 10%) !important;
+    border: 1px solid var(--form-color-border) !important;
+    border-radius: var(--form-radius) !important;
 }
+
+.tox-tinymce:focus-within {
+    border-color: var(--form-color-border-focus) !important;
+    box-shadow: 0 0 0 4px var(--form-color-focus-ring) !important;
+}
+
 .tox-promotion-link {
     display: none !important;
+}
+
+
+/* ==========================================================================
+   Responsive Verhalten
+   ========================================================================== */
+
+@media (max-width: 900px) {
+    .form__grid,
+    .form_container,
+    .form__grid--2,
+    .form__grid--3,
+    .form__grid--4,
+    .form_container.colums__2,
+    .form_container.colums__3,
+    .form_container.colums__4,
+    .form_container.columns__2,
+    .form_container.columns__3,
+    .form_container.columns__4 {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .form__field--span-2,
+    .form__field--span-3,
+    .form__field--span-4,
+    .form__field--span-full,
+    .form_item.span__2col,
+    .form_item.span__3col,
+    .form_item.span__4col,
+    .form_item.span__full {
+        grid-column: 1 / -1;
+    }
+
+    .form__inline-group {
+        flex-direction: column;
+    }
+
+    .form__inline-group .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 560px) {
+    .form--surface,
+    .form--card {
+        padding: var(--spacing-4, 1.5rem);
+    }
+
+    .form__actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .form__actions .btn {
+        width: 100%;
+    }
+
+    .form__choice-group--horizontal {
+        flex-direction: column;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .form__control,
+    .form_item input,
+    .form_item select,
+    .form_item textarea,
+    .form__switch-input,
+    .form__switch-input::before {
+        transition: none;
+    }
 }

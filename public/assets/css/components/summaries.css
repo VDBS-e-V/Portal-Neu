@@ -1,0 +1,1296 @@
+/*
+Summaries — Details-, Summary-, Accordion- und Info-System
+==============================================================================
+Zweck
+------------------------------------------------------------------------------
+Diese Datei definiert ein einheitliches System für aufklappbare Inhaltsbereiche
+und Zusammenfassungs-Komponenten.
+
+Sie eignet sich für:
+- FAQ-Bereiche
+- Akkordeons
+- Hilfebereiche
+- technische Dokumentation
+- Zusammenfassungen mit Kurztext und Langtext
+- kompakte Info-Boxen
+- Quick-Facts
+- Inhaltsübersichten
+- Schritt-für-Schritt-Erklärungen
+- rechtliche Hinweise
+- Support-Hilfen
+
+
+Grundprinzip
+------------------------------------------------------------------------------
+Diese Datei arbeitet primär mit nativen HTML-Elementen:
+
+<details>
+    <summary>...</summary>
+    ...
+</details>
+
+Das ist sinnvoll, weil <details> und <summary> bereits ohne JavaScript
+funktionieren.
+
+Empfohlene Basisstruktur:
+
+<details class="summary">
+    <summary class="summary__trigger">
+        <span class="summary__title">Was ist das Serviceportal?</span>
+    </summary>
+
+    <div class="summary__content">
+        <p>
+            Das Serviceportal bündelt zentrale Informationen und Funktionen.
+        </p>
+    </div>
+</details>
+
+
+Gruppierung / Accordion
+------------------------------------------------------------------------------
+
+<div class="summary-group">
+    <details class="summary">
+        <summary class="summary__trigger">
+            <span class="summary__title">Erste Frage</span>
+        </summary>
+
+        <div class="summary__content">
+            <p>Antwort auf die erste Frage.</p>
+        </div>
+    </details>
+
+    <details class="summary">
+        <summary class="summary__trigger">
+            <span class="summary__title">Zweite Frage</span>
+        </summary>
+
+        <div class="summary__content">
+            <p>Antwort auf die zweite Frage.</p>
+        </div>
+    </details>
+</div>
+
+
+Farblogik
+------------------------------------------------------------------------------
+Alle Farben kommen aus tokens.css.
+
+Verwendete Tokens:
+- --color-ink
+- --color-white
+- --color-surface-bg
+- --color-primary
+- --color-secondary-cta
+- --color-secondary-highlight
+- --color-accent-amber
+- --color-accent-teal
+- --color-accent-berry
+- --color-accent-sun
+- --color-accent-lime
+- --color-status-success
+- --color-status-error
+- --color-status-warning
+- --color-status-info
+
+Einheitliche Farbmischungen:
+- schwächere Farbe:
+  color-mix(in srgb, [FARBE] 70%, var(--color-white))
+
+- sehr subtile Fläche:
+  color-mix(in srgb, var(--color-ink) 4%, var(--color-white))
+
+- Hover-Fläche:
+  color-mix(in srgb, var(--color-ink) 6%, var(--color-white))
+
+- Border:
+  color-mix(in srgb, var(--color-ink) 16%, transparent)
+
+- Focus-Ring:
+  color-mix(in srgb, var(--color-primary) 32%, transparent)
+
+
+Klassenübersicht
+==============================================================================
+
+Gruppen
+------------------------------------------------------------------------------
+
+.summary-group
+- Container für mehrere Summary-Elemente.
+- Gut für FAQ, Hilfebereiche oder Akkordeons.
+
+.summary-group--surface
+- Gruppierung mit heller Hintergrundfläche.
+
+.summary-group--card
+- Gruppierung als abgegrenzte Card mit Rahmen.
+
+.summary-group--compact
+- Reduzierte Abstände.
+
+.summary-group--loose
+- Größere Abstände.
+
+.summary-group--divided
+- Einzelne Summarys werden durch Linien getrennt.
+
+.summary-group--numbered
+- Summarys bekommen eine automatische Nummerierung.
+
+
+Einzelnes Summary
+------------------------------------------------------------------------------
+
+.summary
+- Basis-Komponente.
+- Wird idealerweise direkt auf <details> gesetzt.
+
+.summary--surface
+- Summary mit Surface-Hintergrund.
+
+.summary--white
+- Summary mit weißem Hintergrund.
+
+.summary--bordered
+- Summary mit sichtbarem Rahmen.
+
+.summary--flat
+- Summary ohne Rahmen und ohne starke Fläche.
+
+.summary--compact
+- Kompaktere Variante.
+
+.summary--large
+- Größere Variante mit mehr Abstand.
+
+.summary--open
+- Visueller Zusatz für manuell geöffnete Nicht-details-Varianten.
+- Für native <details> wird normalerweise [open] genutzt.
+
+
+Trigger / Kopfbereich
+------------------------------------------------------------------------------
+
+.summary__trigger
+- Der klickbare <summary>-Bereich.
+
+.summary__kicker
+- Kleine Kategoriezeile über dem Titel.
+
+.summary__title
+- Haupttitel im Summary-Trigger.
+
+.summary__subtitle
+- Kurze Erklärung im Summary-Trigger.
+
+.summary__meta
+- Zusatzinformation rechts oder unter dem Titel.
+
+.summary__icon
+- Icon links neben dem Titel.
+
+.summary__chevron
+- Pfeil/Plus rechts.
+- Wird automatisch gedreht, wenn das Summary geöffnet ist.
+
+
+Inhalt
+------------------------------------------------------------------------------
+
+.summary__content
+- Aufklappbarer Inhaltsbereich.
+
+.summary__content-inner
+- Optionaler innerer Wrapper für komplexe Inhalte.
+
+.summary__actions
+- Buttonbereich im aufgeklappten Inhalt.
+
+.summary__list
+- Liste innerhalb eines Summarys.
+
+.summary__note
+- Kleine Hinweisbox innerhalb eines Summarys.
+
+
+Farbvarianten
+------------------------------------------------------------------------------
+
+.summary--primary
+- Akzent in Primary.
+
+.summary--secondary-cta
+- Akzent in Secondary CTA.
+
+.summary--secondary-highlight
+.summary--plum
+- Akzent in Highlight / Plum.
+
+.summary--amber
+.summary--teal
+.summary--berry
+.summary--sun
+.summary--lime
+- Akzentfarben.
+
+.summary--success
+.summary--error
+.summary--warning
+.summary--info
+- Statusvarianten.
+
+
+Layoutvarianten
+------------------------------------------------------------------------------
+
+.summary--split
+- Titel links, Meta oder Aktion rechts.
+
+.summary--icon
+- Für Summarys mit sichtbarem Icon links.
+
+.summary--checklist
+- Gut für Checklisten oder Schrittlisten.
+
+.summary--faq
+- FAQ-optimierte Darstellung.
+
+.summary--steps
+- Schrittweise Darstellung.
+
+
+Quick Summary / Info-Karten
+------------------------------------------------------------------------------
+
+.summary-card
+- Nicht aufklappbare Zusammenfassungskarte.
+
+.summary-card__title
+- Titel der Karte.
+
+.summary-card__text
+- Erklärungstext.
+
+.summary-card__meta
+- Zusatzinfo.
+
+.summary-card__actions
+- Buttonbereich.
+
+.summary-card--primary
+.summary-card--success
+.summary-card--warning
+.summary-card--error
+.summary-card--info
+- Farbvarianten.
+
+
+HTML-Beispiele
+==============================================================================
+
+1. Einfaches Summary
+------------------------------------------------------------------------------
+
+<details class="summary">
+    <summary class="summary__trigger">
+        <span class="summary__title">Was ist das VDBS Serviceportal?</span>
+    </summary>
+
+    <div class="summary__content">
+        <p>
+            Das VDBS Serviceportal ist die zentrale Anlaufstelle für Services,
+            Konto-Zugänge und Hilfestellungen.
+        </p>
+    </div>
+</details>
+
+
+2. Summary mit Untertitel und Meta
+------------------------------------------------------------------------------
+
+<details class="summary summary--bordered">
+    <summary class="summary__trigger">
+        <span class="summary__main">
+            <span class="summary__kicker">Service</span>
+            <span class="summary__title">Zugang zum Portal</span>
+            <span class="summary__subtitle">
+                Informationen zur Anmeldung und Registrierung.
+            </span>
+        </span>
+
+        <span class="summary__meta">3 Min. Lesezeit</span>
+    </summary>
+
+    <div class="summary__content">
+        <p>
+            Wenn Sie bereits ein Konto haben, können Sie sich direkt anmelden.
+            Wenn Sie noch kein Konto haben, können Sie sich registrieren.
+        </p>
+
+        <div class="summary__actions btn-group btn-group--horizontal">
+            <a href="/zugang-zum-portal" class="btn btn--primary btn--md">
+                Zugang öffnen
+            </a>
+        </div>
+    </div>
+</details>
+
+
+3. FAQ-Gruppe
+------------------------------------------------------------------------------
+
+<div class="summary-group summary-group--divided">
+    <details class="summary summary--faq">
+        <summary class="summary__trigger">
+            <span class="summary__title">Wie erhalte ich Zugang?</span>
+        </summary>
+
+        <div class="summary__content">
+            <p>
+                Der Zugang erfolgt über ein persönliches Konto. Falls Sie noch
+                kein Konto besitzen, können Sie eine Registrierung anfragen.
+            </p>
+        </div>
+    </details>
+
+    <details class="summary summary--faq">
+        <summary class="summary__trigger">
+            <span class="summary__title">Ich habe mein Passwort vergessen. Was nun?</span>
+        </summary>
+
+        <div class="summary__content">
+            <p>
+                Nutzen Sie die Passwort-zurücksetzen-Funktion oder wenden Sie
+                sich an den Support.
+            </p>
+        </div>
+    </details>
+</div>
+
+
+4. Nummeriertes Accordion
+------------------------------------------------------------------------------
+
+<div class="summary-group summary-group--numbered">
+    <details class="summary">
+        <summary class="summary__trigger">
+            <span class="summary__title">Konto erstellen</span>
+        </summary>
+
+        <div class="summary__content">
+            <p>Registrieren Sie sich mit Ihrer E-Mail-Adresse.</p>
+        </div>
+    </details>
+
+    <details class="summary">
+        <summary class="summary__trigger">
+            <span class="summary__title">E-Mail bestätigen</span>
+        </summary>
+
+        <div class="summary__content">
+            <p>Bestätigen Sie Ihre E-Mail-Adresse über den Link.</p>
+        </div>
+    </details>
+
+    <details class="summary">
+        <summary class="summary__trigger">
+            <span class="summary__title">Portal nutzen</span>
+        </summary>
+
+        <div class="summary__content">
+            <p>Melden Sie sich an und nutzen Sie die verfügbaren Bereiche.</p>
+        </div>
+    </details>
+</div>
+
+
+5. Summary mit Icon
+------------------------------------------------------------------------------
+
+<details class="summary summary--icon summary--info">
+    <summary class="summary__trigger">
+        <span class="summary__icon" aria-hidden="true">
+            <svg class="vdb-icon">
+                <use href="/assets/icons/vdb-icons.svg#icon-info"></use>
+            </svg>
+        </span>
+
+        <span class="summary__main">
+            <span class="summary__title">Hinweis zum Serviceportal</span>
+            <span class="summary__subtitle">
+                Wichtige Informationen zur Nutzung.
+            </span>
+        </span>
+    </summary>
+
+    <div class="summary__content">
+        <p>
+            Manche Funktionen stehen nur angemeldeten Nutzer:innen zur Verfügung.
+        </p>
+    </div>
+</details>
+
+
+6. Status-Summary
+------------------------------------------------------------------------------
+
+<details class="summary summary--warning">
+    <summary class="summary__trigger">
+        <span class="summary__title">Wartungsfenster</span>
+        <span class="summary__meta">Heute, 18:00 Uhr</span>
+    </summary>
+
+    <div class="summary__content">
+        <p>
+            Während des Wartungsfensters kann es zu Einschränkungen kommen.
+        </p>
+    </div>
+</details>
+
+
+7. Summary mit Liste
+------------------------------------------------------------------------------
+
+<details class="summary summary--surface">
+    <summary class="summary__trigger">
+        <span class="summary__title">Was Sie benötigen</span>
+    </summary>
+
+    <div class="summary__content">
+        <ul class="summary__list">
+            <li>E-Mail-Adresse</li>
+            <li>Zugangsdaten</li>
+            <li>Bestätigung durch die Geschäftsstelle</li>
+        </ul>
+    </div>
+</details>
+
+
+8. Nicht aufklappbare Summary-Card
+------------------------------------------------------------------------------
+
+<div class="summary-card summary-card--primary">
+    <p class="summary-card__kicker">Kurzfassung</p>
+
+    <h3 class="summary-card__title">
+        Zugang zum Portal
+    </h3>
+
+    <p class="summary-card__text">
+        Alle Informationen zur Anmeldung, Registrierung und Kontoverwaltung.
+    </p>
+
+    <div class="summary-card__actions btn-group btn-group--horizontal">
+        <a href="/zugang-zum-portal" class="btn btn--primary btn--md">
+            Mehr erfahren
+        </a>
+    </div>
+</div>
+
+
+9. Kompletter Baukasten
+------------------------------------------------------------------------------
+
+<section class="section--surface">
+    <div class="container container--text-only">
+        <div class="summary-group summary-group--card summary-group--numbered">
+            <div class="summary-group__header">
+                <p class="summary-group__kicker">Hilfe</p>
+                <h2 class="summary-group__title">Häufige Fragen</h2>
+                <p class="summary-group__text">
+                    Diese Übersicht beantwortet zentrale Fragen zum Serviceportal.
+                </p>
+            </div>
+
+            <details class="summary summary--primary" open>
+                <summary class="summary__trigger">
+                    <span class="summary__main">
+                        <span class="summary__title">Was ist das Serviceportal?</span>
+                        <span class="summary__subtitle">
+                            Kurze Einführung in Zweck und Aufbau.
+                        </span>
+                    </span>
+
+                    <span class="summary__meta">Grundlagen</span>
+                </summary>
+
+                <div class="summary__content">
+                    <p>
+                        Das Serviceportal bündelt zentrale Informationen,
+                        Funktionen und Hilfestellungen.
+                    </p>
+
+                    <div class="summary__note summary__note--info">
+                        <strong>Hinweis:</strong>
+                        Manche Bereiche sind nur nach Anmeldung sichtbar.
+                    </div>
+                </div>
+            </details>
+
+            <details class="summary summary--secondary-cta">
+                <summary class="summary__trigger">
+                    <span class="summary__main">
+                        <span class="summary__title">Wie registriere ich mich?</span>
+                        <span class="summary__subtitle">
+                            Schritte zur Erstellung eines Kontos.
+                        </span>
+                    </span>
+
+                    <span class="summary__meta">Konto</span>
+                </summary>
+
+                <div class="summary__content">
+                    <ol class="summary__list">
+                        <li>Registrierungsformular öffnen.</li>
+                        <li>E-Mail-Adresse eintragen.</li>
+                        <li>Bestätigungslink öffnen.</li>
+                        <li>Konto vervollständigen.</li>
+                    </ol>
+
+                    <div class="summary__actions btn-group btn-group--horizontal">
+                        <a href="/registrierung" class="btn btn--primary btn--md">
+                            Registrierung öffnen
+                        </a>
+
+                        <a href="/kontakt?preset=1" class="btn btn--primary-light btn--md">
+                            Hilfe kontaktieren
+                        </a>
+                    </div>
+                </div>
+            </details>
+
+            <details class="summary summary--warning">
+                <summary class="summary__trigger">
+                    <span class="summary__main">
+                        <span class="summary__title">Ich kann mich nicht anmelden</span>
+                        <span class="summary__subtitle">
+                            Hilfe bei Login-Problemen.
+                        </span>
+                    </span>
+
+                    <span class="summary__meta">Support</span>
+                </summary>
+
+                <div class="summary__content">
+                    <p>
+                        Prüfen Sie zuerst Ihre Zugangsdaten. Falls das Problem
+                        weiterhin besteht, wenden Sie sich an den Support.
+                    </p>
+
+                    <div class="summary__actions btn-group btn-group--horizontal">
+                        <a href="/kontakt?preset=1" class="btn btn--warning btn--md">
+                            Support kontaktieren
+                        </a>
+                    </div>
+                </div>
+            </details>
+        </div>
+    </div>
+</section>
+
+
+Barrierefreiheit
+------------------------------------------------------------------------------
+- <summary> ist bereits fokussierbar und per Tastatur bedienbar.
+- Der sichtbare Text im <summary> sollte klar beschreiben, was geöffnet wird.
+- Keine interaktiven Elemente direkt in <summary> verschachteln, wenn es vermeidbar ist.
+- Buttons oder Links besser in .summary__content platzieren.
+- Icons im Trigger sollten aria-hidden="true" haben.
+- Fokus-Stile nicht entfernen.
+- Für FAQ-Bereiche können <details> und <summary> ohne JavaScript genutzt werden.
+*/
+
+
+/* ==========================================================================
+   Tokens
+   ========================================================================== */
+
+:root {
+    --summary-radius: 0px;
+
+    --summary-bg: var(--color-white);
+    --summary-surface-bg: var(--color-surface-bg);
+    --summary-text: var(--color-ink);
+    --summary-text-muted: color-mix(in srgb, var(--color-ink) 68%, var(--color-white));
+
+    --summary-border: color-mix(in srgb, var(--color-ink) 16%, transparent);
+    --summary-border-strong: color-mix(in srgb, var(--color-ink) 28%, transparent);
+
+    --summary-hover-bg: color-mix(in srgb, var(--color-ink) 5%, var(--color-white));
+    --summary-open-bg: color-mix(in srgb, var(--color-primary) 8%, var(--color-white));
+
+    --summary-focus-ring: color-mix(in srgb, var(--color-primary) 32%, transparent);
+
+    --summary-status-color: var(--color-primary);
+    --summary-status-bg: color-mix(in srgb, var(--summary-status-color) 70%, var(--color-white));
+    --summary-status-text: var(--color-ink);
+
+    --summary-trigger-padding-y: 1.25rem;
+    --summary-trigger-padding-x: 1.5rem;
+
+    --summary-content-padding-y: 1.25rem;
+    --summary-content-padding-x: 1.5rem;
+
+    --summary-gap: var(--spacing-3, 1rem);
+    --summary-group-gap: var(--spacing-3, 1rem);
+
+    --summary-icon-size: 2.5rem;
+    --summary-chevron-size: 1.25rem;
+
+    --summary-title-size: clamp(1.125rem, 2vw, 1.35rem);
+    --summary-title-weight: var(--font-weight-bold, 700);
+
+    --summary-transition: 180ms ease-in-out;
+
+    --summary-card-padding: var(--spacing-5, 2rem);
+}
+
+
+/* ==========================================================================
+   Summary Group
+   ========================================================================== */
+
+.summary-group {
+    display: grid;
+    gap: var(--summary-group-gap);
+
+    width: 100%;
+    color: var(--summary-text);
+}
+
+.summary-group--surface {
+    padding: var(--spacing-5, 2rem);
+    background: var(--summary-surface-bg);
+}
+
+.summary-group--card {
+    padding: var(--spacing-5, 2rem);
+    background: var(--color-white);
+    border: 1px solid var(--summary-border);
+    border-radius: var(--summary-radius);
+}
+
+.summary-group--compact {
+    --summary-group-gap: var(--spacing-2, 0.5rem);
+}
+
+.summary-group--loose {
+    --summary-group-gap: var(--spacing-5, 2rem);
+}
+
+.summary-group--divided {
+    gap: 0;
+}
+
+.summary-group--divided .summary {
+    border-bottom: 0;
+}
+
+.summary-group--divided .summary + .summary {
+    border-top: 1px solid var(--summary-border);
+}
+
+.summary-group__header {
+    display: grid;
+    gap: var(--spacing-2, 0.5rem);
+
+    margin-bottom: var(--spacing-3, 1rem);
+}
+
+.summary-group__kicker {
+    margin: 0;
+
+    color: var(--color-secondary-cta);
+    font-size: 0.9rem;
+    font-weight: var(--font-weight-bold, 700);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.summary-group__title {
+    margin: 0;
+
+    color: var(--color-ink);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: var(--font-weight-bold, 700);
+    line-height: 1.15;
+}
+
+.summary-group__text {
+    max-width: 58rem;
+    margin: 0;
+
+    color: var(--summary-text-muted);
+    line-height: 1.55;
+}
+
+
+/* Numbered Group */
+
+.summary-group--numbered {
+    counter-reset: summary-counter;
+}
+
+.summary-group--numbered .summary {
+    counter-increment: summary-counter;
+}
+
+.summary-group--numbered .summary__trigger::before {
+    content: counter(summary-counter, decimal-leading-zero);
+
+    width: 2.5rem;
+    height: 2.5rem;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 auto;
+
+    color: var(--summary-status-text);
+    background: var(--summary-status-bg);
+
+    font-size: 0.875rem;
+    font-weight: var(--font-weight-bold, 700);
+    line-height: 1;
+}
+
+
+/* ==========================================================================
+   Summary Basis
+   ========================================================================== */
+
+details.summary,
+.summary {
+    --summary-current-status-color: var(--summary-status-color);
+    --summary-current-status-bg: var(--summary-status-bg);
+    --summary-current-status-text: var(--summary-status-text);
+
+    color: var(--summary-text);
+    background: var(--summary-bg);
+    border: 1px solid var(--summary-border);
+    border-left: 0.375rem solid var(--summary-current-status-color);
+    border-radius: var(--summary-radius);
+
+    overflow: hidden;
+}
+
+details.summary[open] {
+    background: var(--summary-open-bg);
+    border-color: var(--summary-border-strong);
+}
+
+.summary--surface {
+    --summary-bg: var(--summary-surface-bg);
+}
+
+.summary--white {
+    --summary-bg: var(--color-white);
+}
+
+.summary--bordered {
+    border-color: var(--summary-border-strong);
+}
+
+.summary--flat {
+    border-inline: 0;
+    border-top: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+.summary--compact {
+    --summary-trigger-padding-y: 0.875rem;
+    --summary-trigger-padding-x: 1rem;
+    --summary-content-padding-y: 1rem;
+    --summary-content-padding-x: 1rem;
+}
+
+.summary--large {
+    --summary-trigger-padding-y: 1.75rem;
+    --summary-trigger-padding-x: 2rem;
+    --summary-content-padding-y: 1.5rem;
+    --summary-content-padding-x: 2rem;
+}
+
+
+/* ==========================================================================
+   Trigger
+   ========================================================================== */
+
+.summary__trigger,
+details.summary > summary {
+    position: relative;
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--summary-gap);
+    align-items: center;
+
+    padding: var(--summary-trigger-padding-y) var(--summary-trigger-padding-x);
+
+    color: var(--summary-text);
+    background: transparent;
+
+    cursor: pointer;
+    list-style: none;
+
+    transition:
+        background-color var(--summary-transition),
+        color var(--summary-transition);
+}
+
+.summary__trigger::-webkit-details-marker,
+details.summary > summary::-webkit-details-marker {
+    display: none;
+}
+
+.summary__trigger::marker,
+details.summary > summary::marker {
+    content: "";
+}
+
+.summary__trigger:hover,
+details.summary > summary:hover {
+    background: var(--summary-hover-bg);
+}
+
+.summary__trigger:focus-visible,
+details.summary > summary:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 4px var(--summary-focus-ring);
+}
+
+.summary__main {
+    min-width: 0;
+
+    display: grid;
+    gap: 0.25rem;
+}
+
+.summary__kicker {
+    color: var(--summary-current-status-color);
+    font-size: 0.8rem;
+    font-weight: var(--font-weight-bold, 700);
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.summary__title {
+    color: var(--summary-text);
+    font-size: var(--summary-title-size);
+    font-weight: var(--summary-title-weight);
+    line-height: 1.25;
+}
+
+.summary__subtitle {
+    color: var(--summary-text-muted);
+    font-size: 0.95rem;
+    line-height: 1.45;
+}
+
+.summary__meta {
+    color: var(--summary-text-muted);
+    font-size: 0.9rem;
+    font-weight: var(--font-weight-regular, 500);
+    line-height: 1.3;
+    text-align: right;
+    white-space: nowrap;
+}
+
+
+/* Chevron */
+
+.summary__trigger::after,
+details.summary > summary::after {
+    content: "";
+
+    width: var(--summary-chevron-size);
+    height: var(--summary-chevron-size);
+
+    justify-self: end;
+
+    background: currentColor;
+
+    clip-path: polygon(50% 75%, 10% 30%, 20% 20%, 50% 52%, 80% 20%, 90% 30%);
+    transform: rotate(0deg);
+
+    transition: transform var(--summary-transition);
+}
+
+details.summary[open] > summary::after,
+.summary.is-open .summary__trigger::after {
+    transform: rotate(180deg);
+}
+
+
+/* ==========================================================================
+   Trigger mit Icon / Split / FAQ
+   ========================================================================== */
+
+.summary--icon .summary__trigger {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.summary__icon {
+    width: var(--summary-icon-size);
+    height: var(--summary-icon-size);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--summary-current-status-text);
+    background: var(--summary-current-status-bg);
+}
+
+.summary__icon .vdb-icon,
+.summary__icon svg {
+    width: 1.35rem;
+    height: 1.35rem;
+}
+
+.summary--split .summary__trigger {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+}
+
+.summary--faq .summary__title::before {
+    content: "Frage: ";
+
+    color: var(--summary-current-status-color);
+    font-weight: var(--font-weight-bold, 700);
+}
+
+
+/* ==========================================================================
+   Content
+   ========================================================================== */
+
+.summary__content {
+    padding: 0 var(--summary-content-padding-x) var(--summary-content-padding-y);
+
+    color: var(--summary-text);
+    line-height: 1.55;
+}
+
+.summary__content > :first-child {
+    margin-top: 0;
+}
+
+.summary__content > :last-child {
+    margin-bottom: 0;
+}
+
+.summary__content-inner {
+    display: grid;
+    gap: var(--summary-gap);
+}
+
+.summary__content p {
+    margin: 0 0 var(--spacing-3, 1rem);
+}
+
+.summary__content a {
+    color: var(--color-secondary-cta);
+    text-underline-offset: 0.18em;
+}
+
+.summary__actions {
+    margin-top: var(--spacing-4, 1.5rem);
+}
+
+.summary__list {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
+.summary__list li + li {
+    margin-top: 0.4rem;
+}
+
+.summary__note {
+    margin-top: var(--spacing-3, 1rem);
+    padding: var(--spacing-3, 1rem);
+
+    color: var(--color-ink);
+    background: color-mix(in srgb, var(--color-ink) 4%, var(--color-white));
+    border-left: 0.25rem solid var(--summary-current-status-color);
+}
+
+.summary__note--info {
+    border-left-color: var(--color-status-info);
+    background: color-mix(in srgb, var(--color-status-info) 12%, var(--color-white));
+}
+
+.summary__note--success {
+    border-left-color: var(--color-status-success);
+    background: color-mix(in srgb, var(--color-status-success) 12%, var(--color-white));
+}
+
+.summary__note--warning {
+    border-left-color: var(--color-status-warning);
+    background: color-mix(in srgb, var(--color-status-warning) 14%, var(--color-white));
+}
+
+.summary__note--error {
+    border-left-color: var(--color-status-error);
+    background: color-mix(in srgb, var(--color-status-error) 12%, var(--color-white));
+}
+
+
+/* ==========================================================================
+   Farbvarianten
+   ========================================================================== */
+
+.summary--primary {
+    --summary-current-status-color: var(--color-primary);
+    --summary-current-status-bg: color-mix(in srgb, var(--color-primary) 70%, var(--color-white));
+    --summary-current-status-text: var(--color-ink);
+}
+
+.summary--secondary-cta {
+    --summary-current-status-color: var(--color-secondary-cta);
+    --summary-current-status-bg: color-mix(in srgb, var(--color-secondary-cta) 70%, var(--color-white));
+    --summary-current-status-text: var(--color-ink);
+}
+
+.summary--secondary-highlight,
+.summary--plum {
+    --summary-current-status-color: var(--color-secondary-highlight);
+    --summary-current-status-bg: var(--color-secondary-highlight);
+    --summary-current-status-text: var(--color-white);
+}
+
+.summary--amber {
+    --summary-current-status-color: var(--color-accent-amber);
+    --summary-current-status-bg: color-mix(in srgb, var(--color-accent-amber) 70%, var(--color-white));
+    --summary-current-status-text: var(--color-ink);
+}
+
+.summary--teal {
+    --summary-current-status-color: var(--color-accent-teal);
+    --summary-current-status-bg: color-mix(in srgb, var(--color-accent-teal) 70%, var(--color-white));
+    --summary-current-status-text: var(--color-ink);
+}
+
+.summary--berry {
+    --summary-current-status-color: var(--color-accent-berry);
+    --summary-current-status-bg: color-mix(in srgb, var(--color-accent-berry) 70%, var(--color-white));
+    --summary-current-status-text: var(--color-ink);
+}
+
+.summary--sun,
+.summary--sun-yellow {
+    --summary-current-status-color: var(--color-accent-sun);
+    --summary-current-status-bg: color-mix(in srgb, var(--color-accent-sun) 70%, var(--color-white));
+    --summary-current-status-text: var(--color-ink);
+}
+
+.summary--lime {
+    --summary-current-status-color: var(--color-accent-lime);
+    --summary-current-status-bg: color-mix(in srgb, var(--color-accent-lime) 70%, var(--color-white));
+    --summary-current-status-text: var(--color-ink);
+}
+
+.summary--success {
+    --summary-current-status-color: var(--color-status-success);
+    --summary-current-status-bg: color-mix(in srgb, var(--color-status-success) 70%, var(--color-white));
+    --summary-current-status-text: var(--color-ink);
+}
+
+.summary--error,
+.summary--danger {
+    --summary-current-status-color: var(--color-status-error);
+    --summary-current-status-bg: color-mix(in srgb, var(--color-status-error) 70%, var(--color-white));
+    --summary-current-status-text: var(--color-ink);
+}
+
+.summary--warning {
+    --summary-current-status-color: var(--color-status-warning);
+    --summary-current-status-bg: color-mix(in srgb, var(--color-status-warning) 70%, var(--color-white));
+    --summary-current-status-text: var(--color-ink);
+}
+
+.summary--info {
+    --summary-current-status-color: var(--color-status-info);
+    --summary-current-status-bg: color-mix(in srgb, var(--color-status-info) 70%, var(--color-white));
+    --summary-current-status-text: var(--color-ink);
+}
+
+
+/* ==========================================================================
+   Summary Cards
+   ========================================================================== */
+
+.summary-card {
+    --summary-card-status-color: var(--color-primary);
+    --summary-card-bg: color-mix(in srgb, var(--summary-card-status-color) 70%, var(--color-white));
+    --summary-card-text: var(--color-ink);
+
+    display: grid;
+    gap: var(--spacing-3, 1rem);
+
+    padding: var(--summary-card-padding);
+
+    color: var(--summary-card-text);
+    background: var(--summary-card-bg);
+    border-left: 0.375rem solid var(--summary-card-status-color);
+}
+
+.summary-card__kicker {
+    margin: 0;
+
+    color: var(--summary-card-text);
+    font-size: 0.85rem;
+    font-weight: var(--font-weight-bold, 700);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.summary-card__title {
+    margin: 0;
+
+    color: var(--summary-card-text);
+    font-size: clamp(1.35rem, 3vw, 2rem);
+    font-weight: var(--font-weight-bold, 700);
+    line-height: 1.15;
+}
+
+.summary-card__text {
+    margin: 0;
+
+    color: var(--summary-card-text);
+    line-height: 1.55;
+}
+
+.summary-card__meta {
+    margin: 0;
+
+    color: color-mix(in srgb, var(--summary-card-text) 72%, transparent);
+    font-size: 0.95rem;
+}
+
+.summary-card__actions {
+    margin-top: var(--spacing-2, 0.5rem);
+}
+
+.summary-card--primary {
+    --summary-card-status-color: var(--color-primary);
+}
+
+.summary-card--secondary-cta {
+    --summary-card-status-color: var(--color-secondary-cta);
+}
+
+.summary-card--secondary-highlight,
+.summary-card--plum {
+    --summary-card-status-color: var(--color-secondary-highlight);
+    --summary-card-bg: var(--color-secondary-highlight);
+    --summary-card-text: var(--color-white);
+}
+
+.summary-card--amber {
+    --summary-card-status-color: var(--color-accent-amber);
+}
+
+.summary-card--teal {
+    --summary-card-status-color: var(--color-accent-teal);
+}
+
+.summary-card--berry {
+    --summary-card-status-color: var(--color-accent-berry);
+}
+
+.summary-card--sun,
+.summary-card--sun-yellow {
+    --summary-card-status-color: var(--color-accent-sun);
+}
+
+.summary-card--lime {
+    --summary-card-status-color: var(--color-accent-lime);
+}
+
+.summary-card--success {
+    --summary-card-status-color: var(--color-status-success);
+}
+
+.summary-card--error,
+.summary-card--danger {
+    --summary-card-status-color: var(--color-status-error);
+}
+
+.summary-card--warning {
+    --summary-card-status-color: var(--color-status-warning);
+}
+
+.summary-card--info {
+    --summary-card-status-color: var(--color-status-info);
+}
+
+
+/* ==========================================================================
+   Responsive Verhalten
+   ========================================================================== */
+
+@media (max-width: 720px) {
+    .summary-group--surface,
+    .summary-group--card {
+        padding: var(--spacing-4, 1.5rem);
+    }
+
+    .summary__trigger,
+    details.summary > summary {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .summary--icon .summary__trigger {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+    }
+
+    .summary--split .summary__trigger {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .summary__meta {
+        grid-column: 1 / -1;
+        text-align: left;
+        white-space: normal;
+    }
+
+    .summary-group--numbered .summary__trigger::before {
+        width: 2.25rem;
+        height: 2.25rem;
+    }
+}
+
+@media (max-width: 560px) {
+    .summary-group--surface,
+    .summary-group--card {
+        padding: var(--spacing-3, 1rem);
+    }
+
+    .summary__trigger,
+    details.summary > summary {
+        padding: var(--spacing-3, 1rem);
+    }
+
+    .summary__content {
+        padding: 0 var(--spacing-3, 1rem) var(--spacing-3, 1rem);
+    }
+
+    .summary-card {
+        padding: var(--spacing-4, 1.5rem);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .summary__trigger,
+    details.summary > summary,
+    .summary__trigger::after,
+    details.summary > summary::after {
+        transition: none;
+    }
+}

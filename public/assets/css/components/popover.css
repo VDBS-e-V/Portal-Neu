@@ -1,0 +1,1817 @@
+/*
+Popups — Overlay-, Dialog-, Drawer-, Toast- und Tooltip-System
+==============================================================================
+Zweck
+------------------------------------------------------------------------------
+Diese Datei definiert ein flexibles Popup-System für das VDBS Portal.
+
+Sie eignet sich für:
+- Modals / Dialogfenster
+- Bestätigungsdialoge
+- Warnmeldungen
+- Login- oder Formular-Popups
+- Drawer / Seitenpanels
+- Popover / kleine kontextuelle Hinweise
+- Toast-Benachrichtigungen
+- Tooltips
+- Cookie- oder Consent-Banner
+
+
+Designprinzip
+------------------------------------------------------------------------------
+Das System folgt dem bisherigen VDBS-Design:
+
+- klare Kanten
+- keine Rundungen als Default
+- ruhige Flächen
+- kräftige, aber kontrollierte Farben
+- hohe Lesbarkeit
+- Fokus auf Barrierefreiheit
+- Kompatibilität mit .btn, .btn-group und .vdb-icon
+
+
+Farblogik
+------------------------------------------------------------------------------
+Alle Farben kommen aus tokens.css.
+
+Verwendete Tokens:
+- --color-ink
+- --color-white
+- --color-surface-bg
+- --color-primary
+- --color-secondary-cta
+- --color-secondary-highlight
+- --color-accent-amber
+- --color-accent-teal
+- --color-accent-berry
+- --color-accent-sun
+- --color-accent-lime
+- --color-status-success
+- --color-status-error
+- --color-status-warning
+- --color-status-info
+
+Einheitliche Farbmischungen:
+- schwächere Farbe:
+  color-mix(in srgb, [FARBE] 70%, var(--color-white))
+
+- sehr subtile Fläche:
+  color-mix(in srgb, var(--color-ink) 4%, var(--color-white))
+
+- Hover-Fläche:
+  color-mix(in srgb, var(--color-ink) 6%, var(--color-white))
+
+- Border:
+  color-mix(in srgb, var(--color-ink) 16%, transparent)
+
+- Backdrop:
+  color-mix(in srgb, var(--color-ink) 56%, transparent)
+
+- Focus-Ring:
+  color-mix(in srgb, var(--color-primary) 32%, transparent)
+
+
+Moderne CSS-Strategie
+------------------------------------------------------------------------------
+Diese Datei unterstützt drei Arbeitsweisen:
+
+1. Native Dialoge mit <dialog>
+   - empfohlen für echte Modals
+   - unterstützt Escape-Taste und Fokus-Handling besser
+
+2. Fallback mit .is-open
+   - nutzbar mit <div class="popup is-open">
+   - praktisch, wenn du eigene JS-Logik verwendest
+
+3. Native Popover mit popover-Attribut
+   - geeignet für kleine kontextuelle Hinweise
+   - zum Beispiel Menüs, Infofenster oder kleine Hilfetexte
+
+
+Grundstruktur: Native Modal mit <dialog>
+------------------------------------------------------------------------------
+
+<dialog class="popup popup--modal" id="example-modal">
+    <div class="popup__surface">
+        <header class="popup__header">
+            <div>
+                <p class="popup__kicker">Hinweis</p>
+                <h2 class="popup__title">Dialogtitel</h2>
+            </div>
+
+            <form method="dialog">
+                <button class="popup__close" aria-label="Dialog schließen">
+                    <svg class="vdb-icon" aria-hidden="true">
+                        <use href="/assets/icons/vdb-icons.svg#icon-close"></use>
+                    </svg>
+                </button>
+            </form>
+        </header>
+
+        <div class="popup__body">
+            <p>Inhalt des Dialogs.</p>
+        </div>
+
+        <footer class="popup__footer">
+            <form method="dialog" class="btn-group btn-group--horizontal">
+                <button class="btn btn--primary-transp btn--md" value="cancel">
+                    Abbrechen
+                </button>
+
+                <button class="btn btn--primary btn--md" value="confirm">
+                    Bestätigen
+                </button>
+            </form>
+        </footer>
+    </div>
+</dialog>
+
+
+Öffnen per JavaScript:
+
+<script>
+    document.querySelector('#example-modal').showModal();
+</script>
+
+
+Grundstruktur: Fallback mit .is-open
+------------------------------------------------------------------------------
+
+<div class="popup popup--modal is-open" role="presentation">
+    <div class="popup__backdrop" aria-hidden="true"></div>
+
+    <div
+        class="popup__surface"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="fallback-popup-title"
+    >
+        <header class="popup__header">
+            <h2 class="popup__title" id="fallback-popup-title">
+                Fallback Popup
+            </h2>
+
+            <button class="popup__close" type="button" aria-label="Popup schließen">
+                ×
+            </button>
+        </header>
+
+        <div class="popup__body">
+            <p>Dieses Popup wird über die Klasse .is-open angezeigt.</p>
+        </div>
+    </div>
+</div>
+
+
+Klassenübersicht
+==============================================================================
+
+Basis
+------------------------------------------------------------------------------
+
+.popup
+- Äußere Popup-Komponente.
+- Kann auf <dialog> oder <div> verwendet werden.
+
+.popup.is-open
+- Öffnet ein Nicht-Dialog-Popup.
+- Für JavaScript-Fallbacks.
+
+.popup__backdrop
+- Separater Hintergrund für Nicht-Dialog-Popups.
+- Bei <dialog> wird stattdessen ::backdrop genutzt.
+
+.popup__surface
+- Sichtbare Popup-Fläche.
+- Enthält Header, Body und Footer.
+
+.popup__header
+- Kopfbereich mit Titel und Close-Button.
+
+.popup__body
+- Inhalt des Popups.
+
+.popup__footer
+- Aktionsbereich unten.
+- Häufig mit .btn-group kombiniert.
+
+.popup__close
+- Schließen-Button oben rechts.
+
+.popup__kicker
+- Kleine Kategoriezeile über dem Titel.
+
+.popup__title
+- Haupttitel des Popups.
+
+.popup__text
+- Standard-Fließtext im Popup.
+
+.popup__meta
+- Zurückhaltender Zusatztext.
+
+
+Popup-Typen
+------------------------------------------------------------------------------
+
+.popup--modal
+- Standard-Modal mittig auf der Seite.
+
+.popup--alert
+- Kleinerer, fokussierter Dialog.
+- Für Warnungen, Bestätigungen oder kurze Hinweise.
+
+.popup--drawer
+- Seitenpanel / Drawer.
+- Wird mit Positionsklassen kombiniert.
+
+.popup--drawer-right
+- Drawer öffnet von rechts.
+
+.popup--drawer-left
+- Drawer öffnet von links.
+
+.popup--drawer-top
+- Drawer öffnet von oben.
+
+.popup--drawer-bottom
+- Drawer öffnet von unten.
+
+.popup--fullscreen
+- Popup nimmt fast den gesamten Viewport ein.
+
+.popup--sheet
+- Bottom-Sheet-artiges Popup.
+- Besonders für mobile Interfaces geeignet.
+
+
+Größen
+------------------------------------------------------------------------------
+
+.popup--xs
+- Sehr kleines Popup.
+
+.popup--sm
+- Kleines Popup.
+
+.popup--md
+- Standardgröße.
+
+.popup--lg
+- Großes Popup.
+
+.popup--xl
+- Sehr großes Popup.
+
+.popup--full
+- Maximale Breite im verfügbaren Raum.
+
+
+Positionen
+------------------------------------------------------------------------------
+
+.popup--center
+- Zentriert, Standard.
+
+.popup--top
+- Oben positioniert.
+
+.popup--bottom
+- Unten positioniert.
+
+
+Farben / Status
+------------------------------------------------------------------------------
+
+.popup--primary
+- Akzent in Primary.
+
+.popup--secondary-cta
+- Akzent in Secondary CTA.
+
+.popup--secondary-highlight
+.popup--plum
+- Akzent in Highlight / Plum.
+
+.popup--success
+- Erfolgsdialog.
+
+.popup--error
+.popup--danger
+- Fehler- oder Löschdialog.
+
+.popup--warning
+- Warnhinweis.
+
+.popup--info
+- Informationsdialog.
+
+
+Popover
+------------------------------------------------------------------------------
+
+.popup-popover
+- Kleines kontextuelles Popup mit popover-Attribut.
+
+.popup-popover--primary
+.popup-popover--success
+.popup-popover--error
+.popup-popover--warning
+.popup-popover--info
+- Farbvarianten für Popover.
+
+
+Toast
+------------------------------------------------------------------------------
+
+.toast-region
+- Container für Toasts.
+
+.toast-region--top-right
+.toast-region--top-left
+.toast-region--bottom-right
+.toast-region--bottom-left
+.toast-region--bottom-center
+.toast-region--top-center
+- Positionen für Toasts.
+
+.toast
+- Einzelne Toast-Meldung.
+
+.toast--success
+.toast--error
+.toast--warning
+.toast--info
+.toast--primary
+- Statusvarianten.
+
+.toast__icon
+- Iconbereich.
+
+.toast__content
+- Textbereich.
+
+.toast__title
+- Titel der Toast-Meldung.
+
+.toast__text
+- Beschreibung der Toast-Meldung.
+
+.toast__close
+- Schließen-Button.
+
+.toast__progress
+- Optionaler Fortschrittsbalken.
+
+
+Tooltip
+------------------------------------------------------------------------------
+
+[data-tooltip]
+- Aktiviert einen einfachen CSS-Tooltip.
+
+[data-tooltip-position="top"]
+[data-tooltip-position="right"]
+[data-tooltip-position="bottom"]
+[data-tooltip-position="left"]
+- Position des Tooltips.
+
+
+Consent
+------------------------------------------------------------------------------
+
+.popup-consent
+- Cookie- oder Datenschutz-Banner.
+
+.popup-consent--bottom
+- Unten positioniert.
+
+.popup-consent--center
+- Mittig positioniert.
+
+
+HTML-Beispiele
+==============================================================================
+
+1. Standard-Modal mit Formular
+------------------------------------------------------------------------------
+
+<dialog class="popup popup--modal popup--md" id="login-modal">
+    <div class="popup__surface">
+        <header class="popup__header">
+            <div>
+                <p class="popup__kicker">Serviceportal</p>
+                <h2 class="popup__title">Anmelden</h2>
+            </div>
+
+            <form method="dialog">
+                <button class="popup__close" aria-label="Dialog schließen">
+                    <svg class="vdb-icon" aria-hidden="true">
+                        <use href="/assets/icons/vdb-icons.svg#icon-close"></use>
+                    </svg>
+                </button>
+            </form>
+        </header>
+
+        <div class="popup__body">
+            <form class="form">
+                <div class="form__grid form__grid--1">
+                    <div class="form__field">
+                        <label class="form__label" for="login-email">
+                            E-Mail-Adresse
+                        </label>
+                        <input class="form__control" id="login-email" type="email">
+                    </div>
+
+                    <div class="form__field">
+                        <label class="form__label" for="login-password">
+                            Passwort
+                        </label>
+                        <input class="form__control" id="login-password" type="password">
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <footer class="popup__footer">
+            <div class="btn-group btn-group--horizontal btn-group--main-end">
+                <button class="btn btn--primary-transp btn--md" type="button">
+                    Passwort vergessen
+                </button>
+
+                <button class="btn btn--primary btn--md" type="button">
+                    Anmelden
+                </button>
+            </div>
+        </footer>
+    </div>
+</dialog>
+
+
+2. Bestätigungsdialog
+------------------------------------------------------------------------------
+
+<dialog class="popup popup--alert popup--danger" id="delete-dialog">
+    <div class="popup__surface">
+        <header class="popup__header">
+            <div class="popup__status-icon" aria-hidden="true">
+                <svg class="vdb-icon">
+                    <use href="/assets/icons/vdb-icons.svg#icon-warning"></use>
+                </svg>
+            </div>
+
+            <div>
+                <p class="popup__kicker">Löschen</p>
+                <h2 class="popup__title">Eintrag wirklich löschen?</h2>
+            </div>
+        </header>
+
+        <div class="popup__body">
+            <p class="popup__text">
+                Diese Aktion kann nicht rückgängig gemacht werden.
+            </p>
+        </div>
+
+        <footer class="popup__footer">
+            <form method="dialog" class="btn-group btn-group--horizontal btn-group--main-end">
+                <button class="btn btn--primary-transp btn--md" value="cancel">
+                    Abbrechen
+                </button>
+
+                <button class="btn btn--danger btn--md" value="delete">
+                    Löschen
+                </button>
+            </form>
+        </footer>
+    </div>
+</dialog>
+
+
+3. Drawer von rechts
+------------------------------------------------------------------------------
+
+<dialog class="popup popup--drawer popup--drawer-right" id="settings-drawer">
+    <div class="popup__surface">
+        <header class="popup__header">
+            <div>
+                <p class="popup__kicker">Einstellungen</p>
+                <h2 class="popup__title">Portal anpassen</h2>
+            </div>
+
+            <form method="dialog">
+                <button class="popup__close" aria-label="Drawer schließen">
+                    ×
+                </button>
+            </form>
+        </header>
+
+        <div class="popup__body">
+            <p>Hier können Einstellungen, Filter oder Navigationen stehen.</p>
+        </div>
+
+        <footer class="popup__footer">
+            <button class="btn btn--primary btn--md" type="button">
+                Speichern
+            </button>
+        </footer>
+    </div>
+</dialog>
+
+
+4. Popover mit modernem popover-Attribut
+------------------------------------------------------------------------------
+
+<button class="btn btn--primary btn--md" popovertarget="help-popover">
+    Hilfe anzeigen
+</button>
+
+<div class="popup-popover popup-popover--info" id="help-popover" popover>
+    <div class="popup-popover__header">
+        <strong>Hinweis</strong>
+    </div>
+
+    <p>
+        Hier steht ein kurzer Hilfetext, der kontextuell eingeblendet wird.
+    </p>
+</div>
+
+
+5. Toast-Region mit Toasts
+------------------------------------------------------------------------------
+
+<div class="toast-region toast-region--bottom-right" aria-live="polite" aria-label="Benachrichtigungen">
+    <div class="toast toast--success is-visible">
+        <div class="toast__icon" aria-hidden="true">
+            <svg class="vdb-icon">
+                <use href="/assets/icons/vdb-icons.svg#icon-success"></use>
+            </svg>
+        </div>
+
+        <div class="toast__content">
+            <p class="toast__title">Gespeichert</p>
+            <p class="toast__text">Die Änderungen wurden erfolgreich gespeichert.</p>
+        </div>
+
+        <button class="toast__close" type="button" aria-label="Meldung schließen">
+            ×
+        </button>
+
+        <span class="toast__progress" aria-hidden="true"></span>
+    </div>
+</div>
+
+
+6. Tooltip
+------------------------------------------------------------------------------
+
+<button
+    class="btn btn--primary btn--md"
+    type="button"
+    data-tooltip="Dieser Button öffnet das Serviceportal."
+>
+    Serviceportal öffnen
+</button>
+
+
+7. Consent-Banner
+------------------------------------------------------------------------------
+
+<div class="popup-consent popup-consent--bottom is-open">
+    <div class="popup-consent__content">
+        <div>
+            <h2 class="popup-consent__title">Datenschutzhinweis</h2>
+            <p class="popup-consent__text">
+                Wir verwenden notwendige Cookies, um diese Website bereitzustellen.
+            </p>
+        </div>
+
+        <div class="popup-consent__actions btn-group btn-group--horizontal">
+            <button class="btn btn--primary-transp btn--md" type="button">
+                Einstellungen
+            </button>
+
+            <button class="btn btn--primary btn--md" type="button">
+                Verstanden
+            </button>
+        </div>
+    </div>
+</div>
+
+
+Barrierefreiheit
+------------------------------------------------------------------------------
+- Für echte Modals möglichst <dialog> und showModal() verwenden.
+- Dialoge brauchen eine klare Überschrift.
+- aria-labelledby nutzen, wenn möglich.
+- Close-Buttons brauchen aria-label.
+- Icon-only-Buttons brauchen aria-label.
+- Toast-Regionen sollten aria-live="polite" oder aria-live="assertive" haben.
+- Tooltips dürfen keine wichtigen Informationen exklusiv verstecken.
+- Popups dürfen Fokus-Stile nicht entfernen.
+- Bei .is-open-Fallbacks muss JavaScript Fokus, Escape-Taste und Fokus-Falle selbst verwalten.
+*/
+
+
+/* ==========================================================================
+   Tokens
+   ========================================================================== */
+
+:root {
+    --popup-z-index: 1000;
+    --toast-z-index: 1100;
+    --tooltip-z-index: 1200;
+
+    --popup-radius: 0px;
+
+    --popup-width: 42rem;
+    --popup-width-xs: 22rem;
+    --popup-width-sm: 30rem;
+    --popup-width-md: 42rem;
+    --popup-width-lg: 56rem;
+    --popup-width-xl: 72rem;
+
+    --popup-max-block-size: calc(100dvh - 2rem);
+
+    --popup-padding: var(--spacing-5, 2rem);
+    --popup-padding-compact: var(--spacing-4, 1.5rem);
+
+    --popup-gap: var(--spacing-4, 1.5rem);
+    --popup-gap-compact: var(--spacing-3, 1rem);
+
+    --popup-bg: var(--color-white);
+    --popup-surface-bg: var(--color-surface-bg);
+    --popup-text: var(--color-ink);
+    --popup-text-muted: color-mix(in srgb, var(--color-ink) 68%, var(--color-white));
+
+    --popup-border: color-mix(in srgb, var(--color-ink) 16%, transparent);
+    --popup-border-strong: color-mix(in srgb, var(--color-ink) 28%, transparent);
+
+    --popup-backdrop: color-mix(in srgb, var(--color-ink) 56%, transparent);
+    --popup-backdrop-soft: color-mix(in srgb, var(--color-ink) 36%, transparent);
+
+    --popup-shadow: 0 1.25rem 4rem color-mix(in srgb, var(--color-ink) 28%, transparent);
+
+    --popup-focus-ring: color-mix(in srgb, var(--color-primary) 32%, transparent);
+
+    --popup-status-color: var(--color-primary);
+    --popup-status-bg: color-mix(in srgb, var(--popup-status-color) 70%, var(--color-white));
+    --popup-status-text: var(--color-ink);
+
+    --popup-close-size: 2.75rem;
+
+    --popup-transition: 180ms ease-in-out;
+
+    --toast-width: 26rem;
+    --toast-gap: var(--spacing-3, 1rem);
+    --toast-bg: var(--color-white);
+    --toast-shadow: 0 1rem 3rem color-mix(in srgb, var(--color-ink) 24%, transparent);
+
+    --tooltip-bg: var(--color-ink);
+    --tooltip-text: var(--color-white);
+}
+
+
+/* ==========================================================================
+   Popup Basis: <dialog> und .is-open-Fallback
+   ========================================================================== */
+
+.popup {
+    --popup-current-status-color: var(--popup-status-color);
+    --popup-current-status-bg: var(--popup-status-bg);
+    --popup-current-status-text: var(--popup-status-text);
+
+    color: var(--popup-text);
+}
+
+
+/* Native dialog */
+
+dialog.popup {
+    width: auto;
+    max-width: calc(100dvw - 2rem);
+    max-height: calc(100dvh - 2rem);
+
+    margin: auto;
+    padding: 0;
+
+    color: var(--popup-text);
+    background: transparent;
+    border: 0;
+
+    overflow: visible;
+
+    opacity: 0;
+    transform: translateY(0.75rem) scale(0.98);
+
+    transition:
+        opacity var(--popup-transition),
+        transform var(--popup-transition),
+        overlay var(--popup-transition) allow-discrete,
+        display var(--popup-transition) allow-discrete;
+}
+
+dialog.popup[open] {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+@starting-style {
+    dialog.popup[open] {
+        opacity: 0;
+        transform: translateY(0.75rem) scale(0.98);
+    }
+}
+
+dialog.popup::backdrop {
+    background: var(--popup-backdrop);
+    backdrop-filter: blur(0.25rem);
+}
+
+
+/* Fallback mit div.popup.is-open */
+
+.popup:not(dialog) {
+    position: fixed;
+    inset: 0;
+    z-index: var(--popup-z-index);
+
+    display: none;
+    place-items: center;
+
+    padding: var(--spacing-4, 1.5rem);
+
+    background: var(--popup-backdrop);
+    backdrop-filter: blur(0.25rem);
+}
+
+.popup:not(dialog).is-open {
+    display: grid;
+}
+
+.popup__backdrop {
+    position: absolute;
+    inset: 0;
+
+    background: transparent;
+}
+
+
+/* Sichtbare Fläche */
+
+.popup__surface {
+    position: relative;
+    z-index: 1;
+
+    width: min(100%, var(--popup-width));
+    max-height: var(--popup-max-block-size);
+
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+
+    color: var(--popup-text);
+    background: var(--popup-bg);
+    border: 1px solid var(--popup-border);
+    border-top: 0.375rem solid var(--popup-current-status-color);
+    border-radius: var(--popup-radius);
+    box-shadow: var(--popup-shadow);
+
+    overflow: hidden;
+}
+
+dialog.popup .popup__surface {
+    width: min(var(--popup-width), calc(100dvw - 2rem));
+}
+
+
+/* ==========================================================================
+   Header, Body, Footer
+   ========================================================================== */
+
+.popup__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--popup-gap);
+
+    padding: var(--popup-padding);
+    padding-bottom: var(--spacing-3, 1rem);
+
+    border-bottom: 1px solid var(--popup-border);
+}
+
+.popup__body {
+    min-height: 0;
+
+    padding: var(--popup-padding);
+
+    overflow: auto;
+}
+
+.popup__footer {
+    padding: var(--spacing-3, 1rem) var(--popup-padding) var(--popup-padding);
+
+    border-top: 1px solid var(--popup-border);
+}
+
+.popup__footer .btn-group {
+    justify-content: flex-end;
+}
+
+.popup__kicker {
+    margin: 0 0 var(--spacing-1, 0.25rem);
+
+    color: var(--popup-current-status-color);
+    font-size: 0.85rem;
+    font-weight: var(--font-weight-bold, 700);
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.popup__title {
+    margin: 0;
+
+    color: var(--color-ink);
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: var(--font-weight-bold, 700);
+    line-height: 1.15;
+}
+
+.popup__text {
+    margin: 0;
+
+    color: var(--popup-text);
+    line-height: 1.55;
+}
+
+.popup__meta {
+    margin: var(--spacing-2, 0.5rem) 0 0;
+
+    color: var(--popup-text-muted);
+    font-size: 0.9rem;
+    line-height: 1.45;
+}
+
+
+/* Close Button */
+
+.popup__close {
+    width: var(--popup-close-size);
+    height: var(--popup-close-size);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 auto;
+
+    color: var(--color-ink);
+    background: color-mix(in srgb, var(--color-ink) 4%, var(--color-white));
+    border: 1px solid var(--popup-border);
+    border-radius: var(--popup-radius);
+
+    font: inherit;
+    font-size: 1.5rem;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background-color var(--popup-transition),
+        border-color var(--popup-transition),
+        color var(--popup-transition),
+        box-shadow var(--popup-transition);
+}
+
+.popup__close:hover {
+    background: color-mix(in srgb, var(--color-ink) 8%, var(--color-white));
+    border-color: var(--popup-border-strong);
+}
+
+.popup__close:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--popup-focus-ring);
+}
+
+.popup__close .vdb-icon,
+.popup__close svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+
+/* Status Icon */
+
+.popup__status-icon {
+    width: 3rem;
+    height: 3rem;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 auto;
+
+    color: var(--popup-current-status-text);
+    background: var(--popup-current-status-bg);
+}
+
+.popup__status-icon .vdb-icon,
+.popup__status-icon svg {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+
+/* ==========================================================================
+   Größen
+   ========================================================================== */
+
+.popup--xs {
+    --popup-width: var(--popup-width-xs);
+}
+
+.popup--sm {
+    --popup-width: var(--popup-width-sm);
+}
+
+.popup--md {
+    --popup-width: var(--popup-width-md);
+}
+
+.popup--lg {
+    --popup-width: var(--popup-width-lg);
+}
+
+.popup--xl {
+    --popup-width: var(--popup-width-xl);
+}
+
+.popup--full {
+    --popup-width: calc(100dvw - 2rem);
+    --popup-max-block-size: calc(100dvh - 2rem);
+}
+
+.popup--compact {
+    --popup-padding: var(--popup-padding-compact);
+    --popup-gap: var(--popup-gap-compact);
+}
+
+
+/* ==========================================================================
+   Typen
+   ========================================================================== */
+
+.popup--modal {
+    --popup-width: var(--popup-width-md);
+}
+
+.popup--alert {
+    --popup-width: var(--popup-width-sm);
+}
+
+.popup--alert .popup__header {
+    align-items: center;
+}
+
+.popup--fullscreen {
+    --popup-width: calc(100dvw - 2rem);
+    --popup-max-block-size: calc(100dvh - 2rem);
+}
+
+.popup--fullscreen .popup__surface {
+    height: var(--popup-max-block-size);
+}
+
+.popup--sheet {
+    align-items: end;
+}
+
+.popup--sheet .popup__surface {
+    width: min(100%, var(--popup-width-lg));
+}
+
+
+/* ==========================================================================
+   Positionen für Fallback und dialog
+   ========================================================================== */
+
+.popup--top:not(dialog) {
+    align-items: start;
+}
+
+.popup--bottom:not(dialog) {
+    align-items: end;
+}
+
+dialog.popup--top {
+    margin-block-start: var(--spacing-5, 2rem);
+}
+
+dialog.popup--bottom {
+    margin-block-end: var(--spacing-5, 2rem);
+}
+
+
+/* ==========================================================================
+   Drawer
+   ========================================================================== */
+
+.popup--drawer {
+    --popup-width: 28rem;
+}
+
+.popup--drawer .popup__surface {
+    height: 100dvh;
+    max-height: 100dvh;
+
+    border-top: 0;
+}
+
+.popup--drawer-right:not(dialog),
+.popup--drawer-left:not(dialog) {
+    padding: 0;
+    align-items: stretch;
+}
+
+.popup--drawer-right:not(dialog) {
+    justify-items: end;
+}
+
+.popup--drawer-left:not(dialog) {
+    justify-items: start;
+}
+
+.popup--drawer-top:not(dialog),
+.popup--drawer-bottom:not(dialog) {
+    padding: 0;
+    justify-items: stretch;
+}
+
+.popup--drawer-top:not(dialog) {
+    align-items: start;
+}
+
+.popup--drawer-bottom:not(dialog) {
+    align-items: end;
+}
+
+.popup--drawer-top .popup__surface,
+.popup--drawer-bottom .popup__surface {
+    width: 100%;
+    height: auto;
+    max-height: min(80dvh, 42rem);
+}
+
+dialog.popup--drawer-right {
+    margin: 0 0 0 auto;
+    max-width: min(var(--popup-width), 100dvw);
+    max-height: 100dvh;
+}
+
+dialog.popup--drawer-left {
+    margin: 0 auto 0 0;
+    max-width: min(var(--popup-width), 100dvw);
+    max-height: 100dvh;
+}
+
+dialog.popup--drawer-top {
+    margin: 0 auto auto;
+    max-width: 100dvw;
+    max-height: 80dvh;
+}
+
+dialog.popup--drawer-bottom {
+    margin: auto auto 0;
+    max-width: 100dvw;
+    max-height: 80dvh;
+}
+
+dialog.popup--drawer-right .popup__surface,
+dialog.popup--drawer-left .popup__surface {
+    width: min(var(--popup-width), 100dvw);
+}
+
+dialog.popup--drawer-top .popup__surface,
+dialog.popup--drawer-bottom .popup__surface {
+    width: 100dvw;
+}
+
+
+/* ==========================================================================
+   Farb- und Statusvarianten
+   ========================================================================== */
+
+.popup--primary {
+    --popup-current-status-color: var(--color-primary);
+    --popup-current-status-bg: color-mix(in srgb, var(--color-primary) 70%, var(--color-white));
+    --popup-current-status-text: var(--color-ink);
+}
+
+.popup--secondary-cta {
+    --popup-current-status-color: var(--color-secondary-cta);
+    --popup-current-status-bg: color-mix(in srgb, var(--color-secondary-cta) 70%, var(--color-white));
+    --popup-current-status-text: var(--color-ink);
+}
+
+.popup--secondary-highlight,
+.popup--plum {
+    --popup-current-status-color: var(--color-secondary-highlight);
+    --popup-current-status-bg: var(--color-secondary-highlight);
+    --popup-current-status-text: var(--color-white);
+}
+
+.popup--success {
+    --popup-current-status-color: var(--color-status-success);
+    --popup-current-status-bg: color-mix(in srgb, var(--color-status-success) 70%, var(--color-white));
+    --popup-current-status-text: var(--color-ink);
+}
+
+.popup--error,
+.popup--danger {
+    --popup-current-status-color: var(--color-status-error);
+    --popup-current-status-bg: color-mix(in srgb, var(--color-status-error) 70%, var(--color-white));
+    --popup-current-status-text: var(--color-ink);
+}
+
+.popup--warning {
+    --popup-current-status-color: var(--color-status-warning);
+    --popup-current-status-bg: color-mix(in srgb, var(--color-status-warning) 70%, var(--color-white));
+    --popup-current-status-text: var(--color-ink);
+}
+
+.popup--info {
+    --popup-current-status-color: var(--color-status-info);
+    --popup-current-status-bg: color-mix(in srgb, var(--color-status-info) 70%, var(--color-white));
+    --popup-current-status-text: var(--color-ink);
+}
+
+.popup--surface .popup__surface {
+    background: var(--color-surface-bg);
+}
+
+.popup--ink .popup__surface {
+    color: var(--color-white);
+    background: var(--color-ink);
+}
+
+.popup--ink .popup__title,
+.popup--ink .popup__text {
+    color: var(--color-white);
+}
+
+.popup--ink .popup__meta {
+    color: color-mix(in srgb, var(--color-white) 72%, transparent);
+}
+
+
+/* ==========================================================================
+   Native Popover
+   ========================================================================== */
+
+.popup-popover {
+    --popover-status-color: var(--color-primary);
+    --popover-status-bg: color-mix(in srgb, var(--popover-status-color) 70%, var(--color-white));
+
+    width: min(22rem, calc(100dvw - 2rem));
+    padding: var(--spacing-3, 1rem);
+
+    color: var(--color-ink);
+    background: var(--color-white);
+    border: 1px solid var(--popup-border);
+    border-top: 0.25rem solid var(--popover-status-color);
+    box-shadow: var(--popup-shadow);
+
+    opacity: 0;
+    transform: translateY(0.35rem);
+
+    transition:
+        opacity var(--popup-transition),
+        transform var(--popup-transition),
+        overlay var(--popup-transition) allow-discrete,
+        display var(--popup-transition) allow-discrete;
+}
+
+.popup-popover:popover-open {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@starting-style {
+    .popup-popover:popover-open {
+        opacity: 0;
+        transform: translateY(0.35rem);
+    }
+}
+
+.popup-popover::backdrop {
+    background: transparent;
+}
+
+.popup-popover__header {
+    margin-bottom: var(--spacing-2, 0.5rem);
+
+    color: var(--popover-status-color);
+}
+
+.popup-popover p {
+    margin: 0;
+
+    line-height: 1.45;
+}
+
+.popup-popover--primary {
+    --popover-status-color: var(--color-primary);
+}
+
+.popup-popover--secondary-cta {
+    --popover-status-color: var(--color-secondary-cta);
+}
+
+.popup-popover--secondary-highlight,
+.popup-popover--plum {
+    --popover-status-color: var(--color-secondary-highlight);
+}
+
+.popup-popover--success {
+    --popover-status-color: var(--color-status-success);
+}
+
+.popup-popover--error,
+.popup-popover--danger {
+    --popover-status-color: var(--color-status-error);
+}
+
+.popup-popover--warning {
+    --popover-status-color: var(--color-status-warning);
+}
+
+.popup-popover--info {
+    --popover-status-color: var(--color-status-info);
+}
+
+
+/* ==========================================================================
+   Toasts
+   ========================================================================== */
+
+.toast-region {
+    position: fixed;
+    z-index: var(--toast-z-index);
+
+    width: min(var(--toast-width), calc(100dvw - 2rem));
+
+    display: grid;
+    gap: var(--toast-gap);
+
+    pointer-events: none;
+}
+
+.toast-region--top-right {
+    top: var(--spacing-4, 1.5rem);
+    right: var(--spacing-4, 1.5rem);
+}
+
+.toast-region--top-left {
+    top: var(--spacing-4, 1.5rem);
+    left: var(--spacing-4, 1.5rem);
+}
+
+.toast-region--bottom-right {
+    right: var(--spacing-4, 1.5rem);
+    bottom: var(--spacing-4, 1.5rem);
+}
+
+.toast-region--bottom-left {
+    left: var(--spacing-4, 1.5rem);
+    bottom: var(--spacing-4, 1.5rem);
+}
+
+.toast-region--top-center {
+    top: var(--spacing-4, 1.5rem);
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.toast-region--bottom-center {
+    bottom: var(--spacing-4, 1.5rem);
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.toast {
+    --toast-status-color: var(--color-primary);
+    --toast-status-bg: color-mix(in srgb, var(--toast-status-color) 70%, var(--color-white));
+    --toast-status-text: var(--color-ink);
+
+    position: relative;
+
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--spacing-3, 1rem);
+    align-items: start;
+
+    padding: var(--spacing-3, 1rem);
+
+    color: var(--color-ink);
+    background: var(--toast-bg);
+    border: 1px solid var(--popup-border);
+    border-left: 0.375rem solid var(--toast-status-color);
+    box-shadow: var(--toast-shadow);
+
+    pointer-events: auto;
+
+    opacity: 0;
+    transform: translateY(0.5rem);
+
+    transition:
+        opacity var(--popup-transition),
+        transform var(--popup-transition);
+}
+
+.toast.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast__icon {
+    width: 2.25rem;
+    height: 2.25rem;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--toast-status-text);
+    background: var(--toast-status-bg);
+}
+
+.toast__icon .vdb-icon,
+.toast__icon svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.toast__content {
+    min-width: 0;
+}
+
+.toast__title {
+    margin: 0;
+
+    color: var(--color-ink);
+    font-weight: var(--font-weight-bold, 700);
+    line-height: 1.25;
+}
+
+.toast__text {
+    margin: var(--spacing-1, 0.25rem) 0 0;
+
+    color: var(--popup-text-muted);
+    font-size: 0.95rem;
+    line-height: 1.45;
+}
+
+.toast__close {
+    width: 2rem;
+    height: 2rem;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-ink);
+    background: transparent;
+    border: 0;
+
+    font: inherit;
+    font-size: 1.25rem;
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+.toast__close:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--popup-focus-ring);
+}
+
+.toast__progress {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+
+    width: 100%;
+    height: 0.25rem;
+
+    background: var(--toast-status-color);
+
+    transform-origin: left;
+}
+
+.toast.is-visible .toast__progress {
+    animation: toast-progress var(--toast-progress-duration, 5000ms) linear forwards;
+}
+
+@keyframes toast-progress {
+    to {
+        transform: scaleX(0);
+    }
+}
+
+.toast--primary {
+    --toast-status-color: var(--color-primary);
+    --toast-status-bg: color-mix(in srgb, var(--color-primary) 70%, var(--color-white));
+    --toast-status-text: var(--color-ink);
+}
+
+.toast--secondary-cta {
+    --toast-status-color: var(--color-secondary-cta);
+    --toast-status-bg: color-mix(in srgb, var(--color-secondary-cta) 70%, var(--color-white));
+    --toast-status-text: var(--color-ink);
+}
+
+.toast--success {
+    --toast-status-color: var(--color-status-success);
+    --toast-status-bg: color-mix(in srgb, var(--color-status-success) 70%, var(--color-white));
+    --toast-status-text: var(--color-ink);
+}
+
+.toast--error,
+.toast--danger {
+    --toast-status-color: var(--color-status-error);
+    --toast-status-bg: color-mix(in srgb, var(--color-status-error) 70%, var(--color-white));
+    --toast-status-text: var(--color-ink);
+}
+
+.toast--warning {
+    --toast-status-color: var(--color-status-warning);
+    --toast-status-bg: color-mix(in srgb, var(--color-status-warning) 70%, var(--color-white));
+    --toast-status-text: var(--color-ink);
+}
+
+.toast--info {
+    --toast-status-color: var(--color-status-info);
+    --toast-status-bg: color-mix(in srgb, var(--color-status-info) 70%, var(--color-white));
+    --toast-status-text: var(--color-ink);
+}
+
+
+/* ==========================================================================
+   Tooltips
+   ========================================================================== */
+
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]::before,
+[data-tooltip]::after {
+    position: absolute;
+    z-index: var(--tooltip-z-index);
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition:
+        opacity var(--popup-transition),
+        transform var(--popup-transition);
+}
+
+[data-tooltip]::before {
+    content: attr(data-tooltip);
+
+    width: max-content;
+    max-width: min(18rem, calc(100dvw - 2rem));
+
+    padding: 0.5rem 0.75rem;
+
+    color: var(--tooltip-text);
+    background: var(--tooltip-bg);
+
+    font-size: 0.875rem;
+    font-weight: var(--font-weight-regular, 500);
+    line-height: 1.35;
+    text-align: center;
+    white-space: normal;
+}
+
+[data-tooltip]::after {
+    content: "";
+
+    width: 0.625rem;
+    height: 0.625rem;
+
+    background: var(--tooltip-bg);
+
+    transform: rotate(45deg);
+}
+
+[data-tooltip]:hover::before,
+[data-tooltip]:hover::after,
+[data-tooltip]:focus-visible::before,
+[data-tooltip]:focus-visible::after {
+    opacity: 1;
+}
+
+
+/* Default: top */
+
+[data-tooltip]::before {
+    left: 50%;
+    bottom: calc(100% + 0.75rem);
+    transform: translateX(-50%) translateY(0.25rem);
+}
+
+[data-tooltip]::after {
+    left: 50%;
+    bottom: calc(100% + 0.45rem);
+    transform: translateX(-50%) rotate(45deg);
+}
+
+[data-tooltip]:hover::before,
+[data-tooltip]:focus-visible::before {
+    transform: translateX(-50%) translateY(0);
+}
+
+
+/* Bottom */
+
+[data-tooltip-position="bottom"]::before {
+    top: calc(100% + 0.75rem);
+    bottom: auto;
+}
+
+[data-tooltip-position="bottom"]::after {
+    top: calc(100% + 0.45rem);
+    bottom: auto;
+}
+
+
+/* Left */
+
+[data-tooltip-position="left"]::before {
+    top: 50%;
+    right: calc(100% + 0.75rem);
+    bottom: auto;
+    left: auto;
+
+    transform: translateY(-50%) translateX(0.25rem);
+}
+
+[data-tooltip-position="left"]::after {
+    top: 50%;
+    right: calc(100% + 0.45rem);
+    bottom: auto;
+    left: auto;
+
+    transform: translateY(-50%) rotate(45deg);
+}
+
+[data-tooltip-position="left"]:hover::before,
+[data-tooltip-position="left"]:focus-visible::before {
+    transform: translateY(-50%) translateX(0);
+}
+
+
+/* Right */
+
+[data-tooltip-position="right"]::before {
+    top: 50%;
+    left: calc(100% + 0.75rem);
+    bottom: auto;
+
+    transform: translateY(-50%) translateX(-0.25rem);
+}
+
+[data-tooltip-position="right"]::after {
+    top: 50%;
+    left: calc(100% + 0.45rem);
+    bottom: auto;
+
+    transform: translateY(-50%) rotate(45deg);
+}
+
+[data-tooltip-position="right"]:hover::before,
+[data-tooltip-position="right"]:focus-visible::before {
+    transform: translateY(-50%) translateX(0);
+}
+
+
+/* ==========================================================================
+   Consent Banner
+   ========================================================================== */
+
+.popup-consent {
+    position: fixed;
+    z-index: var(--popup-z-index);
+
+    width: min(100%, var(--hero-max-width, 1200px));
+    padding: var(--spacing-4, 1.5rem);
+
+    display: none;
+
+    color: var(--color-ink);
+    background: var(--color-white);
+    border: 1px solid var(--popup-border);
+    border-top: 0.375rem solid var(--color-primary);
+    box-shadow: var(--popup-shadow);
+}
+
+.popup-consent.is-open {
+    display: block;
+}
+
+.popup-consent--bottom {
+    right: var(--spacing-4, 1.5rem);
+    bottom: var(--spacing-4, 1.5rem);
+    left: var(--spacing-4, 1.5rem);
+
+    width: auto;
+}
+
+.popup-consent--center {
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+}
+
+.popup-consent__content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-4, 1.5rem);
+}
+
+.popup-consent__title {
+    margin: 0;
+
+    font-size: 1.25rem;
+    font-weight: var(--font-weight-bold, 700);
+    line-height: 1.2;
+}
+
+.popup-consent__text {
+    max-width: 52rem;
+    margin: var(--spacing-1, 0.25rem) 0 0;
+
+    color: var(--popup-text-muted);
+    line-height: 1.45;
+}
+
+.popup-consent__actions {
+    flex: 0 0 auto;
+}
+
+
+/* ==========================================================================
+   Utilities
+   ========================================================================== */
+
+.popup-scroll-lock {
+    overflow: hidden;
+}
+
+.popup__divider {
+    width: 100%;
+    height: 1px;
+
+    background: var(--popup-border);
+}
+
+.popup__actions-left {
+    justify-content: flex-start !important;
+}
+
+.popup__actions-center {
+    justify-content: center !important;
+}
+
+.popup__actions-between {
+    justify-content: space-between !important;
+}
+
+
+/* ==========================================================================
+   Responsive Verhalten
+   ========================================================================== */
+
+@media (max-width: 720px) {
+    dialog.popup {
+        max-width: 100dvw;
+        max-height: 100dvh;
+    }
+
+    .popup:not(dialog) {
+        padding: var(--spacing-3, 1rem);
+    }
+
+    .popup__surface,
+    dialog.popup .popup__surface {
+        width: min(100%, calc(100dvw - 2rem));
+        max-height: calc(100dvh - 2rem);
+    }
+
+    .popup__header,
+    .popup__body,
+    .popup__footer {
+        padding-inline: var(--popup-padding-compact);
+    }
+
+    .popup__header {
+        gap: var(--spacing-3, 1rem);
+    }
+
+    .popup__footer .btn-group {
+        width: 100%;
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .popup__footer .btn {
+        width: 100%;
+    }
+
+    .popup--drawer-right:not(dialog),
+    .popup--drawer-left:not(dialog),
+    .popup--drawer-top:not(dialog),
+    .popup--drawer-bottom:not(dialog) {
+        padding: 0;
+    }
+
+    .popup--drawer .popup__surface,
+    dialog.popup--drawer .popup__surface {
+        width: 100dvw;
+        height: 100dvh;
+        max-height: 100dvh;
+    }
+
+    .toast-region {
+        right: var(--spacing-3, 1rem);
+        left: var(--spacing-3, 1rem);
+
+        width: auto;
+
+        transform: none;
+    }
+
+    .toast {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+    }
+
+    .popup-consent {
+        right: var(--spacing-3, 1rem);
+        bottom: var(--spacing-3, 1rem);
+        left: var(--spacing-3, 1rem);
+
+        width: auto;
+    }
+
+    .popup-consent__content {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .popup-consent__actions {
+        width: 100%;
+    }
+
+    .popup-consent__actions .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .popup__header {
+        align-items: flex-start;
+    }
+
+    .popup__title {
+        font-size: 1.5rem;
+    }
+
+    .popup__status-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+
+    [data-tooltip]::before,
+    [data-tooltip]::after {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    dialog.popup,
+    .popup-popover,
+    .toast,
+    [data-tooltip]::before,
+    [data-tooltip]::after {
+        transition: none;
+    }
+
+    .toast.is-visible .toast__progress {
+        animation: none;
+    }
+}

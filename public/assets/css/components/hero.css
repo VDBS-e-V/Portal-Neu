@@ -1,111 +1,1536 @@
-/* Hero component
-  Bereich
-  - Startseiten-Hero, Teaser-Kacheln und klickbare Segment-Flächen.
+/*
+Hero — Komponenten-Styling
+==============================================================================
+Zweck
+------------------------------------------------------------------------------
+Diese Datei definiert flexible Hero- und Einstiegsbereiche für Webseiten.
 
-  Ziel
-  - Große Einstiegsflächen mit klarer visueller Hierarchie bereitstellen.
-  - Verschiedene Themen oder Bereiche als nebeneinander liegende Kacheln abbilden.
+Sie eignet sich für:
+- klassische Startseiten-Heros mit Hintergrundbild
+- Portal-Heros mit Titel, Lead und Schnellzugriff
+- Split-Heros mit Bild und Textpanel
+- redaktionelle Heros mit großer Bildfläche und dunklem Infopanel
+- Kachel-Heros wie auf Verwaltungs- oder Hochschulseiten
+- Quicklink-Leisten unterhalb eines Heros
+- kompakte Seiten-Heros für Unterseiten
 
-  Grundprinzip
-  - `.hero__tiles` ist der Container.
-  - `.hero__tile` ist die eigentliche Kachel.
-  - Farbvarianten werden über Modifier gesteuert.
 
-  Wichtige Klassen
-  - Container: `.hero__tiles`
-  - Kachel: `.hero__tile`
-  - Varianten: `.hero__tile--a`, `.hero__tile--b`, `.hero__tile--c`, `.hero__tile--d`
+Grundprinzip
+------------------------------------------------------------------------------
+Die Hero-Komponente besteht aus einer äußeren .hero-Fläche und optionalen
+inneren Elementen.
 
-  Strukturhinweise
-  - Die Kacheln sind gleichmäßig verteilt und füllen die verfügbare Breite.
-  - Für mobile Ansichten stapeln sie sich untereinander.
+Minimal:
 
-  Hinweise zur Verwendung
-  - Gut geeignet für Startseiten, Landingpages und schnelle Bereichsverlinkungen.
-  - Farbwerte sollten über Tokens und `color-mix()` gesteuert bleiben.
+<section class="long-width no-padding">
+    <div class="hero hero--image-bg" style="--hero-bg-image: url('/assets/images/heros/portal-home.png')">
+        <div class="hero__inner">
+            <div class="hero__copy">
+                <h1 class="hero__title">Willkommen im VDBS Serviceportal</h1>
+                <p class="hero__lead">
+                    <span class="hero__lead__badge">
+                        Zentrale Services, Zugang zu Ihrem Konto und Hilfestellungen.
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+Bisherige Klassen
+------------------------------------------------------------------------------
+Diese Datei unterstützt weiterhin deine vorhandene Struktur:
+
+.hero
+.hero__inner
+.hero__copy
+.hero__title
+.hero__lead
+.hero__lead__badge
+.hero__tiles
+.hero__tile
+.hero__tile--a
+.hero__tile--b
+.hero__tile--c
+.hero__tile--d
+.hero__tile--e
+
+
+Neue Hauptvarianten
+------------------------------------------------------------------------------
+.hero--image-bg
+- Hero mit Hintergrundbild über --hero-bg-image
+
+.hero--split
+- zweispaltiger Hero mit Text und Bild
+
+.hero--panel
+- Bild und dunkles Textpanel nebeneinander
+
+.hero--editorial
+- redaktioneller Hero mit Bild, Panel und optionalen Kacheln
+
+.hero--minimal
+- ruhiger Text-Hero ohne Bild
+
+.hero--surface
+- Hero mit heller Surface-Fläche
+
+.hero--ink
+- dunkler Hero
+
+.hero--portal
+- große Startseitenvariante für Portale
+
+.hero--compact
+- niedrigere Hero-Höhe
+
+.hero--large
+- größere Hero-Höhe
+
+.hero--full
+- hohe Hero-Fläche, annähernd Viewport
+
+
+Ausrichtung
+------------------------------------------------------------------------------
+.hero--left
+- Text links
+
+.hero--center
+- Text zentriert
+
+.hero--right
+- Text rechts
+
+.hero--align-start
+- Inhalt oben
+
+.hero--align-center
+- Inhalt vertikal mittig
+
+.hero--align-end
+- Inhalt unten
+
+
+Bildlogik
+------------------------------------------------------------------------------
+Für Hintergrundbilder:
+
+<div class="hero hero--image-bg" style="--hero-bg-image: url('/assets/images/heros/portal-home.png')">
+
+Für echte Bildbereiche:
+
+<figure class="hero__media">
+    <img src="/assets/images/heros/example.jpg" alt="">
+    <figcaption class="hero__credit">Bild: Name</figcaption>
+</figure>
+
+
+Farblogik
+------------------------------------------------------------------------------
+Alle Farben kommen aus tokens.css.
+
+Direkte Farben:
+- --color-ink
+- --color-white
+- --color-surface-bg
+- --color-primary
+- --color-secondary-cta
+- --color-secondary-highlight
+- --color-accent-amber
+- --color-accent-teal
+- --color-accent-berry
+- --color-accent-sun
+- --color-accent-lime
+
+Einheitliche Farbmischungen:
+- schwächere Farbe = 70% Farbe + 30% Weiß
+- Overlay dunkel = Ink + transparent
+- Fokus-Ring = Primary + transparent
+
+Beispiele:
+color-mix(in srgb, var(--color-primary) 70%, var(--color-white))
+color-mix(in srgb, var(--color-ink) 78%, transparent)
+color-mix(in srgb, var(--color-primary) 32%, transparent)
+
+
+HTML-Beispiele
+==============================================================================
+
+1. Portal-Hero mit Hintergrundbild und Schnellzugriff
+------------------------------------------------------------------------------
+
+<section id="hero" class="long-width no-padding">
+    <div
+        class="hero hero--image-bg hero--portal hero--center"
+        style="--hero-bg-image: url('/assets/images/heros/portal-home.png')"
+        role="banner"
+        aria-label="Willkommen"
+    >
+        <div class="hero__inner">
+            <div class="hero__copy">
+                <h1 class="hero__title">Willkommen im VDBS Serviceportal</h1>
+
+                <p class="hero__lead">
+                    <span class="hero__lead__badge">
+                        Zentrale Services, Zugang zu Ihrem Konto und Hilfestellungen —
+                        schnell und übersichtlich.
+                    </span>
+                </p>
+
+                <div class="hero__actions btn-group btn-group--horizontal btn-group--main-center">
+                    <a href="/zugang-zum-portal" class="btn btn--primary btn--md">
+                        Zugang zum Portal
+                    </a>
+
+                    <a href="/hilfe" class="btn btn--primary-light btn--md">
+                        Hilfe
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="hero__tiles" aria-label="Portal Schnellzugriff">
+        <a class="hero__tile hero__tile--a" href="/ueber-das-portal">
+            Über das Portal
+        </a>
+
+        <a class="hero__tile hero__tile--b" href="/zugang-zum-portal">
+            Zugang zum Portal
+        </a>
+
+        <a class="hero__tile hero__tile--c" href="/mein-konto">
+            Mein Konto
+        </a>
+
+        <a class="hero__tile hero__tile--d" href="/hilfe">
+            Hilfe
+        </a>
+    </nav>
+</section>
+
+
+2. Split-Hero: Text links, Bild rechts
+------------------------------------------------------------------------------
+
+<section class="long-width no-padding">
+    <div class="hero hero--split hero--surface">
+        <div class="hero__inner">
+            <div class="hero__copy">
+                <p class="hero__kicker">Serviceportal</p>
+
+                <h1 class="hero__title">
+                    Zugang, Konto und Hilfe an einem Ort
+                </h1>
+
+                <p class="hero__lead">
+                    Das VDBS Serviceportal bündelt zentrale Funktionen und
+                    Informationen für Mitglieder, Teamende und Verwaltung.
+                </p>
+
+                <div class="hero__actions btn-group btn-group--horizontal">
+                    <a href="/zugang-zum-portal" class="btn btn--primary btn--md">
+                        Zugang zum Portal
+                    </a>
+
+                    <a href="/kontakt?preset=1" class="btn btn--primary-transp btn--md">
+                        Hilfe kontaktieren
+                    </a>
+                </div>
+            </div>
+
+            <figure class="hero__media">
+                <img src="/assets/images/heros/portal.jpg" alt="Personen am Laptop">
+            </figure>
+        </div>
+    </div>
+</section>
+
+
+3. Redaktioneller Hero mit Bild und dunklem Infopanel
+------------------------------------------------------------------------------
+
+<section class="long-width no-padding">
+    <div class="hero hero--editorial">
+        <div class="hero__heading">
+            <h1>Senatsverwaltung für Bildung, Jugend und Familie</h1>
+        </div>
+
+        <div class="hero__stage">
+            <figure class="hero__media">
+                <img src="/assets/images/heros/bildung.jpg" alt="Schülerinnen und Schüler im Gespräch">
+            </figure>
+
+            <aside class="hero__panel hero__panel--ink">
+                <h2 class="hero__panel-title">
+                    Gemeinsam für bessere Bildung in Berlin
+                </h2>
+
+                <p class="hero__panel-text">
+                    Mit der Strategie zur Steigerung der Bildungsqualität wollen
+                    wir erreichen, dass jedes Kind bessere Zukunftschancen hat.
+                </p>
+
+                <p class="hero__panel-meta">
+                    Bild: Lightfield Studios/istockphoto.com
+                </p>
+
+                <a href="/informationen" class="hero__panel-action">
+                    <span>Weitere Informationen</span>
+
+                    <svg class="vdb-icon" aria-hidden="true">
+                        <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
+                    </svg>
+                </a>
+            </aside>
+        </div>
+
+        <div class="hero__cards hero__cards--3">
+            <a class="hero-card" href="/grundschule">
+                <h3 class="hero-card__title">Wohin nach der Grundschule?</h3>
+
+                <p class="hero-card__text">
+                    In der Regel steht im sechsten Schuljahr die Wahl der
+                    weiterführenden Schule an.
+                </p>
+
+                <span class="hero-card__action">
+                    Weitere Informationen
+                    <svg class="vdb-icon" aria-hidden="true">
+                        <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
+                    </svg>
+                </span>
+            </a>
+
+            <a class="hero-card" href="/befragung">
+                <h3 class="hero-card__title">Online-Befragung von Berliner Familien</h3>
+
+                <p class="hero-card__text">
+                    Ziel ist zu erfahren, welche Themen Familien im Alltag
+                    beschäftigen.
+                </p>
+
+                <span class="hero-card__action">
+                    Weitere Informationen
+                    <svg class="vdb-icon" aria-hidden="true">
+                        <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
+                    </svg>
+                </span>
+            </a>
+
+            <a class="hero-card" href="/karriere">
+                <h3 class="hero-card__title">Karriere</h3>
+
+                <p class="hero-card__text">
+                    Wir suchen Lehrkräfte, Studierende und Quereinsteiger*innen.
+                </p>
+
+                <span class="hero-card__action">
+                    Weitere Informationen
+                    <svg class="vdb-icon" aria-hidden="true">
+                        <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
+                    </svg>
+                </span>
+            </a>
+        </div>
+    </div>
+</section>
+
+
+4. Minimaler Unterseiten-Hero
+------------------------------------------------------------------------------
+
+<section class="section--surface">
+    <div class="hero hero--minimal">
+        <div class="hero__inner">
+            <div class="hero__copy">
+                <p class="hero__kicker">Bereich</p>
+                <h1 class="hero__title">Mein Konto</h1>
+
+                <p class="hero__lead">
+                    Verwalten Sie Ihre persönlichen Daten und Einstellungen.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+5. Kachel-Hero ohne großes Bild
+------------------------------------------------------------------------------
+
+<section class="section--surface">
+    <div class="hero hero--tiles-only">
+        <div class="hero__inner">
+            <div class="hero__copy">
+                <h1 class="hero__title">Was möchten Sie tun?</h1>
+            </div>
+        </div>
+
+        <div class="hero__cards hero__cards--4">
+            <a class="hero-card hero-card--primary" href="/login">
+                <h3 class="hero-card__title">Anmelden</h3>
+                <p class="hero-card__text">Zugang mit bestehendem Konto.</p>
+            </a>
+
+            <a class="hero-card hero-card--secondary-cta" href="/register">
+                <h3 class="hero-card__title">Registrieren</h3>
+                <p class="hero-card__text">Neues Konto erstellen.</p>
+            </a>
+        </div>
+    </div>
+</section>
+
+
+PHP-Beispiel für deine bisherige Schnellzugriff-Struktur
+------------------------------------------------------------------------------
+
+<section id="hero" class="long-width no-padding">
+    <div
+        class="hero hero--image-bg hero--portal hero--center"
+        style="--hero-bg-image: url('/assets/images/heros/portal-home.png')"
+        role="banner"
+        aria-label="Hero - Willkommen"
+    >
+        <div class="hero__inner">
+            <div class="hero__copy">
+                <h1 class="hero__title">
+                    <?= htmlspecialchars($title ?? 'Willkommen im VDBS Serviceportal', ENT_QUOTES, 'UTF-8') ?>
+                </h1>
+
+                <p class="hero__lead">
+                    <span class="hero__lead__badge">
+                        Zentrale Services, Zugang zu Ihrem Konto und Hilfestellungen —
+                        schnell und übersichtlich.
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <nav class="hero__tiles" aria-label="Portal Schnellzugriff">
+        <?php
+            $letters = range('a', 'e');
+            shuffle($letters);
+
+            $links = [
+                1 => ["/ueber-das-portal", "Über das Portal"],
+                2 => ["/zugang-zum-portal", "Zugang zum Portal"],
+                3 => ["/mein-konto", "Mein Konto"],
+                4 => ["/hilfe", "Hilfe"]
+            ];
+
+            $i = 0;
+            while ($i < 4) {
+                echo '<a class="hero__tile hero__tile--' . $letters[$i] . '" href="' .
+                    htmlspecialchars($links[$i + 1][0], ENT_QUOTES, 'UTF-8') . '">' .
+                    htmlspecialchars($links[$i + 1][1], ENT_QUOTES, 'UTF-8') .
+                '</a>';
+                $i++;
+            }
+        ?>
+    </nav>
+</section>
+
+
+Was in die allgemeine Vorlage gehört
+------------------------------------------------------------------------------
+Aus deinem bisherigen Inline-CSS sollte in diese allgemeine hero.css wandern:
+
+- .hero
+- .hero::before
+- .hero__inner
+- .hero__copy
+- .hero__title
+- .hero__lead
+- .hero__lead__badge
+- .hero__tiles
+- .hero__tile
+
+Nicht in hero.css gehört:
+- seitenbezogene Regeln wie #uebersicht-portal div.btn-group
+  Dafür besser eine Utility-Klasse verwenden:
+
+<div class="hero-related-actions">
+    ...
+</div>
 */
 
-.hero__tiles {
-  position: relative;
-  z-index: 3;
-  display: flex;
-  gap: 0;
+
+/* ==========================================================================
+   Tokens
+   ========================================================================== */
+
+:root {
+    --hero-min-height: 360px;
+    --hero-height: 60vh;
+    --hero-max-width: var(--max-width, 1200px);
+
+    --hero-padding-block: clamp(var(--spacing-7, 3rem), 7vw, var(--spacing-10, 5rem));
+    --hero-padding-inline: var(--spacing-container, 2rem);
+
+    --hero-gap: clamp(var(--spacing-5, 2rem), 6vw, var(--spacing-10, 5rem));
+    --hero-card-gap: var(--spacing-4, 1.5rem);
+
+    --hero-bg: var(--color-white);
+    --hero-surface-bg: var(--color-surface-bg);
+    --hero-ink-bg: var(--color-ink);
+    --hero-text: var(--color-ink);
+    --hero-text-muted: color-mix(in srgb, var(--color-ink) 72%, var(--color-white));
+
+    --hero-overlay-light: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-white) 8%, transparent) 0%,
+        color-mix(in srgb, var(--color-white) 24%, transparent) 100%
+    );
+
+    --hero-overlay-dark: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-ink) 24%, transparent) 0%,
+        color-mix(in srgb, var(--color-ink) 58%, transparent) 100%
+    );
+
+    --hero-panel-bg: var(--color-ink);
+    --hero-panel-text: var(--color-white);
+    --hero-panel-muted: color-mix(in srgb, var(--color-white) 72%, transparent);
+
+    --hero-title-size: clamp(2.5rem, 6vw, 4.5rem);
+    --hero-title-size-compact: clamp(2rem, 4.5vw, 3.25rem);
+    --hero-title-line-height: 1.05;
+
+    --hero-lead-size: clamp(1rem, 2vw, 1.25rem);
+    --hero-lead-width: 42rem;
+
+    --hero-badge-bg: var(--color-primary);
+    --hero-badge-text: var(--color-ink);
+    --hero-badge-shadow: 0 0.5rem 1.5rem color-mix(in srgb, var(--color-ink) 18%, transparent);
+
+    --hero-tile-weak: 70%;
+    --hero-tile-full: 100%;
+
+    --hero-focus-ring: color-mix(in srgb, var(--color-primary) 32%, transparent);
+
+    --hero-card-bg: var(--color-surface-bg);
+    --hero-card-text: var(--color-ink);
+    --hero-card-muted: color-mix(in srgb, var(--color-ink) 72%, var(--color-white));
+    --hero-card-border: color-mix(in srgb, var(--color-ink) 14%, transparent);
+    --hero-card-hover-bg: color-mix(in srgb, var(--color-ink) 4%, var(--color-white));
+
+    --hero-action-bg: var(--color-status-error);
+    --hero-action-text: var(--color-white);
+
+    --hero-transition: 180ms ease-in-out;
 }
 
-.hero__tile {
-  flex: 1 1 0;
-  padding: var(--spacing-6);
-  color: var(--color-ink);
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.125rem;
-  font-weight: var(--font-weight-bold);
-  transition: all .3s ease-in-out;
-  -webkit-transition: all .3s ease-in-out;
-  -moz-transition: all .3s ease-in-out;
-  -ms-transition: all .3s ease-in-out;
-  -o-transition: all .3s ease-in-out;
+
+/* ==========================================================================
+   Hero — Basis
+   ========================================================================== */
+
+.hero {
+    position: relative;
+
+    min-height: var(--hero-min-height);
+
+    color: var(--hero-text);
+    background: var(--hero-bg);
+
+    overflow: hidden;
+}
+
+.hero__inner {
+    position: relative;
+    z-index: 2;
+
+    width: min(100%, var(--hero-max-width));
+    margin-inline: auto;
+    padding: var(--hero-padding-block) var(--hero-padding-inline);
+
+    display: grid;
+    gap: var(--hero-gap);
+}
+
+.hero__copy {
+    min-width: 0;
+
+    display: grid;
+    gap: var(--spacing-4, 1.5rem);
+}
+
+.hero__kicker {
+    margin: 0;
+
+    color: var(--color-secondary-cta);
+    font-size: 0.9rem;
+    font-weight: var(--font-weight-bold, 700);
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.hero__title {
+    margin: 0;
+
+    color: inherit;
+    font-size: var(--hero-title-size);
+    font-weight: var(--font-weight-extrabold, 800);
+    line-height: var(--hero-title-line-height);
+    text-wrap: balance;
+}
+
+.hero__lead {
+    max-width: var(--hero-lead-width);
+    margin: 0;
+
+    color: var(--hero-text-muted);
+    font-size: var(--hero-lead-size);
+    font-weight: var(--font-weight-regular, 500);
+    line-height: 1.5;
+    hyphens: auto;
+}
+
+.hero__lead__badge {
+    display: inline;
+
+    padding: 0.25rem 0.625rem;
+
+    color: var(--hero-badge-text);
+    background: var(--hero-badge-bg);
+    box-shadow: var(--hero-badge-shadow);
+
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+}
+
+.hero__actions {
+    margin-top: var(--spacing-2, 0.5rem);
+}
+
+.hero__eyebrow {
+    margin: 0;
+
+    color: var(--hero-text-muted);
+    font-size: 0.95rem;
+    font-weight: var(--font-weight-medium, 600);
 }
 
 
-.hero__tile {
-    transition: all .35s ease-in-out;
-    -webkit-transition: all .35s ease-in-out;
-    -moz-transition: all .35s ease-in-out;
-    -ms-transition: all .35s ease-in-out;
-    -o-transition: all .35s ease-in-out;
+/* ==========================================================================
+   Hero — Ausrichtungen
+   ========================================================================== */
+
+.hero--left .hero__inner,
+.hero--left .hero__copy {
+    justify-items: start;
+    text-align: left;
 }
-.hero__tile:hover {
+
+.hero--center .hero__inner,
+.hero--center .hero__copy {
+    justify-items: center;
+    text-align: center;
+}
+
+.hero--center .hero__lead {
+    margin-inline: auto;
+}
+
+.hero--right .hero__inner,
+.hero--right .hero__copy {
+    justify-items: end;
+    text-align: right;
+}
+
+.hero--right .hero__lead {
+    margin-left: auto;
+}
+
+.hero--align-start .hero__inner {
+    align-items: start;
+}
+
+.hero--align-center .hero__inner {
+    align-items: center;
+}
+
+.hero--align-end .hero__inner {
+    align-items: end;
+}
+
+
+/* ==========================================================================
+   Hero — Größen
+   ========================================================================== */
+
+.hero--compact {
+    --hero-min-height: 260px;
+    --hero-height: auto;
+    --hero-padding-block: clamp(var(--spacing-5, 2rem), 5vw, var(--spacing-8, 3.5rem));
+    --hero-title-size: var(--hero-title-size-compact);
+}
+
+.hero--large {
+    --hero-min-height: 480px;
+    --hero-height: 70vh;
+}
+
+.hero--full {
+    --hero-min-height: 640px;
+    --hero-height: calc(100vh - var(--spacing-header, 3rem));
+}
+
+.hero--portal {
+    height: var(--hero-height);
+    min-height: var(--hero-min-height);
+
+    display: flex;
+    align-items: stretch;
+}
+
+.hero--portal .hero__inner {
+    align-content: center;
+}
+
+
+/* ==========================================================================
+   Hero — Farb- und Flächenvarianten
+   ========================================================================== */
+
+.hero--surface {
+    --hero-bg: var(--color-surface-bg);
+}
+
+.hero--white {
+    --hero-bg: var(--color-white);
+}
+
+.hero--ink {
+    --hero-bg: var(--color-ink);
+    --hero-text: var(--color-white);
+    --hero-text-muted: color-mix(in srgb, var(--color-white) 76%, transparent);
+}
+
+.hero--primary {
+    --hero-bg: var(--color-primary);
+    --hero-text: var(--color-ink);
+    --hero-text-muted: color-mix(in srgb, var(--color-ink) 78%, transparent);
+}
+
+.hero--secondary-cta {
+    --hero-bg: var(--color-secondary-cta);
+    --hero-text: var(--color-ink);
+    --hero-text-muted: color-mix(in srgb, var(--color-ink) 78%, transparent);
+}
+
+.hero--secondary-highlight,
+.hero--plum {
+    --hero-bg: var(--color-secondary-highlight);
+    --hero-text: var(--color-white);
+    --hero-text-muted: color-mix(in srgb, var(--color-white) 76%, transparent);
+}
+
+
+/* ==========================================================================
+   Hero — Bild-Hero
+   --------------------------------------------------------------------------
+   Standard:
+   - Das echte <img> bestimmt die Höhe des Heros.
+   - Keine feste Hero-Höhe.
+   - Der Text liegt über dem Bild.
+
+   Optionale Verhältnis-Klassen:
+   - .hero--ratio-21-9
+   - .hero--ratio-16-9
+   - .hero--ratio-3-2
+   - .hero--ratio-4-3
+   - .hero--ratio-1-1
+
+   Ohne Verhältnis-Klasse gilt:
+   - Bild entscheidet selbst über die Höhe.
+   ========================================================================== */
+
+.hero--image {
+    display: grid;
+    min-height: 0;
+    height: auto;
+    background: var(--hero-bg);
+}
+
+.hero--image.hero--portal {
+    display: grid;
+    min-height: 0;
+    height: auto;
+}
+
+.hero__background {
+    grid-area: 1 / 1;
+    position: relative;
+    z-index: 0;
+
+    width: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+.hero__background img,
+.hero__background video {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.hero--image .hero__inner {
+    grid-area: 1 / 1;
+    z-index: 2;
+
+    align-self: center;
+}
+
+.hero--image::before {
+    content: "";
+
+    grid-area: 1 / 1;
+    z-index: 1;
+
+    background: var(--hero-overlay, var(--hero-overlay-light));
+    pointer-events: none;
+}
+
+.hero--image.hero--overlay-dark {
+    --hero-overlay: var(--hero-overlay-dark);
+    --hero-text: var(--color-white);
+    --hero-text-muted: color-mix(in srgb, var(--color-white) 82%, transparent);
+}
+
+.hero--image.hero--overlay-none::before {
+    display: none;
+}
+
+
+/* Verhältnis-Optionen */
+
+.hero--ratio-21-9 .hero__background {
+    aspect-ratio: 21 / 9;
+}
+
+.hero--ratio-16-9 .hero__background {
+    aspect-ratio: 16 / 9;
+}
+
+.hero--ratio-3-2 .hero__background {
+    aspect-ratio: 3 / 2;
+}
+
+.hero--ratio-4-3 .hero__background {
+    aspect-ratio: 4 / 3;
+}
+
+.hero--ratio-1-1 .hero__background {
+    aspect-ratio: 1 / 1;
+}
+
+.hero--ratio-21-9 .hero__background img,
+.hero--ratio-16-9 .hero__background img,
+.hero--ratio-3-2 .hero__background img,
+.hero--ratio-4-3 .hero__background img,
+.hero--ratio-1-1 .hero__background img,
+.hero--ratio-21-9 .hero__background video,
+.hero--ratio-16-9 .hero__background video,
+.hero--ratio-3-2 .hero__background video,
+.hero--ratio-4-3 .hero__background video,
+.hero--ratio-1-1 .hero__background video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+/* Legacy: altes background-image-System
+   Nutze diese Variante nur, wenn das Bild NICHT die Höhe bestimmen soll. */
+
+.hero--image-bg {
+    min-height: var(--hero-min-height);
+    height: var(--hero-height);
+
+    background-image: var(--hero-bg-image);
+    background-size: cover;
+    background-position: var(--hero-bg-position, center center);
+    background-repeat: no-repeat;
+}
+
+.hero--image-bg::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+
+    background: var(--hero-overlay, var(--hero-overlay-light));
+    pointer-events: none;
+}
+
+.hero--image-bg.hero--overlay-dark {
+    --hero-overlay: var(--hero-overlay-dark);
+    --hero-text: var(--color-white);
+    --hero-text-muted: color-mix(in srgb, var(--color-white) 82%, transparent);
+}
+
+.hero--image-bg.hero--overlay-none::before {
+    display: none;
+}
+
+
+/* ==========================================================================
+   Hero — Split Layout
+   ========================================================================== */
+
+.hero--split .hero__inner {
+    grid-template-columns:
+        minmax(0, var(--hero-copy-width, 0.9fr))
+        minmax(0, var(--hero-media-width, 1.1fr));
+    align-items: center;
+}
+
+.hero--split.hero--media-left .hero__media {
+    order: -1;
+}
+
+.hero__media {
+    position: relative;
+
+    min-width: 0;
+    width: 100%;
+    margin: 0;
+
+    overflow: hidden;
+}
+
+.hero__media img,
+.hero__media video {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+.hero__media--contain img,
+.hero__media--contain video {
+    object-fit: contain;
+}
+
+.hero__media--ratio-16-9 {
+    aspect-ratio: 16 / 9;
+}
+
+.hero__media--ratio-4-3 {
+    aspect-ratio: 4 / 3;
+}
+
+.hero__media--ratio-3-2 {
+    aspect-ratio: 3 / 2;
+}
+
+.hero__media--ratio-1-1 {
+    aspect-ratio: 1 / 1;
+}
+
+.hero__credit {
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    padding: 0.35rem 0.45rem;
+
+    color: var(--color-white);
+    background: color-mix(in srgb, var(--color-ink) 78%, transparent);
+
+    font-size: 0.8rem;
+    line-height: 1.2;
+    white-space: nowrap;
+
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+}
+
+
+/* ==========================================================================
+   Hero — Editorial / Panel Layout
+   ========================================================================== */
+
+.hero--editorial {
+    --hero-bg: transparent;
+    overflow: visible;
+}
+
+.hero__heading {
+    width: min(100%, var(--hero-max-width));
+    margin-inline: auto;
+    padding: 0 var(--hero-padding-inline) var(--spacing-4, 1.5rem);
+}
+
+.hero__heading h1,
+.hero__heading h2 {
+    margin: 0;
+
+    color: var(--color-ink);
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: var(--font-weight-bold, 700);
+    line-height: 1.2;
+}
+
+.hero__stage {
+    width: min(100%, var(--hero-max-width));
+    margin-inline: auto;
+    padding-inline: var(--hero-padding-inline);
+
+    display: grid;
+    grid-template-columns:
+        minmax(0, 2fr)
+        minmax(18rem, 0.95fr);
+    align-items: stretch;
+}
+
+.hero__stage .hero__media {
+    min-height: var(--hero-stage-min-height, 20rem);
+}
+
+.hero__panel {
+    min-width: 0;
+
+    padding: var(--spacing-5, 2rem);
+
+    display: grid;
+    align-content: center;
+    gap: var(--spacing-3, 1rem);
+
+    color: var(--hero-panel-text);
+    background: var(--hero-panel-bg);
+}
+
+.hero__panel--ink {
+    --hero-panel-bg: var(--color-ink);
+    --hero-panel-text: var(--color-white);
+    --hero-panel-muted: color-mix(in srgb, var(--color-white) 76%, transparent);
+}
+
+.hero__panel--primary {
+    --hero-panel-bg: var(--color-primary);
+    --hero-panel-text: var(--color-ink);
+    --hero-panel-muted: color-mix(in srgb, var(--color-ink) 76%, transparent);
+}
+
+.hero__panel--secondary-cta {
+    --hero-panel-bg: var(--color-secondary-cta);
+    --hero-panel-text: var(--color-ink);
+    --hero-panel-muted: color-mix(in srgb, var(--color-ink) 76%, transparent);
+}
+
+.hero__panel-title {
+    margin: 0;
+
+    color: inherit;
+    font-size: clamp(1.25rem, 2.2vw, 1.65rem);
+    font-weight: var(--font-weight-bold, 700);
+    line-height: 1.2;
+}
+
+.hero__panel-text {
+    margin: 0;
+
+    color: inherit;
+    font-size: 1rem;
+    font-weight: var(--font-weight-regular, 500);
+    line-height: 1.45;
+}
+
+.hero__panel-meta {
+    margin: 0;
+
+    color: var(--hero-panel-muted);
+    font-size: 0.8rem;
+    font-weight: var(--font-weight-bold, 700);
+}
+
+.hero__panel-action {
+    width: fit-content;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+
+    margin-top: var(--spacing-3, 1rem);
+
+    color: var(--color-ink);
+    background: var(--color-white);
+    border: 1px solid var(--color-ink);
+
     text-decoration: none;
 }
 
-.hero__tile--a {
-    background: color-mix(var(--color-accent-amber) 60%, transparent);
-    color: var(--color-ink);
-}
-.hero__tile--b {
-    background: color-mix(var(--color-accent-teal) 60%, transparent);
-    color: var(--color-ink);    
-}
-.hero__tile--c {
-    background: color-mix(var(--color-accent-berry) 60%, transparent);
-    color: var(--color-ink);
-}
-.hero__tile--d {
-    background: color-mix(var(--color-accent-sun) 60%, transparent);
-    color: var(--color-ink);
-}
-.hero__tile--e {
-    background: color-mix(var(--color-accent-lime) 60%, transparent);
-    color: var(--color-ink);
+.hero__panel-action span {
+    padding: 0.75rem 1rem;
 }
 
-/* Hover */
-.hero__tile--a:hover {
-    background: color-mix(var(--color-accent-amber) 100%, transparent);
+.hero__panel-action .vdb-icon,
+.hero__panel-action svg {
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0.75rem;
+
     color: var(--color-white);
-}
-.hero__tile--b:hover {
-    background: color-mix(var(--color-accent-teal) 100%, transparent);
-    color: var(--color-white);    
-}
-.hero__tile--c:hover {
-    background: color-mix(var(--color-accent-berry) 100%, transparent);
-    color: var(--color-white);
-}
-.hero__tile--d:hover {
-    background: color-mix(var(--color-accent-sun) 100%, transparent);
-    color: var(--color-ink);
-}
-.hero__tile--e:hover {
-    background: color-mix(var(--color-accent-lime) 100%, transparent);
-    color: var(--color-ink);
+    background: var(--color-status-error);
 }
 
+.hero__panel-action:hover {
+    background: color-mix(in srgb, var(--color-ink) 6%, var(--color-white));
+}
+
+.hero__panel-action:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--hero-focus-ring);
+}
+
+
+/* ==========================================================================
+   Hero Cards
+   ========================================================================== */
+
+.hero__cards {
+    width: min(100%, var(--hero-max-width));
+    margin-inline: auto;
+    padding: var(--spacing-4, 1.5rem) var(--hero-padding-inline) 0;
+
+    display: grid;
+    gap: var(--hero-card-gap);
+}
+
+.hero__cards--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.hero__cards--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.hero__cards--4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.hero-card {
+    position: relative;
+
+    min-width: 0;
+    min-height: 100%;
+
+    padding: var(--spacing-4, 1.5rem);
+
+    display: grid;
+    align-content: start;
+    gap: var(--spacing-3, 1rem);
+
+    color: var(--hero-card-text);
+    background: var(--hero-card-bg);
+    border: 1px solid transparent;
+
+    text-decoration: none;
+}
+
+.hero-card:hover {
+    color: var(--hero-card-text);
+    background: var(--hero-card-hover-bg);
+    border-color: var(--hero-card-border);
+}
+
+.hero-card:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--hero-focus-ring);
+}
+
+.hero-card__title {
+    margin: 0;
+
+    color: inherit;
+    font-size: clamp(1.25rem, 2vw, 1.55rem);
+    font-weight: var(--font-weight-bold, 700);
+    line-height: 1.2;
+}
+
+.hero-card__text {
+    margin: 0;
+
+    color: var(--hero-card-muted);
+    line-height: 1.5;
+}
+
+.hero-card__action {
+    width: fit-content;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+
+    margin-top: auto;
+
+    color: var(--color-ink);
+    background: var(--color-white);
+    border: 1px solid var(--color-ink);
+}
+
+.hero-card__action span,
+.hero-card__action {
+    text-decoration: none;
+}
+
+.hero-card__action .vdb-icon,
+.hero-card__action svg {
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0.7rem;
+
+    color: var(--color-white);
+    background: var(--color-status-error);
+}
+
+.hero-card--primary {
+    --hero-card-bg: color-mix(in srgb, var(--color-primary) 70%, var(--color-white));
+    --hero-card-text: var(--color-ink);
+}
+
+.hero-card--secondary-cta {
+    --hero-card-bg: color-mix(in srgb, var(--color-secondary-cta) 70%, var(--color-white));
+    --hero-card-text: var(--color-ink);
+}
+
+.hero-card--secondary-highlight,
+.hero-card--plum {
+    --hero-card-bg: color-mix(in srgb, var(--color-secondary-highlight) 70%, var(--color-white));
+    --hero-card-text: var(--color-white);
+    --hero-card-muted: color-mix(in srgb, var(--color-white) 78%, transparent);
+}
+
+.hero-card--white {
+    --hero-card-bg: var(--color-white);
+}
+
+
+/* ==========================================================================
+   Hero Tiles / Schnellzugriff
+   ========================================================================== */
+
+.hero__tiles {
+    position: relative;
+    z-index: 3;
+
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+
+    border: 0 !important;
+    border-bottom: 0 !important;
+    box-shadow: none !important;
+}
+
+
+/* Globale Link-Styles sicher neutralisieren */
+
+.hero__tiles > a.hero__tile,
+.hero__tiles > a.hero__tile:link,
+.hero__tiles > a.hero__tile:visited,
+.hero__tiles > a.hero__tile:hover,
+.hero__tiles > a.hero__tile:focus,
+.hero__tiles > a.hero__tile:active {
+    text-decoration: none !important;
+
+    border: 0 !important;
+    border-top: 0 !important;
+    border-right: 0 !important;
+    border-bottom: 0 !important;
+    border-left: 0 !important;
+
+    box-shadow: none !important;
+    outline-offset: 0;
+
+    background-image: none !important;
+}
+
+.hero__tiles > a.hero__tile::before,
+.hero__tiles > a.hero__tile::after {
+    content: none !important;
+    display: none !important;
+
+    width: 0 !important;
+    height: 0 !important;
+
+    border: 0 !important;
+    border-bottom: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+
+/* Basis */
+
+.hero__tiles > a.hero__tile {
+    --hero-tile-base: var(--color-primary, #2FBF71);
+    --hero-tile-bg: color-mix(
+        in srgb,
+        var(--hero-tile-base) 70%,
+        var(--color-white, #ffffff)
+    );
+    --hero-tile-bg-hover: var(--hero-tile-base);
+
+    --hero-tile-text: var(--color-ink, #0F172A);
+    --hero-tile-text-hover: var(--color-ink, #0F172A);
+
+    min-height: 4.5rem;
+    padding: var(--spacing-4, 1.5rem) var(--spacing-5, 2rem);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--hero-tile-text) !important;
+    background: var(--hero-tile-bg) !important;
+
+    font-size: 1.125rem;
+    font-weight: var(--font-weight-bold, 700);
+    line-height: 1.2;
+    text-align: center;
+
+    transition:
+        background-color var(--hero-transition, 180ms ease-in-out),
+        color var(--hero-transition, 180ms ease-in-out);
+}
+
+.hero__tiles > a.hero__tile:hover,
+.hero__tiles > a.hero__tile:focus {
+    color: var(--hero-tile-text-hover) !important;
+    background: var(--hero-tile-bg-hover) !important;
+}
+
+.hero__tiles > a.hero__tile:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 4px var(
+        --hero-focus-ring,
+        color-mix(in srgb, var(--color-primary, #2FBF71) 32%, transparent)
+    ) !important;
+}
+
+
+/* Farbvarianten */
+
+.hero__tiles > a.hero__tile--primary {
+    --hero-tile-base: var(--color-primary, #2FBF71);
+    --hero-tile-text: var(--color-ink, #0F172A);
+    --hero-tile-text-hover: var(--color-ink, #0F172A);
+}
+
+.hero__tiles > a.hero__tile--secondary-cta {
+    --hero-tile-base: var(--color-secondary-cta, #22B7A3);
+    --hero-tile-text: var(--color-ink, #0F172A);
+    --hero-tile-text-hover: var(--color-ink, #0F172A);
+}
+
+.hero__tiles > a.hero__tile--secondary-highlight,
+.hero__tiles > a.hero__tile--plum {
+    --hero-tile-base: var(--color-secondary-highlight, #582759);
+    --hero-tile-text: var(--color-white, #ffffff);
+    --hero-tile-text-hover: var(--color-white, #ffffff);
+}
+
+.hero__tiles > a.hero__tile--amber,
+.hero__tiles > a.hero__tile--a {
+    --hero-tile-base: var(--color-accent-amber, #F59E0B);
+    --hero-tile-text: var(--color-ink, #0F172A);
+    --hero-tile-text-hover: var(--color-ink, #0F172A);
+}
+
+.hero__tiles > a.hero__tile--teal,
+.hero__tiles > a.hero__tile--b {
+    --hero-tile-base: var(--color-accent-teal, #14B8A6);
+    --hero-tile-text: var(--color-ink, #0F172A);
+    --hero-tile-text-hover: var(--color-ink, #0F172A);
+}
+
+.hero__tiles > a.hero__tile--berry,
+.hero__tiles > a.hero__tile--c {
+    --hero-tile-base: var(--color-accent-berry, #D946EF);
+    --hero-tile-text: var(--color-ink, #0F172A);
+    --hero-tile-text-hover: var(--color-ink, #0F172A);
+}
+
+.hero__tiles > a.hero__tile--sun,
+.hero__tiles > a.hero__tile--sun-yellow,
+.hero__tiles > a.hero__tile--d {
+    --hero-tile-base: var(--color-accent-sun, #FDE047);
+    --hero-tile-text: var(--color-ink, #0F172A);
+    --hero-tile-text-hover: var(--color-ink, #0F172A);
+}
+
+.hero__tiles > a.hero__tile--lime,
+.hero__tiles > a.hero__tile--e {
+    --hero-tile-base: var(--color-accent-lime, #A3E635);
+    --hero-tile-text: var(--color-ink, #0F172A);
+    --hero-tile-text-hover: var(--color-ink, #0F172A);
+}
+
+.hero__tiles > a.hero__tile--ink {
+    --hero-tile-base: var(--color-ink, #0F172A);
+    --hero-tile-text: var(--color-white, #ffffff);
+    --hero-tile-text-hover: var(--color-white, #ffffff);
+}
+
+
+/* ==========================================================================
+   Kachel-Hero ohne Bühne
+   ========================================================================== */
+
+.hero--tiles-only {
+    padding-block: var(--hero-padding-block);
+}
+
+.hero--tiles-only .hero__cards {
+    padding-top: var(--spacing-6, 2.5rem);
+}
+
+
+/* ==========================================================================
+   Verwandte Actions / Ersatz für alte seitenbezogene Regel
+   --------------------------------------------------------------------------
+   Statt:
+   #uebersicht-portal div.btn-group { ... }
+
+   Besser:
+   <div class="hero-related-actions">
+       <div class="btn-group ...">...</div>
+   </div>
+   ========================================================================== */
+
+.hero-related-actions {
+    max-width: 800px;
+    margin-inline: auto;
+}
+
+
+/* ==========================================================================
+   Responsive Verhalten
+   ========================================================================== */
+
+@media (max-width: 1100px) {
+    .hero__stage {
+        grid-template-columns:
+            minmax(0, 1.4fr)
+            minmax(18rem, 1fr);
+    }
+
+    .hero__cards--4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 900px) {
+    .hero--split .hero__inner {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .hero--split.hero--media-left .hero__media {
+        order: 0;
+    }
+
+    .hero__stage {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .hero__stage .hero__media {
+        min-height: 0;
+        aspect-ratio: 16 / 9;
+    }
+
+    .hero__cards--2,
+    .hero__cards--3,
+    .hero__cards--4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .hero__panel {
+        padding: var(--spacing-4, 1.5rem);
+    }
+}
 
 @media (max-width: 720px) {
-  .hero__tile { padding: var(--spacing-3); }
-  .hero__tiles { flex-direction: column; }
+    .hero {
+        --hero-min-height: 360px;
+    }
+
+    .hero__inner {
+        padding-inline: var(--spacing-4, 1.5rem);
+    }
+
+    .hero__heading,
+    .hero__stage,
+    .hero__cards {
+        padding-inline: var(--spacing-4, 1.5rem);
+    }
+
+    .hero__cards--2,
+    .hero__cards--3,
+    .hero__cards--4 {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .hero__tiles {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .hero__tile {
+        min-height: 3.5rem;
+        padding: var(--spacing-3, 1rem) var(--spacing-4, 1.5rem);
+    }
+
+    .hero__panel-action,
+    .hero-card__action {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .hero__tiles > a.hero__tile {
+        min-height: 3.5rem;
+        padding: var(--spacing-3, 1rem) var(--spacing-4, 1.5rem);
+    }
+}
+
+@media (max-width: 560px) {
+    .hero__title {
+        font-size: clamp(2rem, 12vw, 3rem);
+    }
+
+    .hero__lead {
+        font-size: 1rem;
+    }
+
+    .hero--portal {
+        height: auto;
+        min-height: var(--hero-min-height);
+    }
+
+    .hero__media--ratio-16-9,
+    .hero__media--ratio-4-3,
+    .hero__media--ratio-3-2 {
+        aspect-ratio: 4 / 3;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero__tile,
+    .hero-card,
+    .hero__panel-action {
+        transition: none;
+    }
 }

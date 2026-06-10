@@ -1,44 +1,1475 @@
-/* Grids component
-	Bereich
-	- Flexible Grid-Utilities für Karten, Medien, Listen und modulare Inhaltsflächen.
+/*
+Grids & Tiles — Komponenten-Styling
+==============================================================================
+Zweck
+------------------------------------------------------------------------------
+Diese Datei definiert ein umfangreiches Grid- und Kachel-System für modulare
+Inhaltsflächen.
 
-	Ziel
-	- Wiederkehrende Grid-Layouts ohne individuelle Seiten-CSS-Regeln bereitstellen.
-	- Eine saubere Basis für adaptive Kacheln, Medienansichten und Mischlayouts schaffen.
+Sie eignet sich besonders für:
+- News-Kacheln
+- Veranstaltungskacheln
+- Bild-Text-Karten
+- Feature-Karten
+- Kurzmeldungen
+- Veranstaltungskalender
+- Kachelraster mit 2, 3 oder 4 Spalten
+- Mischlayouts aus Kacheln und Listen
+- Startseiten-Module wie auf Universitäts- oder Portal-Websites
 
-	Grundprinzip
-	- `.grid` ist das allgemeine Auto-Fit-Grid.
-	- Zusätzliche Modifikatoren ändern Spaltenzahl, Centering oder Masonry-Verhalten.
 
-	Wichtige Klassen
-	- Basis: `.grid`, `.grid-item`
-	- Spalten: `.grid--2col`, `.grid--3col`, `.grid--4col`
-	- Varianten: `.grid--masonry`, `.grid--center`
+Designprinzip
+------------------------------------------------------------------------------
+Die Beispiele orientieren sich an einem ruhigen, redaktionellen Layout:
 
-	Strukturhinweise
-	- Für Inhaltselemente mit gleicher Breite das Basis-Grid verwenden.
-	- Für streng definierte Spalten die Varianten `.grid--2col` bis `.grid--4col` nutzen.
-	- `.grid--center` eignet sich für Symbole, Übersichten und zentrierte Tiles.
+- klare Raster
+- große Bilder
+- zurückhaltende Hintergrundflächen
+- harte Kanten
+- wenig Dekoration
+- deutliche Typografie
+- Kachelflächen in Surface-Grau oder Weiß
+- Bildnachweise als vertikale Labels am Bildrand
+- Pfeil-Aktionsflächen unten rechts
+- Listen mit klaren Linien und viel Weißraum
 
-	Hinweise zur Verwendung
-	- Die Komponente ist bewusst generisch und kann für Karten, Medien oder Tool-Panels verwendet werden.
-	- Breakpoints sind bereits enthalten, damit bei kleinen Bildschirmen ein einspaltiges Layout entsteht.
+
+Farblogik
+------------------------------------------------------------------------------
+Alle Farben kommen aus tokens.css.
+
+Verwendete Grundfarben:
+- --color-ink
+- --color-white
+- --color-surface-bg
+- --color-primary
+- --color-secondary-cta
+- --color-secondary-highlight
+- --color-status-success
+- --color-status-error
+- --color-status-warning
+- --color-status-info
+
+Einheitliche Farbmischungen:
+- Subtile Linien:
+  color-mix(in srgb, var(--color-ink) 18%, transparent)
+
+- Hover-Flächen:
+  color-mix(in srgb, var(--color-ink) 6%, var(--color-white))
+
+- Bild-Credit-Overlay:
+  color-mix(in srgb, var(--color-ink) 78%, transparent)
+
+- Fokus-Ring:
+  color-mix(in srgb, var(--color-primary) 32%, transparent)
+
+
+Grundstruktur: einfaches Grid
+------------------------------------------------------------------------------
+
+<section>
+    <div class="grid grid--3col">
+        <article class="tile-card">
+            ...
+        </article>
+
+        <article class="tile-card">
+            ...
+        </article>
+
+        <article class="tile-card">
+            ...
+        </article>
+    </div>
+</section>
+
+
+Grundstruktur: Kachel
+------------------------------------------------------------------------------
+
+<article class="tile-card">
+    <figure class="tile-card__media">
+        <img src="/assets/images/news/example.jpg" alt="Beschreibung">
+
+        <figcaption class="tile-card__credit">
+            Bildquelle: Name
+        </figcaption>
+    </figure>
+
+    <div class="tile-card__body">
+        <p class="tile-card__meta">Auszeichnung</p>
+
+        <h3 class="tile-card__title">
+            Freie Universität Berlin verleiht Auszeichnung
+        </h3>
+
+        <p class="tile-card__text">
+            Kurzer Beschreibungstext der Meldung.
+        </p>
+    </div>
+
+    <a class="tile-card__action" href="/meldung" aria-label="Meldung öffnen">
+        <svg class="vdb-icon" aria-hidden="true">
+            <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
+        </svg>
+    </a>
+</article>
+
+
+Empfohlene Kachelstruktur als kompletter Link
+------------------------------------------------------------------------------
+
+<a class="tile-card tile-card--link" href="/meldung">
+    <figure class="tile-card__media">
+        <img src="/assets/images/news/example.jpg" alt="">
+        <figcaption class="tile-card__credit">Bildquelle: Name</figcaption>
+    </figure>
+
+    <div class="tile-card__body">
+        <p class="tile-card__meta">Auszeichnung</p>
+        <h3 class="tile-card__title">Titel der Meldung</h3>
+        <p class="tile-card__text">Kurzbeschreibung der Meldung.</p>
+    </div>
+
+    <span class="tile-card__action" aria-hidden="true">
+        <svg class="vdb-icon">
+            <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
+        </svg>
+    </span>
+</a>
+
+
+Wichtige Grid-Klassen
+------------------------------------------------------------------------------
+.grid
+- automatisches responsives Grid
+
+.grid--2col
+- zwei Spalten
+
+.grid--3col
+- drei Spalten
+
+.grid--4col
+- vier Spalten
+
+.grid--auto
+- automatische Spalten mit Mindestbreite
+
+.grid--dense
+- dichteres Grid-Packing
+
+.grid--center
+- Elemente horizontal zentrieren
+
+.grid--stretch
+- Kacheln auf gleiche Höhe strecken
+
+.grid--compact
+- kleinerer Abstand
+
+.grid--loose
+- größerer Abstand
+
+
+Wichtige Kachelklassen
+------------------------------------------------------------------------------
+.tile-card
+- Standard-Kachel
+
+.tile-card--link
+- wenn die gesamte Kachel ein Link ist
+
+.tile-card--white
+- weiße Kachelfläche
+
+.tile-card--surface
+- graue Surface-Kachel
+
+.tile-card--compact
+- kompaktere Kachel
+
+.tile-card--large
+- größere Kachel
+
+.tile-card--horizontal
+- Bild links, Text rechts
+
+.tile-card--overlay
+- Text liegt über dem Bild
+
+.tile-card--no-media
+- Kachel ohne Bild
+
+.tile-card--feature
+- große Feature-Kachel
+
+.tile-card--flat
+- ohne Border / Schattenlogik
+
+.tile-card--primary
+- Aktionsfläche in Primary
+
+.tile-card--ink
+- Aktionsfläche in Ink
+
+.tile-card--secondary-cta
+- Aktionsfläche in Secondary CTA
+
+
+Media-Klassen
+------------------------------------------------------------------------------
+.tile-card__media
+- Bildbereich
+
+.tile-card__media--ratio-16-9
+- 16:9 Bild
+
+.tile-card__media--ratio-4-3
+- 4:3 Bild
+
+.tile-card__media--ratio-3-2
+- 3:2 Bild
+
+.tile-card__media--ratio-1-1
+- quadratisches Bild
+
+.tile-card__media--tall
+- höheres Bild
+
+.tile-card__media--contain
+- Bild vollständig anzeigen
+
+.tile-card__media--cover
+- Bild füllt die Fläche und wird ggf. beschnitten
+
+
+Grid-Spans
+------------------------------------------------------------------------------
+.grid-item--span-2
+- Element nimmt zwei Spalten ein
+
+.grid-item--span-3
+- Element nimmt drei Spalten ein
+
+.grid-item--row-span-2
+- Element nimmt zwei Zeilen ein
+
+.grid-item--full
+- Element nimmt volle Breite ein
+
+
+Kompositionen
+------------------------------------------------------------------------------
+.grid-composition
+- übergeordnete Layout-Klasse für Mischlayouts
+
+.grid-composition--cards-aside
+- links Kacheln, rechts Kalender/Liste
+
+.grid-composition--feature-list
+- links große Feature-Kachel, rechts Kurzmeldungen
+
+.grid-composition--list-feature
+- links Kurzmeldungen, rechts große Feature-Kachel
+
+
+Listen-Komponenten
+------------------------------------------------------------------------------
+.event-panel
+- Veranstaltungskalender
+
+.event-list
+- Liste von Veranstaltungen
+
+.event-item
+- einzelner Veranstaltungseintrag
+
+.news-list
+- Liste von Kurzmeldungen
+
+.news-list__item
+- einzelne Kurzmeldung
+
+
+Pagination
+------------------------------------------------------------------------------
+.grid-pager
+- Navigation unter Grid/List-Modulen
+
+.grid-pager__button
+- runder Button
+
+.grid-pager__count
+- Anzeige wie 1 / 34
+
+
+HTML-Beispiele
+==============================================================================
+
+1. Drei gleich große News-Kacheln
+------------------------------------------------------------------------------
+
+<section>
+    <div class="grid grid--3col grid--stretch">
+        <a class="tile-card tile-card--link" href="/news/1">
+            <figure class="tile-card__media tile-card__media--ratio-4-3">
+                <img src="/assets/images/news/news-1.jpg" alt="">
+                <figcaption class="tile-card__credit">Bildquelle: privat</figcaption>
+            </figure>
+
+            <div class="tile-card__body">
+                <p class="tile-card__meta">Vortrag</p>
+                <h3 class="tile-card__title">
+                    US-Theoretiker für Gender- und Queer-Studies an der Freien Universität Berlin
+                </h3>
+                <p class="tile-card__text">
+                    Öffentliche Veranstaltung am 18. Juni von 18 bis 20 Uhr.
+                </p>
+            </div>
+
+            <span class="tile-card__action" aria-hidden="true">
+                <svg class="vdb-icon">
+                    <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
+                </svg>
+            </span>
+        </a>
+
+        <a class="tile-card tile-card--link" href="/news/2">
+            <figure class="tile-card__media tile-card__media--ratio-4-3">
+                <img src="/assets/images/news/news-2.jpg" alt="">
+                <figcaption class="tile-card__credit">Bildquelle: Name</figcaption>
+            </figure>
+
+            <div class="tile-card__body">
+                <p class="tile-card__meta">Ausgezeichnet</p>
+                <h3 class="tile-card__title">
+                    Renommierter Preis für Wissenschaftlerin
+                </h3>
+                <p class="tile-card__text">
+                    Kurzbeschreibung der Meldung.
+                </p>
+            </div>
+
+            <span class="tile-card__action" aria-hidden="true">
+                <svg class="vdb-icon">
+                    <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
+                </svg>
+            </span>
+        </a>
+
+        <a class="tile-card tile-card--link" href="/news/3">
+            <figure class="tile-card__media tile-card__media--ratio-4-3">
+                <img src="/assets/images/news/news-3.jpg" alt="">
+                <figcaption class="tile-card__credit">Bildquelle: Name</figcaption>
+            </figure>
+
+            <div class="tile-card__body">
+                <p class="tile-card__meta">Auszeichnung</p>
+                <h3 class="tile-card__title">
+                    Freie Universität Berlin verleiht Auszeichnung
+                </h3>
+                <p class="tile-card__text">
+                    Beschreibungstext der Meldung.
+                </p>
+            </div>
+
+            <span class="tile-card__action" aria-hidden="true">
+                <svg class="vdb-icon">
+                    <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
+                </svg>
+            </span>
+        </a>
+    </div>
+</section>
+
+
+2. Zwei News-Kacheln plus Veranstaltungskalender rechts
+------------------------------------------------------------------------------
+
+<section>
+    <div class="grid-composition grid-composition--cards-aside">
+        <div class="grid grid--2col grid--stretch">
+            <a class="tile-card tile-card--link" href="/news/1">
+                <figure class="tile-card__media tile-card__media--ratio-4-3">
+                    <img src="/assets/images/news/news-1.jpg" alt="">
+                    <figcaption class="tile-card__credit">Bildquelle: Name</figcaption>
+                </figure>
+
+                <div class="tile-card__body">
+                    <h3 class="tile-card__title">
+                        Ausgezeichnet | Renommierter Tierschutzpreis
+                    </h3>
+                    <p class="tile-card__text">
+                        Kurzer Beschreibungstext.
+                    </p>
+                </div>
+
+                <span class="tile-card__action" aria-hidden="true">
+                    <svg class="vdb-icon">
+                        <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
+                    </svg>
+                </span>
+            </a>
+
+            <a class="tile-card tile-card--link" href="/news/2">
+                <figure class="tile-card__media tile-card__media--ratio-4-3">
+                    <img src="/assets/images/news/news-2.jpg" alt="">
+                    <figcaption class="tile-card__credit">Bildquelle: Name</figcaption>
+                </figure>
+
+                <div class="tile-card__body">
+                    <h3 class="tile-card__title">
+                        Auszeichnung | Freie Universität Berlin verleiht Ehrennadel
+                    </h3>
+                    <p class="tile-card__text">
+                        Kurzer Beschreibungstext.
+                    </p>
+                </div>
+
+                <span class="tile-card__action" aria-hidden="true">
+                    <svg class="vdb-icon">
+                        <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
+                    </svg>
+                </span>
+            </a>
+        </div>
+
+        <aside class="event-panel" aria-labelledby="event-title">
+            <h2 class="event-panel__title" id="event-title">Veranstaltungskalender</h2>
+
+            <div class="event-list">
+                <a class="event-item" href="/event/1">
+                    <time class="event-item__date" datetime="2026-06-10T16:00">
+                        <span class="event-item__day">10.06.</span>
+                        <span class="event-item__time">16:00</span>
+                    </time>
+
+                    <span class="event-item__content">
+                        <span class="event-item__title">
+                            Service | Studium an der Freien Universität Berlin
+                        </span>
+                    </span>
+                </a>
+
+                <a class="event-item" href="/event/2">
+                    <time class="event-item__date" datetime="2026-06-10T17:00">
+                        <span class="event-item__day">10.06.</span>
+                        <span class="event-item__time">17:00</span>
+                    </time>
+
+                    <span class="event-item__content">
+                        <span class="event-item__title">
+                            Service | Arbeitsmarktchancen für Akademiker*innen
+                        </span>
+                    </span>
+                </a>
+            </div>
+
+            <nav class="grid-pager" aria-label="Veranstaltungen">
+                <button class="grid-pager__button" type="button" aria-label="Übersicht">
+                    <svg class="vdb-icon" aria-hidden="true">
+                        <use href="/assets/icons/vdb-icons.svg#icon-menu"></use>
+                    </svg>
+                </button>
+
+                <button class="grid-pager__button" type="button" aria-label="Zurück">
+                    <svg class="vdb-icon" aria-hidden="true">
+                        <use href="/assets/icons/vdb-icons.svg#icon-arrow-left"></use>
+                    </svg>
+                </button>
+
+                <span class="grid-pager__count">1 / 34</span>
+
+                <button class="grid-pager__button" type="button" aria-label="Weiter">
+                    <svg class="vdb-icon" aria-hidden="true">
+                        <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
+                    </svg>
+                </button>
+            </nav>
+        </aside>
+    </div>
+</section>
+
+
+3. Große Feature-Kachel links, Kurzmeldungen rechts
+------------------------------------------------------------------------------
+
+<section>
+    <div class="grid-composition grid-composition--feature-list">
+        <a class="tile-card tile-card--link tile-card--feature" href="/news/feature">
+            <figure class="tile-card__media tile-card__media--ratio-4-3">
+                <img src="/assets/images/news/feature.jpg" alt="">
+                <figcaption class="tile-card__credit">Bildquelle: Name</figcaption>
+            </figure>
+
+            <div class="tile-card__body">
+                <h3 class="tile-card__title">
+                    Ehrung | Schader-Preis 2026 für Historiker
+                </h3>
+                <p class="tile-card__text">
+                    Auszeichnung würdigt Forschungsbeiträge.
+                </p>
+            </div>
+
+            <span class="tile-card__action" aria-hidden="true">
+                <svg class="vdb-icon">
+                    <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
+                </svg>
+            </span>
+        </a>
+
+        <aside class="news-panel" aria-labelledby="short-news-title">
+            <h2 class="news-panel__title" id="short-news-title">Kurzmeldungen</h2>
+
+            <div class="news-list">
+                <a class="news-list__item" href="/news/1">
+                    <h3 class="news-list__title">
+                        Prof. Dr. Peter-André Alt mit dem Verdienstorden ausgezeichnet
+                    </h3>
+                    <p class="news-list__text">
+                        Für seine langjährigen Leistungen in Forschung und Hochschulpolitik ...
+                    </p>
+                    <time class="news-list__date" datetime="2026-06-02">02.06.2026</time>
+                </a>
+
+                <a class="news-list__item" href="/news/2">
+                    <h3 class="news-list__title">
+                        Deutschkurse für geflüchtete Studierende
+                    </h3>
+                    <p class="news-list__text">
+                        Von August 2026 bis Ende Mai 2027 bietet die Universität Kurse an ...
+                    </p>
+                    <time class="news-list__date" datetime="2026-05-07">07.05.2026</time>
+                </a>
+            </div>
+
+            <nav class="grid-pager" aria-label="Kurzmeldungen">
+                <button class="grid-pager__button" type="button" aria-label="Übersicht">
+                    <svg class="vdb-icon" aria-hidden="true">
+                        <use href="/assets/icons/vdb-icons.svg#icon-menu"></use>
+                    </svg>
+                </button>
+
+                <button class="grid-pager__button" type="button" aria-label="Zurück">
+                    <svg class="vdb-icon" aria-hidden="true">
+                        <use href="/assets/icons/vdb-icons.svg#icon-arrow-left"></use>
+                    </svg>
+                </button>
+
+                <span class="grid-pager__count">1 / 7</span>
+
+                <button class="grid-pager__button" type="button" aria-label="Weiter">
+                    <svg class="vdb-icon" aria-hidden="true">
+                        <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
+                    </svg>
+                </button>
+            </nav>
+        </aside>
+    </div>
+</section>
+
+
+4. Zwei große Feature-Kacheln nebeneinander
+------------------------------------------------------------------------------
+
+<section>
+    <div class="grid grid--2col grid--stretch">
+        <a class="tile-card tile-card--link tile-card--large" href="/news/1">
+            <figure class="tile-card__media tile-card__media--ratio-16-9">
+                <img src="/assets/images/news/news-1.jpg" alt="">
+                <figcaption class="tile-card__credit">Bildquelle: Name</figcaption>
+            </figure>
+
+            <div class="tile-card__body">
+                <h3 class="tile-card__title">
+                    Vorlesung | It is the very question of what it means to be American
+                </h3>
+                <p class="tile-card__text">
+                    Zum Auftakt der neuen Lecture sprach ein Gast über aktuelle Debatten.
+                </p>
+            </div>
+
+            <span class="tile-card__action" aria-hidden="true">
+                <svg class="vdb-icon">
+                    <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
+                </svg>
+            </span>
+        </a>
+
+        <a class="tile-card tile-card--link tile-card--large" href="/news/2">
+            <figure class="tile-card__media tile-card__media--ratio-16-9">
+                <img src="/assets/images/news/news-2.jpg" alt="">
+                <figcaption class="tile-card__credit">Bildquelle: Name</figcaption>
+            </figure>
+
+            <div class="tile-card__body">
+                <h3 class="tile-card__title">
+                    Klima | Freie Universität Berlin stärkt ihr Engagement
+                </h3>
+                <p class="tile-card__text">
+                    Hochschule richtet internen Klimaschutzfonds ein.
+                </p>
+            </div>
+
+            <span class="tile-card__action" aria-hidden="true">
+                <svg class="vdb-icon">
+                    <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
+                </svg>
+            </span>
+        </a>
+    </div>
+</section>
+
+
+5. Kompakte Kacheln ohne Bild
+------------------------------------------------------------------------------
+
+<section>
+    <div class="grid grid--3col">
+        <a class="tile-card tile-card--link tile-card--no-media" href="/service">
+            <div class="tile-card__body">
+                <p class="tile-card__meta">Service</p>
+                <h3 class="tile-card__title">Zugang zum Portal</h3>
+                <p class="tile-card__text">
+                    Informationen zur Anmeldung und Registrierung.
+                </p>
+            </div>
+
+            <span class="tile-card__action" aria-hidden="true">
+                <svg class="vdb-icon">
+                    <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
+                </svg>
+            </span>
+        </a>
+    </div>
+</section>
 */
 
-.grid {
-	display:grid;
-	gap: var(--spacing-3);
-	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+
+/* ==========================================================================
+   Tokens
+   ========================================================================== */
+
+:root {
+    --grid-gap: var(--spacing-5, 2rem);
+    --grid-gap-compact: var(--spacing-3, 1rem);
+    --grid-gap-loose: var(--spacing-7, 3rem);
+
+    --grid-min-column-width: 16rem;
+
+    --tile-bg: var(--color-surface-bg);
+    --tile-bg-white: var(--color-white);
+    --tile-text: var(--color-ink);
+    --tile-text-muted: color-mix(in srgb, var(--color-ink) 68%, var(--color-white));
+
+    --tile-border: color-mix(in srgb, var(--color-ink) 12%, transparent);
+    --tile-border-hover: color-mix(in srgb, var(--color-ink) 24%, transparent);
+
+    --tile-hover-bg: color-mix(in srgb, var(--color-ink) 4%, var(--color-white));
+
+    --tile-radius: 0px;
+
+    --tile-body-padding: var(--spacing-4, 1.5rem);
+    --tile-body-padding-compact: var(--spacing-3, 1rem);
+    --tile-body-padding-large: var(--spacing-5, 2rem);
+
+    --tile-title-size: clamp(1.25rem, 2vw, 1.65rem);
+    --tile-title-size-large: clamp(1.5rem, 2.5vw, 2rem);
+    --tile-title-size-compact: 1.1rem;
+
+    --tile-text-size: 1rem;
+    --tile-line-height: 1.45;
+
+    --tile-action-size: 3rem;
+    --tile-action-bg: color-mix(in srgb, var(--color-ink) 78%, var(--color-secondary-cta));
+    --tile-action-color: var(--color-white);
+    --tile-action-bg-hover: var(--color-ink);
+
+    --tile-credit-bg: color-mix(in srgb, var(--color-ink) 78%, transparent);
+    --tile-credit-color: var(--color-white);
+    --tile-credit-size: 0.85rem;
+
+    --tile-focus-ring: color-mix(in srgb, var(--color-primary) 32%, transparent);
+
+    --list-border: color-mix(in srgb, var(--color-ink) 18%, transparent);
+    --list-border-strong: color-mix(in srgb, var(--color-ink) 28%, transparent);
+
+    --pager-size: 2.75rem;
 }
 
-.grid--2col { grid-template-columns: repeat(2, 1fr); }
-.grid--3col { grid-template-columns: repeat(3, 1fr); }
-.grid--4col { grid-template-columns: repeat(4, 1fr); }
 
-.grid-item { background: var(--color-white); padding: var(--spacing-2); border-radius:8px; border:1px solid rgba(15,17,42,0.04); }
+/* ==========================================================================
+   Basis-Grid
+   ========================================================================== */
 
-/* masonry-like flow */
-.grid--masonry { grid-auto-rows: 8px; }
-.grid--center { justify-items: center; align-items: start; }
+.grid {
+    display: grid;
+    gap: var(--grid-gap);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--grid-min-column-width)), 1fr));
+}
 
-@media (max-width: 720px) { .grid--3col, .grid--4col { grid-template-columns: 1fr; } }
+.grid--auto {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--grid-min-column-width)), 1fr));
+}
+
+.grid--2col {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid--3col {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.grid--4col {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.grid--compact {
+    gap: var(--grid-gap-compact);
+}
+
+.grid--loose {
+    gap: var(--grid-gap-loose);
+}
+
+.grid--center {
+    justify-items: center;
+    align-items: start;
+}
+
+.grid--stretch {
+    align-items: stretch;
+}
+
+.grid--dense {
+    grid-auto-flow: dense;
+}
+
+.grid--masonry {
+    grid-auto-rows: 0.5rem;
+}
+
+.grid-item {
+    min-width: 0;
+}
+
+.grid-item--span-2 {
+    grid-column: span 2;
+}
+
+.grid-item--span-3 {
+    grid-column: span 3;
+}
+
+.grid-item--span-4,
+.grid-item--full {
+    grid-column: 1 / -1;
+}
+
+.grid-item--row-span-2 {
+    grid-row: span 2;
+}
+
+.grid-item--row-span-3 {
+    grid-row: span 3;
+}
+
+
+/* ==========================================================================
+   Kompositionslayouts
+   ========================================================================== */
+
+.grid-composition {
+    display: grid;
+    gap: var(--grid-gap);
+    align-items: start;
+}
+
+.grid-composition--cards-aside {
+    grid-template-columns:
+        minmax(0, 2fr)
+        minmax(18rem, 0.95fr);
+}
+
+.grid-composition--feature-list {
+    grid-template-columns:
+        minmax(0, 1.05fr)
+        minmax(20rem, 1fr);
+}
+
+.grid-composition--list-feature {
+    grid-template-columns:
+        minmax(20rem, 1fr)
+        minmax(0, 1.05fr);
+}
+
+.grid-composition--equal {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid-composition--wide-aside {
+    grid-template-columns:
+        minmax(0, 1.55fr)
+        minmax(20rem, 1fr);
+}
+
+
+/* ==========================================================================
+   Tile Card — Basis
+   ========================================================================== */
+
+.tile-card {
+    position: relative;
+
+    min-width: 0;
+    min-height: 100%;
+
+    display: grid;
+    grid-template-rows: auto 1fr;
+
+    color: var(--tile-text);
+    background: var(--tile-bg);
+    border: 1px solid transparent;
+    border-radius: var(--tile-radius);
+
+    overflow: hidden;
+}
+
+.tile-card--link {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.tile-card--link:visited {
+    color: var(--tile-text);
+}
+
+.tile-card--link:hover {
+    color: var(--tile-text);
+    background: var(--tile-hover-bg);
+    border-color: var(--tile-border-hover);
+}
+
+.tile-card--link:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--tile-focus-ring);
+}
+
+.tile-card--white {
+    background: var(--tile-bg-white);
+    border-color: var(--tile-border);
+}
+
+.tile-card--surface {
+    background: var(--color-surface-bg);
+}
+
+.tile-card--flat {
+    border-color: transparent;
+}
+
+.tile-card--compact {
+    --tile-body-padding: var(--tile-body-padding-compact);
+    --tile-title-size: var(--tile-title-size-compact);
+    --tile-action-size: 2.5rem;
+}
+
+.tile-card--large,
+.tile-card--feature {
+    --tile-body-padding: var(--tile-body-padding-large);
+    --tile-title-size: var(--tile-title-size-large);
+}
+
+.tile-card--no-media {
+    grid-template-rows: 1fr;
+    min-height: var(--tile-no-media-min-height, 14rem);
+}
+
+
+/* ==========================================================================
+   Tile Card — Media
+   ========================================================================== */
+
+.tile-card__media {
+    position: relative;
+
+    width: 100%;
+    margin: 0;
+
+    overflow: hidden;
+    background: color-mix(in srgb, var(--color-ink) 6%, var(--color-white));
+    aspect-ratio: 4 / 3;
+}
+
+.tile-card__media img,
+.tile-card__media video {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+.tile-card__media--cover img,
+.tile-card__media--cover video {
+    object-fit: cover;
+}
+
+.tile-card__media--contain img,
+.tile-card__media--contain video {
+    object-fit: contain;
+}
+
+.tile-card__media--ratio-16-9 {
+    aspect-ratio: 16 / 9;
+}
+
+.tile-card__media--ratio-4-3 {
+    aspect-ratio: 4 / 3;
+}
+
+.tile-card__media--ratio-3-2 {
+    aspect-ratio: 3 / 2;
+}
+
+.tile-card__media--ratio-1-1 {
+    aspect-ratio: 1 / 1;
+}
+
+.tile-card__media--ratio-21-9 {
+    aspect-ratio: 21 / 9;
+}
+
+.tile-card__media--tall {
+    aspect-ratio: 3 / 4;
+}
+
+.tile-card__media--wide {
+    aspect-ratio: 16 / 7;
+}
+
+
+/* ==========================================================================
+   Bildnachweis / Credit
+   ========================================================================== */
+
+.tile-card__credit {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: auto;
+
+    max-width: 100%;
+
+    padding: 0.35rem 0.45rem;
+
+    color: var(--tile-credit-color);
+    background: var(--tile-credit-bg);
+
+    font-size: var(--tile-credit-size);
+    line-height: 1.2;
+    white-space: nowrap;
+
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+}
+
+.tile-card__credit--bottom {
+    top: auto;
+    right: 0;
+    bottom: 0;
+
+    writing-mode: horizontal-tb;
+    transform: none;
+}
+
+.tile-card__credit--hidden {
+    display: none;
+}
+
+
+/* ==========================================================================
+   Tile Card — Body
+   ========================================================================== */
+
+.tile-card__body {
+    min-width: 0;
+
+    display: grid;
+    align-content: start;
+    gap: var(--spacing-3, 1rem);
+
+    padding: var(--tile-body-padding);
+    padding-bottom: calc(var(--tile-body-padding) + var(--tile-action-size) * 0.35);
+}
+
+.tile-card__meta {
+    margin: 0;
+
+    color: var(--tile-text-muted);
+    font-size: 0.95rem;
+    font-weight: var(--font-weight-regular, 500);
+    line-height: 1.35;
+}
+
+.tile-card__kicker {
+    margin: 0;
+
+    color: var(--color-secondary-cta);
+    font-size: 0.85rem;
+    font-weight: var(--font-weight-bold, 700);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.tile-card__title {
+    margin: 0;
+
+    color: var(--tile-text);
+    font-size: var(--tile-title-size);
+    font-weight: var(--font-weight-regular, 500);
+    line-height: 1.28;
+}
+
+.tile-card__title a,
+.tile-card--link .tile-card__title {
+    color: inherit;
+    text-decoration: none;
+}
+
+.tile-card__text {
+    margin: 0;
+
+    color: var(--tile-text-muted);
+    font-size: var(--tile-text-size);
+    line-height: var(--tile-line-height);
+}
+
+.tile-card__date {
+    margin: 0;
+
+    color: var(--tile-text-muted);
+    font-size: 0.95rem;
+}
+
+.tile-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+}
+
+.tile-card__tag {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 0.25rem 0.5rem;
+
+    color: var(--color-ink);
+    background: color-mix(in srgb, var(--color-secondary-cta) 18%, var(--color-white));
+
+    font-size: 0.85rem;
+    line-height: 1.2;
+}
+
+
+/* ==========================================================================
+   Tile Card — Action
+   ========================================================================== */
+
+.tile-card__action {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+
+    width: var(--tile-action-size);
+    height: var(--tile-action-size);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--tile-action-color);
+    background: var(--tile-action-bg);
+    border: 0;
+
+    text-decoration: none;
+}
+
+.tile-card__action .vdb-icon,
+.tile-card__action svg {
+    width: 1.45rem;
+    height: 1.45rem;
+}
+
+.tile-card--link:hover .tile-card__action,
+.tile-card__action:hover {
+    color: var(--tile-action-color);
+    background: var(--tile-action-bg-hover);
+}
+
+.tile-card--primary {
+    --tile-action-bg: var(--color-primary);
+    --tile-action-color: var(--color-ink);
+    --tile-action-bg-hover: color-mix(in srgb, var(--color-primary) 70%, var(--color-white));
+}
+
+.tile-card--secondary-cta {
+    --tile-action-bg: var(--color-secondary-cta);
+    --tile-action-color: var(--color-ink);
+    --tile-action-bg-hover: color-mix(in srgb, var(--color-secondary-cta) 70%, var(--color-white));
+}
+
+.tile-card--secondary-highlight,
+.tile-card--plum {
+    --tile-action-bg: var(--color-secondary-highlight);
+    --tile-action-color: var(--color-white);
+    --tile-action-bg-hover: color-mix(in srgb, var(--color-secondary-highlight) 70%, var(--color-white));
+}
+
+.tile-card--ink {
+    --tile-action-bg: var(--color-ink);
+    --tile-action-color: var(--color-white);
+    --tile-action-bg-hover: color-mix(in srgb, var(--color-ink) 70%, var(--color-white));
+}
+
+
+/* ==========================================================================
+   Tile Card — Varianten
+   ========================================================================== */
+
+.tile-card--horizontal {
+    grid-template-columns: minmax(12rem, 0.9fr) minmax(0, 1.1fr);
+    grid-template-rows: 1fr;
+}
+
+.tile-card--horizontal .tile-card__media {
+    height: 100%;
+    aspect-ratio: auto;
+}
+
+.tile-card--horizontal .tile-card__body {
+    align-content: center;
+}
+
+.tile-card--overlay {
+    grid-template-rows: 1fr;
+    min-height: var(--tile-overlay-min-height, 24rem);
+}
+
+.tile-card--overlay .tile-card__media {
+    grid-area: 1 / 1;
+    height: 100%;
+    aspect-ratio: auto;
+}
+
+.tile-card--overlay .tile-card__body {
+    grid-area: 1 / 1;
+    align-self: end;
+
+    color: var(--color-white);
+    background: linear-gradient(
+        180deg,
+        transparent 0%,
+        color-mix(in srgb, var(--color-ink) 82%, transparent) 100%
+    );
+}
+
+.tile-card--overlay .tile-card__title,
+.tile-card--overlay .tile-card__text,
+.tile-card--overlay .tile-card__meta,
+.tile-card--overlay .tile-card__date {
+    color: var(--color-white);
+}
+
+.tile-card--minimal .tile-card__body {
+    padding-inline: 0;
+    background: transparent;
+}
+
+.tile-card--minimal {
+    background: transparent;
+    border-color: transparent;
+}
+
+
+/* ==========================================================================
+   Event Panel / Veranstaltungskalender
+   ========================================================================== */
+
+.event-panel,
+.news-panel {
+    min-width: 0;
+}
+
+.event-panel__title,
+.news-panel__title {
+    margin: 0 0 var(--spacing-3, 1rem);
+
+    color: var(--color-ink);
+    font-size: clamp(1.25rem, 2vw, 1.5rem);
+    font-weight: var(--font-weight-bold, 700);
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.event-list {
+    display: grid;
+    border-top: 1px solid var(--list-border);
+}
+
+.event-item {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    gap: var(--spacing-3, 1rem);
+
+    padding: var(--spacing-3, 1rem) 0;
+
+    color: var(--color-ink);
+    border-bottom: 1px solid var(--list-border);
+    text-decoration: none;
+}
+
+.event-item:hover .event-item__title {
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+}
+
+.event-item:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--tile-focus-ring);
+}
+
+.event-item__date {
+    display: grid;
+    align-content: start;
+    gap: 0.25rem;
+
+    color: var(--tile-text-muted);
+    font-style: normal;
+}
+
+.event-item__day {
+    color: var(--tile-text-muted);
+    font-size: 1.1rem;
+    font-weight: var(--font-weight-bold, 700);
+}
+
+.event-item__time {
+    color: var(--tile-text-muted);
+    font-size: 1.05rem;
+}
+
+.event-item__content {
+    min-width: 0;
+}
+
+.event-item__title {
+    color: var(--color-ink);
+    font-size: 1.1rem;
+    line-height: 1.35;
+}
+
+
+/* ==========================================================================
+   News List / Kurzmeldungen
+   ========================================================================== */
+
+.news-list {
+    display: grid;
+    border-top: 1px solid var(--list-border);
+}
+
+.news-list__item {
+    display: grid;
+    gap: var(--spacing-2, 0.5rem);
+
+    padding: var(--spacing-3, 1rem) 0;
+
+    color: var(--color-ink);
+    border-bottom: 1px solid var(--list-border);
+    text-decoration: none;
+}
+
+.news-list__item:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--tile-focus-ring);
+}
+
+.news-list__title {
+    margin: 0;
+
+    color: var(--color-ink);
+    font-size: 1.1rem;
+    font-weight: var(--font-weight-regular, 500);
+    line-height: 1.35;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+}
+
+.news-list__item:hover .news-list__title {
+    color: var(--color-secondary-cta);
+}
+
+.news-list__text {
+    margin: 0;
+
+    color: var(--tile-text-muted);
+    line-height: 1.5;
+}
+
+.news-list__date {
+    color: var(--tile-text-muted);
+    font-size: 0.95rem;
+}
+
+
+/* ==========================================================================
+   Pagination / Pager
+   ========================================================================== */
+
+.grid-pager {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2, 0.5rem);
+
+    margin-top: var(--spacing-4, 1.5rem);
+}
+
+.grid-pager__button {
+    width: var(--pager-size);
+    height: var(--pager-size);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-ink);
+    background: transparent;
+    border: 1px solid var(--color-ink);
+    border-radius: 999px;
+
+    cursor: pointer;
+}
+
+.grid-pager__button:hover {
+    background: color-mix(in srgb, var(--color-ink) 7%, var(--color-white));
+}
+
+.grid-pager__button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--tile-focus-ring);
+}
+
+.grid-pager__button[disabled],
+.grid-pager__button.is-disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.grid-pager__button .vdb-icon,
+.grid-pager__button svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.grid-pager__count {
+    padding-inline: 0.5rem;
+
+    color: var(--tile-text-muted);
+    font-size: 0.95rem;
+}
+
+
+/* ==========================================================================
+   Responsive Verhalten
+   ========================================================================== */
+
+@media (max-width: 1100px) {
+    .grid--4col {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-composition--cards-aside,
+    .grid-composition--feature-list,
+    .grid-composition--list-feature,
+    .grid-composition--wide-aside {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .grid--3col {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-item--span-2,
+    .grid-item--span-3,
+    .grid-item--span-4,
+    .grid-item--full {
+        grid-column: 1 / -1;
+    }
+
+    .tile-card--horizontal {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+    }
+
+    .tile-card--horizontal .tile-card__media {
+        aspect-ratio: 4 / 3;
+    }
+}
+
+@media (max-width: 720px) {
+    .grid,
+    .grid--2col,
+    .grid--3col,
+    .grid--4col {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .event-item {
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--spacing-2, 0.5rem);
+    }
+
+    .event-item__date {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .tile-card__body {
+        padding: var(--tile-body-padding-compact);
+        padding-bottom: calc(var(--tile-body-padding-compact) + var(--tile-action-size) * 0.4);
+    }
+}
+
+@media (max-width: 560px) {
+    .grid-pager {
+        flex-wrap: wrap;
+    }
+
+    .tile-card__credit {
+        font-size: 0.75rem;
+    }
+
+    .tile-card__action {
+        --tile-action-size: 2.75rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tile-card,
+    .tile-card__action,
+    .grid-pager__button {
+        transition: none;
+    }
+}
