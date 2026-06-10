@@ -501,11 +501,11 @@ Nicht in hero.css gehört:
     --hero-title-size-compact: clamp(2rem, 4.5vw, 3.25rem);
     --hero-title-line-height: 1.05;
 
-    --hero-lead-size: clamp(1rem, 2vw, 1.25rem);
-    --hero-lead-width: 42rem;
+    --hero-lead-size: clamp(0.875rem, 1.5vw, 1.125rem);
+    --hero-lead-width: 32rem;
 
     --hero-badge-bg: var(--color-primary);
-    --hero-badge-text: var(--color-ink);
+    --hero-badge-text: var(--color-white);
     --hero-badge-shadow: 0 0.5rem 1.5rem color-mix(in srgb, var(--color-ink) 18%, transparent);
 
     --hero-tile-weak: 70%;

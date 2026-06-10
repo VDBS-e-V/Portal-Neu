@@ -11,6 +11,8 @@ use App\Http\Response\HtmlResponse;
 use App\Http\Response\JsonResponse;
 use App\Http\Response\Response;
 use App\Presentation\Templating\Renderer;
+use ReflectionClass;
+use ReflectionNamedType;
 use RuntimeException;
 
 final class Router
@@ -39,13 +41,7 @@ final class Router
 
             $controllerClass = $route->controller;
 
-            if ($this->container->has($controllerClass)) {
-                $controller = $this->container->get($controllerClass);
-            } else {
-                /** @var Renderer $renderer */
-                $renderer = $this->container->get(Renderer::class);
-                $controller = new $controllerClass($renderer);
-            }
+            $controller = $this->makeController($controllerClass);
 
             if (!$controller instanceof Controller) {
                 throw new RuntimeException('Route controller must extend ' . Controller::class);
@@ -61,6 +57,7 @@ final class Router
             if (is_string($response)) {
                 /** @var Renderer $renderer */
                 $renderer = $this->container->get(Renderer::class);
+
                 return new HtmlResponse($renderer->renderPage($response));
             }
 
@@ -91,5 +88,45 @@ final class Router
             'path' => $request->path,
             'now' => date('c'),
         ]), 404);
+    }
+
+    private function makeController(string $controllerClass): object
+    {
+        if ($this->container->has($controllerClass)) {
+            return $this->container->get($controllerClass);
+        }
+
+        $reflection = new ReflectionClass($controllerClass);
+        $constructor = $reflection->getConstructor();
+
+        if ($constructor === null) {
+            return new $controllerClass();
+        }
+
+        $arguments = [];
+
+        foreach ($constructor->getParameters() as $parameter) {
+            $type = $parameter->getType();
+
+            if (!$type instanceof ReflectionNamedType || $type->isBuiltin()) {
+                throw new RuntimeException(
+                    'Cannot resolve constructor parameter $' . $parameter->getName() .
+                    ' for controller ' . $controllerClass
+                );
+            }
+
+            $dependencyClass = $type->getName();
+
+            if (!$this->container->has($dependencyClass)) {
+                throw new RuntimeException(
+                    'Missing container entry for ' . $dependencyClass .
+                    ' required by controller ' . $controllerClass
+                );
+            }
+
+            $arguments[] = $this->container->get($dependencyClass);
+        }
+
+        return $reflection->newInstanceArgs($arguments);
     }
 }

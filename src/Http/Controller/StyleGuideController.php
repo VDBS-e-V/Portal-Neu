@@ -6,15 +6,32 @@ namespace App\Http\Controller;
 
 use App\Http\Request\Request;
 use App\Http\Response\Response;
+use App\Repository\AreaRepository;
 
 final class StyleGuideController extends Controller
 {
-    private function renderStyleGuidePage(Request $request, string $pageTitle, string $view, array $data = []): Response
+
+    public function __construct(
+        \App\Presentation\Templating\Renderer $renderer,
+        private AreaRepository $areas
+    ) {
+        parent::__construct($renderer);
+    }
+
+    public function index(Request $request): Response
     {
-        $base = [
-            'title' => 'VDBS Portal',
+        $areas = [];
+        foreach ($this->areas->findAll() as $area) {
+            $areas[] = [
+                'name' => (string) ($area['name'] ?? ''),
+                'link' => (string) ($area['start_path'] ?? '/'),
+            ];
+        }
+
+        return $this->html('pages/style-guide/index', [
+            'title' => 'Übersicht',
             'areaName' => 'Style Guide',
-            'pageTitle' => $pageTitle,
+            'pageTitle' => 'Übersicht',
             'areaRootLink' => '/',
             'areaNav' => [[
                 'label' => 'Start',
@@ -22,135 +39,360 @@ final class StyleGuideController extends Controller
                 'active' => true,
             ]],
             'headerNav' => [],
+            'areas' => $areas,
             'path' => $request->path,
             'now' => date('c'),
-        ];
-
-        return $this->html($view, $base + $data);
-    }
-
-    public function index(Request $request): Response
-    {
-        return $this->renderStyleGuidePage($request, 'Style Guide', 'pages/style-guide/index');
-    }
-
-    public function icons(Request $request): Response
-    {
-        return $this->renderStyleGuidePage($request, 'Icons', 'pages/style-guide/icons');
-    }
-
-    public function iconGenerator(Request $request): Response
-    {
-        $icon = (string) ($request->query['icon'] ?? 'icon-star');
-        $size = (string) ($request->query['size'] ?? 'vdb-icon--xl');
-        $color = (string) ($request->query['color'] ?? 'vdb-icon--primary');
-        $stroke = (string) ($request->query['stroke'] ?? 'vdb-icon--regular');
-        return $this->renderStyleGuidePage($request, 'Icon Generator', 'pages/style-guide/icons-generator', [
-            'prefill' => [
-                'icon' => $icon,
-                'size' => $size,
-                'color' => $color,
-                'stroke' => $stroke,
-            ],
         ]);
     }
 
     public function buttons(Request $request): Response
     {
-        return $this->renderStyleGuidePage($request, 'Buttons', 'pages/style-guide/buttons');
+        $areas = [];
+        foreach ($this->areas->findAll() as $area) {
+            $areas[] = [
+                'name' => (string) ($area['name'] ?? ''),
+                'link' => (string) ($area['start_path'] ?? '/'),
+            ];
+        }
+
+        return $this->html('pages/style-guide/buttons', [
+            'title' => 'Buttons',
+            'areaName' => 'Style Guide',
+            'pageTitle' => 'Buttons',
+            'areaRootLink' => '/',
+            'areaNav' => [[
+                'label' => 'Start',
+                'href' => '/',
+                'active' => true,
+            ]],
+            'headerNav' => [],
+            'areas' => $areas,
+            'path' => $request->path,
+            'now' => date('c'),
+        ]);
     }
 
     public function buttonGenerator(Request $request): Response
     {
-        $variant = (string) ($request->query['variant'] ?? 'vdb-button--primary');
-        $size = (string) ($request->query['size'] ?? 'vdb-button--md');
-        $disabled = (bool) ($request->query['disabled'] ?? false);
-        return $this->renderStyleGuidePage($request, 'Button Generator', 'pages/style-guide/buttons-generator', [
-            'prefill' => [
-                'variant' => $variant,
-                'size' => $size,
-                'disabled' => $disabled,
-            ],
+        $areas = [];
+        foreach ($this->areas->findAll() as $area) {
+            $areas[] = [
+                'name' => (string) ($area['name'] ?? ''),
+                'link' => (string) ($area['start_path'] ?? '/'),
+            ];
+        }
+
+        return $this->html('pages/style-guide/buttons-generator', [
+            'title' => 'Buttons Generator',
+            'areaName' => 'Style Guide',
+            'pageTitle' => 'Buttons Generator',
+            'areaRootLink' => '/',
+            'areaNav' => [[
+                'label' => 'Start',
+                'href' => '/',
+                'active' => true,
+            ]],
+            'headerNav' => [],
+            'areas' => $areas,
+            'path' => $request->path,
+            'now' => date('c'),
         ]);
     }
 
-    public function cards(Request $request): Response
+    public function icons(Request $request): Response
     {
-        return $this->renderStyleGuidePage($request, 'Cards', 'pages/style-guide/cards');
+        $areas = [];
+        foreach ($this->areas->findAll() as $area) {
+            $areas[] = [
+                'name' => (string) ($area['name'] ?? ''),
+                'link' => (string) ($area['start_path'] ?? '/'),
+            ];
+        }
+
+        return $this->html('pages/style-guide/icons', [
+            'title' => 'Icons',
+            'areaName' => 'Style Guide',
+            'pageTitle' => 'Icons',
+            'areaRootLink' => '/',
+            'areaNav' => [[
+                'label' => 'Start',
+                'href' => '/',
+                'active' => true,
+            ]],
+            'headerNav' => [],
+            'areas' => $areas,
+            'path' => $request->path,
+            'now' => date('c'),
+        ]);
+    }
+
+    public function iconsGenerator(Request $request): Response
+    {
+        $areas = [];
+        foreach ($this->areas->findAll() as $area) {
+            $areas[] = [
+                'name' => (string) ($area['name'] ?? ''),
+                'link' => (string) ($area['start_path'] ?? '/'),
+            ];
+        }
+
+        return $this->html('pages/style-guide/icons-generator', [
+            'title' => 'Icons Generator',
+            'areaName' => 'Style Guide',
+            'pageTitle' => 'Icons Generator',
+            'areaRootLink' => '/',
+            'areaNav' => [[
+                'label' => 'Start',
+                'href' => '/',
+                'active' => true,
+            ]],
+            'headerNav' => [],
+            'areas' => $areas,
+            'path' => $request->path,
+            'now' => date('c'),
+        ]);
     }
 
     public function containers(Request $request): Response
     {
-        return $this->renderStyleGuidePage($request, 'Containers', 'pages/style-guide/containers');
-    }
+        $areas = [];
+        foreach ($this->areas->findAll() as $area) {
+            $areas[] = [
+                'name' => (string) ($area['name'] ?? ''),
+                'link' => (string) ($area['start_path'] ?? '/'),
+            ];
+        }
 
-    public function errorPages(Request $request): Response
-    {
-        return $this->renderStyleGuidePage($request, 'Error Pages', 'pages/style-guide/error-pages');
+        return $this->html('pages/style-guide/containers', [
+            'title' => 'Containers',
+            'areaName' => 'Style Guide',
+            'pageTitle' => 'Containers',
+            'areaRootLink' => '/',
+            'areaNav' => [[
+                'label' => 'Start',
+                'href' => '/',
+                'active' => true,
+            ]],
+            'headerNav' => [],
+            'areas' => $areas,
+            'path' => $request->path,
+            'now' => date('c'),
+        ]);
     }
 
     public function forms(Request $request): Response
     {
-        return $this->renderStyleGuidePage($request, 'Forms', 'pages/style-guide/forms');
+        $areas = [];
+        foreach ($this->areas->findAll() as $area) {
+            $areas[] = [
+                'name' => (string) ($area['name'] ?? ''),
+                'link' => (string) ($area['start_path'] ?? '/'),
+            ];
+        }
+
+        return $this->html('pages/style-guide/forms', [
+            'title' => 'Forms',
+            'areaName' => 'Style Guide',
+            'pageTitle' => 'Forms',
+            'areaRootLink' => '/',
+            'areaNav' => [[
+                'label' => 'Start',
+                'href' => '/',
+                'active' => true,
+            ]],
+            'headerNav' => [],
+            'areas' => $areas,
+            'path' => $request->path,
+            'now' => date('c'),
+        ]);
     }
 
     public function grids(Request $request): Response
     {
-        return $this->renderStyleGuidePage($request, 'Grids', 'pages/style-guide/grids');
+        $areas = [];
+        foreach ($this->areas->findAll() as $area) {
+            $areas[] = [
+                'name' => (string) ($area['name'] ?? ''),
+                'link' => (string) ($area['start_path'] ?? '/'),
+            ];
+        }
+
+        return $this->html('pages/style-guide/grids', [
+            'title' => 'Grids',
+            'areaName' => 'Style Guide',
+            'pageTitle' => 'Grids',
+            'areaRootLink' => '/',
+            'areaNav' => [[
+                'label' => 'Start',
+                'href' => '/',
+                'active' => true,
+            ]],
+            'headerNav' => [],
+            'areas' => $areas,
+            'path' => $request->path,
+            'now' => date('c'),
+        ]);
     }
 
-    public function hero(Request $request): Response
+    public function heros(Request $request): Response
     {
-        return $this->renderStyleGuidePage($request, 'Hero', 'pages/style-guide/hero');
+        $areas = [];
+        foreach ($this->areas->findAll() as $area) {
+            $areas[] = [
+                'name' => (string) ($area['name'] ?? ''),
+                'link' => (string) ($area['start_path'] ?? '/'),
+            ];
+        }
+
+        return $this->html('pages/style-guide/heros', [
+            'title' => 'Heros',
+            'areaName' => 'Style Guide',
+            'pageTitle' => 'Heros',
+            'areaRootLink' => '/',
+            'areaNav' => [[
+                'label' => 'Start',
+                'href' => '/',
+                'active' => true,
+            ]],
+            'headerNav' => [],
+            'areas' => $areas,
+            'path' => $request->path,
+            'now' => date('c'),
+        ]);
     }
 
     public function links(Request $request): Response
     {
-        return $this->renderStyleGuidePage($request, 'Links', 'pages/style-guide/links');
+        $areas = [];
+        foreach ($this->areas->findAll() as $area) {
+            $areas[] = [
+                'name' => (string) ($area['name'] ?? ''),
+                'link' => (string) ($area['start_path'] ?? '/'),
+            ];
+        }
+
+        return $this->html('pages/style-guide/links', [
+            'title' => 'Links',
+            'areaName' => 'Style Guide',
+            'pageTitle' => 'Links',
+            'areaRootLink' => '/',
+            'areaNav' => [[
+                'label' => 'Start',
+                'href' => '/',
+                'active' => true,
+            ]],
+            'headerNav' => [],
+            'areas' => $areas,
+            'path' => $request->path,
+            'now' => date('c'),
+        ]);
     }
 
-    public function lists(Request $request): Response
+    public function media(Request $request): Response
     {
-        return $this->renderStyleGuidePage($request, 'Lists', 'pages/style-guide/lists');
+        $areas = [];
+        foreach ($this->areas->findAll() as $area) {
+            $areas[] = [
+                'name' => (string) ($area['name'] ?? ''),
+                'link' => (string) ($area['start_path'] ?? '/'),
+            ];
+        }
+
+        return $this->html('pages/style-guide/media', [
+            'title' => 'Media',
+            'areaName' => 'Style Guide',
+            'pageTitle' => 'Media',
+            'areaRootLink' => '/',
+            'areaNav' => [[
+                'label' => 'Start',
+                'href' => '/',
+                'active' => true,
+            ]],
+            'headerNav' => [],
+            'areas' => $areas,
+            'path' => $request->path,
+            'now' => date('c'),
+        ]);
     }
 
-    public function popUps(Request $request): Response
+    public function popovers(Request $request): Response
     {
-        return $this->renderStyleGuidePage($request, 'Pop-ups', 'pages/style-guide/pop-ups');
+        $areas = [];
+        foreach ($this->areas->findAll() as $area) {
+            $areas[] = [
+                'name' => (string) ($area['name'] ?? ''),
+                'link' => (string) ($area['start_path'] ?? '/'),
+            ];
+        }
+
+        return $this->html('pages/style-guide/popovers', [
+            'title' => 'Popovers',
+            'areaName' => 'Style Guide',
+            'pageTitle' => 'Popovers',
+            'areaRootLink' => '/',
+            'areaNav' => [[
+                'label' => 'Start',
+                'href' => '/',
+                'active' => true,
+            ]],
+            'headerNav' => [],
+            'areas' => $areas,
+            'path' => $request->path,
+            'now' => date('c'),
+        ]);
     }
 
-    public function search(Request $request): Response
+    public function summaries(Request $request): Response
     {
-        return $this->renderStyleGuidePage($request, 'Search', 'pages/style-guide/search');
-    }
+        $areas = [];
+        foreach ($this->areas->findAll() as $area) {
+            $areas[] = [
+                'name' => (string) ($area['name'] ?? ''),
+                'link' => (string) ($area['start_path'] ?? '/'),
+            ];
+        }
 
-    public function sections(Request $request): Response
-    {
-        return $this->renderStyleGuidePage($request, 'Sections', 'pages/style-guide/sections');
-    }
-
-    public function statsGrid(Request $request): Response
-    {
-        return $this->renderStyleGuidePage($request, 'Stats Grid', 'pages/style-guide/stats-grid');
-    }
-
-    public function statusMessages(Request $request): Response
-    {
-        return $this->renderStyleGuidePage($request, 'Status Messages', 'pages/style-guide/status-messages');
-    }
-
-    public function submenu(Request $request): Response
-    {
-        return $this->renderStyleGuidePage($request, 'Submenu', 'pages/style-guide/submenu');
+        return $this->html('pages/style-guide/summaries', [
+            'title' => 'Summaries',
+            'areaName' => 'Style Guide',
+            'pageTitle' => 'Summaries',
+            'areaRootLink' => '/',
+            'areaNav' => [[
+                'label' => 'Start',
+                'href' => '/',
+                'active' => true,
+            ]],
+            'headerNav' => [],
+            'areas' => $areas,
+            'path' => $request->path,
+            'now' => date('c'),
+        ]);
     }
 
     public function tables(Request $request): Response
     {
-        return $this->renderStyleGuidePage($request, 'Tables', 'pages/style-guide/tables');
-    }
+        $areas = [];
+        foreach ($this->areas->findAll() as $area) {
+            $areas[] = [
+                'name' => (string) ($area['name'] ?? ''),
+                'link' => (string) ($area['start_path'] ?? '/'),
+            ];
+        }
 
-    public function blogPost(Request $request): Response
-    {
-        return $this->renderStyleGuidePage($request, 'Blog Post', 'pages/style-guide/blog-post');
+        return $this->html('pages/style-guide/tables', [
+            'title' => 'Tables',
+            'areaName' => 'Style Guide',
+            'pageTitle' => 'Tables',
+            'areaRootLink' => '/',
+            'areaNav' => [[
+                'label' => 'Start',
+                'href' => '/',
+                'active' => true,
+            ]],
+            'headerNav' => [],
+            'areas' => $areas,
+            'path' => $request->path,
+            'now' => date('c'),
+        ]);
     }
 }

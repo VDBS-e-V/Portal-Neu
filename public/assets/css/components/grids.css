@@ -3,8 +3,7 @@ Grids & Tiles — Komponenten-Styling
 ==============================================================================
 Zweck
 ------------------------------------------------------------------------------
-Diese Datei definiert ein umfangreiches Grid- und Kachel-System für modulare
-Inhaltsflächen.
+Diese Datei definiert ein Grid- und Kachel-System für modulare Inhaltsflächen.
 
 Sie eignet sich besonders für:
 - News-Kacheln
@@ -23,15 +22,109 @@ Designprinzip
 Die Beispiele orientieren sich an einem ruhigen, redaktionellen Layout:
 
 - klare Raster
-- große Bilder
-- zurückhaltende Hintergrundflächen
 - harte Kanten
 - wenig Dekoration
-- deutliche Typografie
-- Kachelflächen in Surface-Grau oder Weiß
+- kompaktere Abstände
+- kleinere, ruhigere Typografie
+- Kachelflächen standardmäßig in leichtem Grau
+- Hover-Fläche etwas dunkler
+- Bilder ohne Innenrand und ohne sichtbare Bildbox-Rahmen
 - Bildnachweise als vertikale Labels am Bildrand
-- Pfeil-Aktionsflächen unten rechts
-- Listen mit klaren Linien und viel Weißraum
+- kleine Pfeil-Aktionsflächen unten rechts
+- keine Border-Linie am unteren Rand der Kachel
+
+
+Wichtig zu links.css
+------------------------------------------------------------------------------
+links.css gestaltet globale Links über:
+
+a:not(.link--no-style)
+
+Das ist für normale Textlinks sinnvoll, würde aber bei Kacheln unerwünschte
+Seiteneffekte erzeugen:
+- Padding um die gesamte Kachel
+- Unterstreichungs-Hintergrundbild
+- schwarzer Hover-Hintergrund
+- veränderte Display-Eigenschaften
+
+Diese Datei setzt deshalb Kachel-Links gezielt zurück:
+- a.tile-card
+- .tile-card--link
+- a.event-item
+- a.news-list__item
+- a.tile-card__action
+
+links.css muss dafür nicht verändert werden.
+Optional kann im HTML trotzdem zusätzlich .link--no-style gesetzt werden,
+notwendig ist es für diese Komponenten aber nicht.
+
+
+Wichtig zu media.css
+------------------------------------------------------------------------------
+media.css bleibt das zentrale System für allgemeine Medien, Bildquellen,
+Captions und Media-Frames.
+
+Diese Datei verändert media.css nicht, sondern sorgt nur dafür, dass media.css-
+Klassen innerhalb von Kacheln bündig funktionieren:
+- keine figure-Margins
+- kein Padding aus Media-Wrappern
+- keine Border um das Bild
+- volle Bildbreite innerhalb von .tile-card__media
+
+Empfohlene einfache Kachel-Struktur:
+
+<a class="tile-card tile-card--link" href="/news/1">
+    <figure class="tile-card__media tile-card__media--ratio-4-3">
+        <img src="/assets/images/news/news-1.jpg" alt="">
+        <figcaption class="tile-card__credit">Bildquelle: Pexels</figcaption>
+    </figure>
+
+    <div class="tile-card__body">
+        <p class="tile-card__meta">Themenartikel</p>
+        <h3 class="tile-card__title">Titel der Meldung</h3>
+        <p class="tile-card__text">Kurzbeschreibung der Meldung.</p>
+    </div>
+
+    <span class="tile-card__action" aria-hidden="true">
+        <svg class="vdb-icon">
+            <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
+        </svg>
+    </span>
+</a>
+
+
+Kachel mit media.css-Bildquelle:
+
+<a class="tile-card tile-card--link" href="/news/1">
+    <figure class="tile-card__media tile-card__media--ratio-4-3 media media--credit-overlay">
+        <img class="media__image" src="/assets/images/news/news-1.jpg" alt="">
+        <figcaption class="media__credit media__credit--vertical">
+            Bildquelle: Pexels
+        </figcaption>
+    </figure>
+
+    <div class="tile-card__body">
+        ...
+    </div>
+</a>
+
+
+Wichtige Nutzung
+------------------------------------------------------------------------------
+Normale helle/graue Kachel:
+
+<a class="tile-card tile-card--link" href="/news/1">
+    ...
+</a>
+
+Dunkle Feature-Kachel:
+
+<a class="tile-card tile-card--link tile-card--ink" href="/news/1">
+    ...
+</a>
+
+Wichtig:
+.tile-card--ink nur verwenden, wenn die gesamte Kachel bewusst dunkel sein soll.
 
 
 Farblogik
@@ -51,597 +144,71 @@ Verwendete Grundfarben:
 - --color-status-info
 
 Einheitliche Farbmischungen:
-- Subtile Linien:
-  color-mix(in srgb, var(--color-ink) 18%, transparent)
+- Standard-Kachelfläche:
+  color-mix(in srgb, var(--color-ink) 5%, var(--color-white))
 
-- Hover-Flächen:
-  color-mix(in srgb, var(--color-ink) 6%, var(--color-white))
+- Hover-Kachelfläche:
+  color-mix(in srgb, var(--color-ink) 9%, var(--color-white))
 
 - Bild-Credit-Overlay:
-  color-mix(in srgb, var(--color-ink) 78%, transparent)
+  color-mix(in srgb, var(--color-ink) 82%, transparent)
 
 - Fokus-Ring:
   color-mix(in srgb, var(--color-primary) 32%, transparent)
 
 
-Grundstruktur: einfaches Grid
+Grid-Block mit Titel und Untertitel
 ------------------------------------------------------------------------------
+Wenn über einem Grid ein Titel, Untertitel oder eine Aktion stehen soll, nutze
+einen äußeren .grid-block.
+
+Beispiel:
 
 <section>
-    <div class="grid grid--3col">
-        <article class="tile-card">
+    <div class="grid-block">
+        <header class="grid-block__header">
+            <p class="grid-block__kicker">Aktuelles</p>
+
+            <h2 class="grid-block__title">
+                Meldungen und Themen
+            </h2>
+
+            <p class="grid-block__subtitle">
+                Ausgewählte Beiträge, Hinweise und Veranstaltungen im Überblick.
+            </p>
+        </header>
+
+        <div class="grid grid--3col grid--stretch">
             ...
-        </article>
-
-        <article class="tile-card">
-            ...
-        </article>
-
-        <article class="tile-card">
-            ...
-        </article>
-    </div>
-</section>
-
-
-Grundstruktur: Kachel
-------------------------------------------------------------------------------
-
-<article class="tile-card">
-    <figure class="tile-card__media">
-        <img src="/assets/images/news/example.jpg" alt="Beschreibung">
-
-        <figcaption class="tile-card__credit">
-            Bildquelle: Name
-        </figcaption>
-    </figure>
-
-    <div class="tile-card__body">
-        <p class="tile-card__meta">Auszeichnung</p>
-
-        <h3 class="tile-card__title">
-            Freie Universität Berlin verleiht Auszeichnung
-        </h3>
-
-        <p class="tile-card__text">
-            Kurzer Beschreibungstext der Meldung.
-        </p>
-    </div>
-
-    <a class="tile-card__action" href="/meldung" aria-label="Meldung öffnen">
-        <svg class="vdb-icon" aria-hidden="true">
-            <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
-        </svg>
-    </a>
-</article>
-
-
-Empfohlene Kachelstruktur als kompletter Link
-------------------------------------------------------------------------------
-
-<a class="tile-card tile-card--link" href="/meldung">
-    <figure class="tile-card__media">
-        <img src="/assets/images/news/example.jpg" alt="">
-        <figcaption class="tile-card__credit">Bildquelle: Name</figcaption>
-    </figure>
-
-    <div class="tile-card__body">
-        <p class="tile-card__meta">Auszeichnung</p>
-        <h3 class="tile-card__title">Titel der Meldung</h3>
-        <p class="tile-card__text">Kurzbeschreibung der Meldung.</p>
-    </div>
-
-    <span class="tile-card__action" aria-hidden="true">
-        <svg class="vdb-icon">
-            <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
-        </svg>
-    </span>
-</a>
-
-
-Wichtige Grid-Klassen
-------------------------------------------------------------------------------
-.grid
-- automatisches responsives Grid
-
-.grid--2col
-- zwei Spalten
-
-.grid--3col
-- drei Spalten
-
-.grid--4col
-- vier Spalten
-
-.grid--auto
-- automatische Spalten mit Mindestbreite
-
-.grid--dense
-- dichteres Grid-Packing
-
-.grid--center
-- Elemente horizontal zentrieren
-
-.grid--stretch
-- Kacheln auf gleiche Höhe strecken
-
-.grid--compact
-- kleinerer Abstand
-
-.grid--loose
-- größerer Abstand
-
-
-Wichtige Kachelklassen
-------------------------------------------------------------------------------
-.tile-card
-- Standard-Kachel
-
-.tile-card--link
-- wenn die gesamte Kachel ein Link ist
-
-.tile-card--white
-- weiße Kachelfläche
-
-.tile-card--surface
-- graue Surface-Kachel
-
-.tile-card--compact
-- kompaktere Kachel
-
-.tile-card--large
-- größere Kachel
-
-.tile-card--horizontal
-- Bild links, Text rechts
-
-.tile-card--overlay
-- Text liegt über dem Bild
-
-.tile-card--no-media
-- Kachel ohne Bild
-
-.tile-card--feature
-- große Feature-Kachel
-
-.tile-card--flat
-- ohne Border / Schattenlogik
-
-.tile-card--primary
-- Aktionsfläche in Primary
-
-.tile-card--ink
-- Aktionsfläche in Ink
-
-.tile-card--secondary-cta
-- Aktionsfläche in Secondary CTA
-
-
-Media-Klassen
-------------------------------------------------------------------------------
-.tile-card__media
-- Bildbereich
-
-.tile-card__media--ratio-16-9
-- 16:9 Bild
-
-.tile-card__media--ratio-4-3
-- 4:3 Bild
-
-.tile-card__media--ratio-3-2
-- 3:2 Bild
-
-.tile-card__media--ratio-1-1
-- quadratisches Bild
-
-.tile-card__media--tall
-- höheres Bild
-
-.tile-card__media--contain
-- Bild vollständig anzeigen
-
-.tile-card__media--cover
-- Bild füllt die Fläche und wird ggf. beschnitten
-
-
-Grid-Spans
-------------------------------------------------------------------------------
-.grid-item--span-2
-- Element nimmt zwei Spalten ein
-
-.grid-item--span-3
-- Element nimmt drei Spalten ein
-
-.grid-item--row-span-2
-- Element nimmt zwei Zeilen ein
-
-.grid-item--full
-- Element nimmt volle Breite ein
-
-
-Kompositionen
-------------------------------------------------------------------------------
-.grid-composition
-- übergeordnete Layout-Klasse für Mischlayouts
-
-.grid-composition--cards-aside
-- links Kacheln, rechts Kalender/Liste
-
-.grid-composition--feature-list
-- links große Feature-Kachel, rechts Kurzmeldungen
-
-.grid-composition--list-feature
-- links Kurzmeldungen, rechts große Feature-Kachel
-
-
-Listen-Komponenten
-------------------------------------------------------------------------------
-.event-panel
-- Veranstaltungskalender
-
-.event-list
-- Liste von Veranstaltungen
-
-.event-item
-- einzelner Veranstaltungseintrag
-
-.news-list
-- Liste von Kurzmeldungen
-
-.news-list__item
-- einzelne Kurzmeldung
-
-
-Pagination
-------------------------------------------------------------------------------
-.grid-pager
-- Navigation unter Grid/List-Modulen
-
-.grid-pager__button
-- runder Button
-
-.grid-pager__count
-- Anzeige wie 1 / 34
-
-
-HTML-Beispiele
-==============================================================================
-
-1. Drei gleich große News-Kacheln
-------------------------------------------------------------------------------
-
-<section>
-    <div class="grid grid--3col grid--stretch">
-        <a class="tile-card tile-card--link" href="/news/1">
-            <figure class="tile-card__media tile-card__media--ratio-4-3">
-                <img src="/assets/images/news/news-1.jpg" alt="">
-                <figcaption class="tile-card__credit">Bildquelle: privat</figcaption>
-            </figure>
-
-            <div class="tile-card__body">
-                <p class="tile-card__meta">Vortrag</p>
-                <h3 class="tile-card__title">
-                    US-Theoretiker für Gender- und Queer-Studies an der Freien Universität Berlin
-                </h3>
-                <p class="tile-card__text">
-                    Öffentliche Veranstaltung am 18. Juni von 18 bis 20 Uhr.
-                </p>
-            </div>
-
-            <span class="tile-card__action" aria-hidden="true">
-                <svg class="vdb-icon">
-                    <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
-                </svg>
-            </span>
-        </a>
-
-        <a class="tile-card tile-card--link" href="/news/2">
-            <figure class="tile-card__media tile-card__media--ratio-4-3">
-                <img src="/assets/images/news/news-2.jpg" alt="">
-                <figcaption class="tile-card__credit">Bildquelle: Name</figcaption>
-            </figure>
-
-            <div class="tile-card__body">
-                <p class="tile-card__meta">Ausgezeichnet</p>
-                <h3 class="tile-card__title">
-                    Renommierter Preis für Wissenschaftlerin
-                </h3>
-                <p class="tile-card__text">
-                    Kurzbeschreibung der Meldung.
-                </p>
-            </div>
-
-            <span class="tile-card__action" aria-hidden="true">
-                <svg class="vdb-icon">
-                    <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
-                </svg>
-            </span>
-        </a>
-
-        <a class="tile-card tile-card--link" href="/news/3">
-            <figure class="tile-card__media tile-card__media--ratio-4-3">
-                <img src="/assets/images/news/news-3.jpg" alt="">
-                <figcaption class="tile-card__credit">Bildquelle: Name</figcaption>
-            </figure>
-
-            <div class="tile-card__body">
-                <p class="tile-card__meta">Auszeichnung</p>
-                <h3 class="tile-card__title">
-                    Freie Universität Berlin verleiht Auszeichnung
-                </h3>
-                <p class="tile-card__text">
-                    Beschreibungstext der Meldung.
-                </p>
-            </div>
-
-            <span class="tile-card__action" aria-hidden="true">
-                <svg class="vdb-icon">
-                    <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
-                </svg>
-            </span>
-        </a>
-    </div>
-</section>
-
-
-2. Zwei News-Kacheln plus Veranstaltungskalender rechts
-------------------------------------------------------------------------------
-
-<section>
-    <div class="grid-composition grid-composition--cards-aside">
-        <div class="grid grid--2col grid--stretch">
-            <a class="tile-card tile-card--link" href="/news/1">
-                <figure class="tile-card__media tile-card__media--ratio-4-3">
-                    <img src="/assets/images/news/news-1.jpg" alt="">
-                    <figcaption class="tile-card__credit">Bildquelle: Name</figcaption>
-                </figure>
-
-                <div class="tile-card__body">
-                    <h3 class="tile-card__title">
-                        Ausgezeichnet | Renommierter Tierschutzpreis
-                    </h3>
-                    <p class="tile-card__text">
-                        Kurzer Beschreibungstext.
-                    </p>
-                </div>
-
-                <span class="tile-card__action" aria-hidden="true">
-                    <svg class="vdb-icon">
-                        <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
-                    </svg>
-                </span>
-            </a>
-
-            <a class="tile-card tile-card--link" href="/news/2">
-                <figure class="tile-card__media tile-card__media--ratio-4-3">
-                    <img src="/assets/images/news/news-2.jpg" alt="">
-                    <figcaption class="tile-card__credit">Bildquelle: Name</figcaption>
-                </figure>
-
-                <div class="tile-card__body">
-                    <h3 class="tile-card__title">
-                        Auszeichnung | Freie Universität Berlin verleiht Ehrennadel
-                    </h3>
-                    <p class="tile-card__text">
-                        Kurzer Beschreibungstext.
-                    </p>
-                </div>
-
-                <span class="tile-card__action" aria-hidden="true">
-                    <svg class="vdb-icon">
-                        <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
-                    </svg>
-                </span>
-            </a>
         </div>
-
-        <aside class="event-panel" aria-labelledby="event-title">
-            <h2 class="event-panel__title" id="event-title">Veranstaltungskalender</h2>
-
-            <div class="event-list">
-                <a class="event-item" href="/event/1">
-                    <time class="event-item__date" datetime="2026-06-10T16:00">
-                        <span class="event-item__day">10.06.</span>
-                        <span class="event-item__time">16:00</span>
-                    </time>
-
-                    <span class="event-item__content">
-                        <span class="event-item__title">
-                            Service | Studium an der Freien Universität Berlin
-                        </span>
-                    </span>
-                </a>
-
-                <a class="event-item" href="/event/2">
-                    <time class="event-item__date" datetime="2026-06-10T17:00">
-                        <span class="event-item__day">10.06.</span>
-                        <span class="event-item__time">17:00</span>
-                    </time>
-
-                    <span class="event-item__content">
-                        <span class="event-item__title">
-                            Service | Arbeitsmarktchancen für Akademiker*innen
-                        </span>
-                    </span>
-                </a>
-            </div>
-
-            <nav class="grid-pager" aria-label="Veranstaltungen">
-                <button class="grid-pager__button" type="button" aria-label="Übersicht">
-                    <svg class="vdb-icon" aria-hidden="true">
-                        <use href="/assets/icons/vdb-icons.svg#icon-menu"></use>
-                    </svg>
-                </button>
-
-                <button class="grid-pager__button" type="button" aria-label="Zurück">
-                    <svg class="vdb-icon" aria-hidden="true">
-                        <use href="/assets/icons/vdb-icons.svg#icon-arrow-left"></use>
-                    </svg>
-                </button>
-
-                <span class="grid-pager__count">1 / 34</span>
-
-                <button class="grid-pager__button" type="button" aria-label="Weiter">
-                    <svg class="vdb-icon" aria-hidden="true">
-                        <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
-                    </svg>
-                </button>
-            </nav>
-        </aside>
     </div>
 </section>
 
-
-3. Große Feature-Kachel links, Kurzmeldungen rechts
-------------------------------------------------------------------------------
+Mit Button rechts neben dem Titel:
 
 <section>
-    <div class="grid-composition grid-composition--feature-list">
-        <a class="tile-card tile-card--link tile-card--feature" href="/news/feature">
-            <figure class="tile-card__media tile-card__media--ratio-4-3">
-                <img src="/assets/images/news/feature.jpg" alt="">
-                <figcaption class="tile-card__credit">Bildquelle: Name</figcaption>
-            </figure>
+    <div class="grid-block grid-block--split">
+        <header class="grid-block__header">
+            <p class="grid-block__kicker">Aktuelles</p>
 
-            <div class="tile-card__body">
-                <h3 class="tile-card__title">
-                    Ehrung | Schader-Preis 2026 für Historiker
-                </h3>
-                <p class="tile-card__text">
-                    Auszeichnung würdigt Forschungsbeiträge.
-                </p>
-            </div>
+            <h2 class="grid-block__title">
+                Meldungen und Themen
+            </h2>
 
-            <span class="tile-card__action" aria-hidden="true">
-                <svg class="vdb-icon">
-                    <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
-                </svg>
-            </span>
-        </a>
+            <p class="grid-block__subtitle">
+                Ausgewählte Beiträge im Überblick.
+            </p>
 
-        <aside class="news-panel" aria-labelledby="short-news-title">
-            <h2 class="news-panel__title" id="short-news-title">Kurzmeldungen</h2>
-
-            <div class="news-list">
-                <a class="news-list__item" href="/news/1">
-                    <h3 class="news-list__title">
-                        Prof. Dr. Peter-André Alt mit dem Verdienstorden ausgezeichnet
-                    </h3>
-                    <p class="news-list__text">
-                        Für seine langjährigen Leistungen in Forschung und Hochschulpolitik ...
-                    </p>
-                    <time class="news-list__date" datetime="2026-06-02">02.06.2026</time>
-                </a>
-
-                <a class="news-list__item" href="/news/2">
-                    <h3 class="news-list__title">
-                        Deutschkurse für geflüchtete Studierende
-                    </h3>
-                    <p class="news-list__text">
-                        Von August 2026 bis Ende Mai 2027 bietet die Universität Kurse an ...
-                    </p>
-                    <time class="news-list__date" datetime="2026-05-07">07.05.2026</time>
+            <div class="grid-block__actions btn-group btn-group--horizontal">
+                <a class="btn btn--primary btn--md" href="/aktuelles">
+                    Alle Meldungen
                 </a>
             </div>
+        </header>
 
-            <nav class="grid-pager" aria-label="Kurzmeldungen">
-                <button class="grid-pager__button" type="button" aria-label="Übersicht">
-                    <svg class="vdb-icon" aria-hidden="true">
-                        <use href="/assets/icons/vdb-icons.svg#icon-menu"></use>
-                    </svg>
-                </button>
-
-                <button class="grid-pager__button" type="button" aria-label="Zurück">
-                    <svg class="vdb-icon" aria-hidden="true">
-                        <use href="/assets/icons/vdb-icons.svg#icon-arrow-left"></use>
-                    </svg>
-                </button>
-
-                <span class="grid-pager__count">1 / 7</span>
-
-                <button class="grid-pager__button" type="button" aria-label="Weiter">
-                    <svg class="vdb-icon" aria-hidden="true">
-                        <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
-                    </svg>
-                </button>
-            </nav>
-        </aside>
-    </div>
-</section>
-
-
-4. Zwei große Feature-Kacheln nebeneinander
-------------------------------------------------------------------------------
-
-<section>
-    <div class="grid grid--2col grid--stretch">
-        <a class="tile-card tile-card--link tile-card--large" href="/news/1">
-            <figure class="tile-card__media tile-card__media--ratio-16-9">
-                <img src="/assets/images/news/news-1.jpg" alt="">
-                <figcaption class="tile-card__credit">Bildquelle: Name</figcaption>
-            </figure>
-
-            <div class="tile-card__body">
-                <h3 class="tile-card__title">
-                    Vorlesung | It is the very question of what it means to be American
-                </h3>
-                <p class="tile-card__text">
-                    Zum Auftakt der neuen Lecture sprach ein Gast über aktuelle Debatten.
-                </p>
-            </div>
-
-            <span class="tile-card__action" aria-hidden="true">
-                <svg class="vdb-icon">
-                    <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
-                </svg>
-            </span>
-        </a>
-
-        <a class="tile-card tile-card--link tile-card--large" href="/news/2">
-            <figure class="tile-card__media tile-card__media--ratio-16-9">
-                <img src="/assets/images/news/news-2.jpg" alt="">
-                <figcaption class="tile-card__credit">Bildquelle: Name</figcaption>
-            </figure>
-
-            <div class="tile-card__body">
-                <h3 class="tile-card__title">
-                    Klima | Freie Universität Berlin stärkt ihr Engagement
-                </h3>
-                <p class="tile-card__text">
-                    Hochschule richtet internen Klimaschutzfonds ein.
-                </p>
-            </div>
-
-            <span class="tile-card__action" aria-hidden="true">
-                <svg class="vdb-icon">
-                    <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
-                </svg>
-            </span>
-        </a>
-    </div>
-</section>
-
-
-5. Kompakte Kacheln ohne Bild
-------------------------------------------------------------------------------
-
-<section>
-    <div class="grid grid--3col">
-        <a class="tile-card tile-card--link tile-card--no-media" href="/service">
-            <div class="tile-card__body">
-                <p class="tile-card__meta">Service</p>
-                <h3 class="tile-card__title">Zugang zum Portal</h3>
-                <p class="tile-card__text">
-                    Informationen zur Anmeldung und Registrierung.
-                </p>
-            </div>
-
-            <span class="tile-card__action" aria-hidden="true">
-                <svg class="vdb-icon">
-                    <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
-                </svg>
-            </span>
-        </a>
+        <div class="grid grid--3col grid--stretch">
+            ...
+        </div>
     </div>
 </section>
 */
@@ -652,50 +219,206 @@ HTML-Beispiele
    ========================================================================== */
 
 :root {
-    --grid-gap: var(--spacing-5, 2rem);
-    --grid-gap-compact: var(--spacing-3, 1rem);
-    --grid-gap-loose: var(--spacing-7, 3rem);
+    --grid-gap: var(--spacing-4, 1.5rem);
+    --grid-gap-compact: var(--spacing-2, 0.75rem);
+    --grid-gap-loose: var(--spacing-5, 2rem);
 
     --grid-min-column-width: 16rem;
 
-    --tile-bg: var(--color-surface-bg);
+    --tile-bg-default: color-mix(in srgb, var(--color-ink) 5%, var(--color-white));
+    --tile-bg-hover-default: color-mix(in srgb, var(--color-ink) 9%, var(--color-white));
+
+    --tile-bg: var(--tile-bg-default);
+    --tile-hover-bg: var(--tile-bg-hover-default);
+
     --tile-bg-white: var(--color-white);
+    --tile-bg-ink: var(--color-ink);
+
     --tile-text: var(--color-ink);
-    --tile-text-muted: color-mix(in srgb, var(--color-ink) 68%, var(--color-white));
+    --tile-text-muted: color-mix(in srgb, var(--color-ink) 64%, var(--color-white));
 
-    --tile-border: color-mix(in srgb, var(--color-ink) 12%, transparent);
-    --tile-border-hover: color-mix(in srgb, var(--color-ink) 24%, transparent);
+    --tile-text-on-dark: var(--color-white);
+    --tile-text-muted-on-dark: color-mix(in srgb, var(--color-white) 62%, var(--color-ink));
 
-    --tile-hover-bg: color-mix(in srgb, var(--color-ink) 4%, var(--color-white));
+    --tile-border: transparent;
+    --tile-border-hover: transparent;
+
+    --tile-hover-bg-ink: color-mix(in srgb, var(--color-ink) 92%, var(--color-white));
 
     --tile-radius: 0px;
 
-    --tile-body-padding: var(--spacing-4, 1.5rem);
-    --tile-body-padding-compact: var(--spacing-3, 1rem);
-    --tile-body-padding-large: var(--spacing-5, 2rem);
+    --tile-body-padding: 1rem;
+    --tile-body-padding-compact: 0.85rem;
+    --tile-body-padding-large: 1.15rem;
 
-    --tile-title-size: clamp(1.25rem, 2vw, 1.65rem);
-    --tile-title-size-large: clamp(1.5rem, 2.5vw, 2rem);
-    --tile-title-size-compact: 1.1rem;
+    --tile-body-gap: 0.6rem;
+    --tile-body-gap-compact: 0.5rem;
 
-    --tile-text-size: 1rem;
-    --tile-line-height: 1.45;
+    --tile-title-size: clamp(1.05rem, 1.55vw, 1.28rem);
+    --tile-title-size-large: clamp(1.15rem, 2vw, 1.45rem);
+    --tile-title-size-compact: 0.98rem;
 
-    --tile-action-size: 3rem;
+    --tile-text-size: 0.88rem;
+    --tile-meta-size: 0.82rem;
+    --tile-date-size: 0.82rem;
+    --tile-line-height: 1.42;
+
+    --tile-action-size: 2.35rem;
     --tile-action-bg: color-mix(in srgb, var(--color-ink) 78%, var(--color-secondary-cta));
     --tile-action-color: var(--color-white);
-    --tile-action-bg-hover: var(--color-ink);
+    --tile-action-bg-hover: color-mix(in srgb, var(--color-ink) 88%, var(--color-secondary-cta));
 
-    --tile-credit-bg: color-mix(in srgb, var(--color-ink) 78%, transparent);
+    --tile-credit-bg: color-mix(in srgb, var(--color-ink) 82%, transparent);
     --tile-credit-color: var(--color-white);
-    --tile-credit-size: 0.85rem;
+    --tile-credit-size: 0.74rem;
 
     --tile-focus-ring: color-mix(in srgb, var(--color-primary) 32%, transparent);
 
     --list-border: color-mix(in srgb, var(--color-ink) 18%, transparent);
     --list-border-strong: color-mix(in srgb, var(--color-ink) 28%, transparent);
 
-    --pager-size: 2.75rem;
+
+    --grid-block-gap: var(--spacing-5, 2rem);
+    --grid-block-gap-compact: var(--spacing-4, 1.5rem);
+    --grid-header-gap: var(--spacing-2, 0.5rem);
+    --grid-header-max-width: 52rem;
+
+    --grid-kicker-text: color-mix(in srgb, var(--color-secondary-cta) 42%, var(--color-ink));
+    --grid-title-text: var(--color-ink);
+    --grid-title-size: clamp(1.55rem, 3vw, 2.25rem);
+    --grid-subtitle-text: color-mix(in srgb, var(--color-ink) 68%, var(--color-white));
+    --grid-subtitle-size: clamp(0.95rem, 1.4vw, 1.08rem);
+
+    --pager-size: 2.4rem;
+}
+
+
+
+/* ==========================================================================
+   Grid Block / Grid Header
+   --------------------------------------------------------------------------
+   Optionaler Wrapper für einen Titel, Untertitel und Aktionen oberhalb eines
+   Grids. Der eigentliche Raster-Container bleibt weiterhin .grid.
+   ========================================================================== */
+
+.grid-block {
+    width: 100%;
+
+    display: grid;
+    gap: var(--grid-block-gap);
+}
+
+.grid-block--compact {
+    --grid-block-gap: var(--grid-block-gap-compact);
+}
+
+.grid-block--loose {
+    --grid-block-gap: var(--grid-gap-loose);
+}
+
+.grid-block__header {
+    max-width: var(--grid-header-max-width);
+
+    display: grid;
+    gap: var(--grid-header-gap);
+
+    color: var(--grid-title-text);
+}
+
+.grid-block__kicker {
+    margin: 0;
+
+    color: var(--grid-kicker-text);
+    font-size: 0.82rem;
+    font-weight: var(--font-weight-bold, 700);
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.grid-block__title {
+    margin: 0;
+
+    color: var(--grid-title-text);
+    font-size: var(--grid-title-size);
+    font-weight: var(--font-weight-bold, 700);
+    line-height: 1.15;
+    text-wrap: balance;
+}
+
+.grid-block__subtitle {
+    max-width: 44rem;
+    margin: 0;
+
+    color: var(--grid-subtitle-text);
+    font-size: var(--grid-subtitle-size);
+    font-weight: var(--font-weight-regular, 500);
+    line-height: 1.5;
+}
+
+.grid-block__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-2, 0.75rem);
+
+    margin-top: var(--spacing-2, 0.5rem);
+}
+
+/* Zentrierter Header */
+
+.grid-block--center .grid-block__header {
+    justify-self: center;
+    text-align: center;
+}
+
+.grid-block--center .grid-block__subtitle {
+    margin-inline: auto;
+}
+
+.grid-block--center .grid-block__actions {
+    justify-content: center;
+}
+
+/* Split-Header: Text links, Aktionen rechts */
+
+.grid-block--split .grid-block__header {
+    max-width: none;
+
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--grid-gap);
+    align-items: end;
+}
+
+.grid-block--split .grid-block__kicker,
+.grid-block--split .grid-block__title,
+.grid-block--split .grid-block__subtitle {
+    grid-column: 1;
+}
+
+.grid-block--split .grid-block__actions {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+
+    justify-content: flex-end;
+    align-self: end;
+
+    margin-top: 0;
+}
+
+/* Header ohne Kicker bleibt sauber im Raster */
+
+.grid-block--split .grid-block__title:first-child+.grid-block__subtitle+.grid-block__actions,
+.grid-block--split .grid-block__title:first-child+.grid-block__actions {
+    grid-row: 1 / span 2;
+}
+
+/* Kompatibilität mit links.css:
+   Falls im Header einfache Textlinks genutzt werden, dürfen diese normal aus
+   links.css kommen. Buttons sollten als .btn gesetzt werden. */
+
+.grid-block__actions .btn {
+    flex: 0 0 auto;
 }
 
 
@@ -706,11 +429,13 @@ HTML-Beispiele
 .grid {
     display: grid;
     gap: var(--grid-gap);
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--grid-min-column-width)), 1fr));
+    grid-template-columns: repeat(auto-fit,
+            minmax(min(100%, var(--grid-min-column-width)), 1fr));
 }
 
 .grid--auto {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--grid-min-column-width)), 1fr));
+    grid-template-columns: repeat(auto-fit,
+            minmax(min(100%, var(--grid-min-column-width)), 1fr));
 }
 
 .grid--2col {
@@ -788,20 +513,17 @@ HTML-Beispiele
 
 .grid-composition--cards-aside {
     grid-template-columns:
-        minmax(0, 2fr)
-        minmax(18rem, 0.95fr);
+        minmax(0, 2fr) minmax(18rem, 0.95fr);
 }
 
 .grid-composition--feature-list {
     grid-template-columns:
-        minmax(0, 1.05fr)
-        minmax(20rem, 1fr);
+        minmax(0, 1.05fr) minmax(20rem, 1fr);
 }
 
 .grid-composition--list-feature {
     grid-template-columns:
-        minmax(20rem, 1fr)
-        minmax(0, 1.05fr);
+        minmax(20rem, 1fr) minmax(0, 1.05fr);
 }
 
 .grid-composition--equal {
@@ -810,8 +532,7 @@ HTML-Beispiele
 
 .grid-composition--wide-aside {
     grid-template-columns:
-        minmax(0, 1.55fr)
-        minmax(20rem, 1fr);
+        minmax(0, 1.55fr) minmax(20rem, 1fr);
 }
 
 
@@ -830,49 +551,121 @@ HTML-Beispiele
 
     color: var(--tile-text);
     background: var(--tile-bg);
-    border: 1px solid transparent;
+    border: 0;
     border-radius: var(--tile-radius);
 
+    padding: 0;
+    margin: 0;
+
     overflow: hidden;
+
+    transition:
+        background-color 180ms ease-in-out,
+        color 180ms ease-in-out;
 }
 
-.tile-card--link {
-    text-decoration: none;
+/*
+   Kachel-Links gegen links.css absichern.
+   links.css setzt a:not(.link--no-style) auf inline-block, Padding,
+   Unterstreichungs-Hintergrundbild und schwarzen Hover.
+   Diese Regeln setzen genau das für Kacheln zurück.
+*/
+
+.tile-card--link,
+a.tile-card,
+a.tile-card.tile-card--link,
+a.tile-card:link,
+a.tile-card:visited,
+a.tile-card:hover,
+a.tile-card:focus,
+a.tile-card:active {
+    display: grid !important;
+
+    color: var(--tile-text) !important;
+    background: var(--tile-bg) !important;
+    background-color: var(--tile-bg) !important;
+    background-image: none !important;
+    background-size: auto !important;
+    background-position: initial !important;
+    background-repeat: initial !important;
+
+    padding: 0 !important;
+    margin: 0;
+
+    border: 0 !important;
+    border-bottom: 0 !important;
+    border-radius: var(--tile-radius) !important;
+
+    box-shadow: none !important;
+    text-decoration: none !important;
+
     cursor: pointer;
 }
 
-.tile-card--link:visited {
-    color: var(--tile-text);
+a.tile-card:hover,
+a.tile-card:focus,
+.tile-card--link:hover,
+.tile-card--link:focus {
+    color: var(--tile-text) !important;
+    background: var(--tile-hover-bg) !important;
+    background-color: var(--tile-hover-bg) !important;
+    background-image: none !important;
 }
 
-.tile-card--link:hover {
-    color: var(--tile-text);
-    background: var(--tile-hover-bg);
-    border-color: var(--tile-border-hover);
+a.tile-card::before,
+a.tile-card::after,
+.tile-card--link::before,
+.tile-card--link::after {
+    content: none !important;
+    display: none !important;
+
+    width: 0 !important;
+    height: 0 !important;
+
+    border: 0 !important;
+    border-bottom: 0 !important;
+
+    background: transparent !important;
+    box-shadow: none !important;
 }
 
-.tile-card--link:focus-visible {
+.tile-card--link:focus-visible,
+a.tile-card:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 4px var(--tile-focus-ring);
+    box-shadow: 0 0 0 4px var(--tile-focus-ring) !important;
 }
+
+.tile-card,
+.tile-card--link,
+a.tile-card {
+    border-bottom: 0 !important;
+}
+
+.tile-card>*:last-child {
+    border-bottom: 0 !important;
+}
+
+/* Varianten */
 
 .tile-card--white {
-    background: var(--tile-bg-white);
-    border-color: var(--tile-border);
+    --tile-bg: var(--tile-bg-white);
+    --tile-hover-bg: color-mix(in srgb, var(--color-ink) 5%, var(--color-white));
 }
 
 .tile-card--surface {
-    background: var(--color-surface-bg);
+    --tile-bg: var(--tile-bg-default);
+    --tile-hover-bg: var(--tile-bg-hover-default);
 }
 
 .tile-card--flat {
-    border-color: transparent;
+    --tile-bg: transparent;
+    --tile-hover-bg: color-mix(in srgb, var(--color-ink) 4%, var(--color-white));
 }
 
 .tile-card--compact {
     --tile-body-padding: var(--tile-body-padding-compact);
     --tile-title-size: var(--tile-title-size-compact);
-    --tile-action-size: 2.5rem;
+    --tile-action-size: 2.1rem;
 }
 
 .tile-card--large,
@@ -883,7 +676,43 @@ HTML-Beispiele
 
 .tile-card--no-media {
     grid-template-rows: 1fr;
-    min-height: var(--tile-no-media-min-height, 14rem);
+    min-height: var(--tile-no-media-min-height, 11rem);
+}
+
+
+/* ==========================================================================
+   Tile Card — Farbvarianten
+   ========================================================================== */
+
+.tile-card--ink {
+    --tile-bg: var(--tile-bg-ink);
+    --tile-hover-bg: var(--tile-hover-bg-ink);
+
+    --tile-text: var(--tile-text-on-dark);
+    --tile-text-muted: var(--tile-text-muted-on-dark);
+
+    --tile-action-bg: color-mix(in srgb, var(--color-secondary-cta) 35%, var(--color-ink));
+    --tile-action-color: var(--color-white);
+    --tile-action-bg-hover: var(--color-secondary-cta);
+}
+
+.tile-card--primary {
+    --tile-action-bg: var(--color-primary);
+    --tile-action-color: var(--color-ink);
+    --tile-action-bg-hover: color-mix(in srgb, var(--color-primary) 78%, var(--color-white));
+}
+
+.tile-card--secondary-cta {
+    --tile-action-bg: var(--color-secondary-cta);
+    --tile-action-color: var(--color-ink);
+    --tile-action-bg-hover: color-mix(in srgb, var(--color-secondary-cta) 78%, var(--color-white));
+}
+
+.tile-card--secondary-highlight,
+.tile-card--plum {
+    --tile-action-bg: var(--color-secondary-highlight);
+    --tile-action-color: var(--color-white);
+    --tile-action-bg-hover: color-mix(in srgb, var(--color-secondary-highlight) 86%, var(--color-white));
 }
 
 
@@ -895,30 +724,101 @@ HTML-Beispiele
     position: relative;
 
     width: 100%;
-    margin: 0;
+    min-width: 0;
+    margin: 0 !important;
+    padding: 0 !important;
+
+    display: block;
+    align-self: stretch;
+    justify-self: stretch;
 
     overflow: hidden;
-    background: color-mix(in srgb, var(--color-ink) 6%, var(--color-white));
+    background: transparent;
+    border: 0 !important;
+    border-radius: 0 !important;
     aspect-ratio: 4 / 3;
+
+    line-height: 0;
+}
+
+.tile-card__media>img,
+.tile-card__media>video,
+.tile-card__media>picture,
+.tile-card__media>picture>img,
+.tile-card__media>figure,
+.tile-card__media>.media,
+.tile-card__media>.media__frame {
+    display: block;
+
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
 }
 
 .tile-card__media img,
-.tile-card__media video {
+.tile-card__media video,
+.tile-card__media picture>img,
+.tile-card__media .media__image,
+.tile-card__media .media__video,
+.tile-card__media .media__frame>img,
+.tile-card__media .media__frame>video,
+.tile-card__media .media__frame>picture>img {
     display: block;
 
     width: 100%;
     height: 100%;
+    max-width: none;
+    margin: 0 !important;
+    padding: 0 !important;
 
     object-fit: cover;
+    border: 0 !important;
+    border-radius: 0 !important;
+}
+
+.tile-card__media.media,
+.tile-card__media .media,
+.tile-card__media .media__frame,
+.tile-card__media figure {
+    margin: 0 !important;
+    padding: 0 !important;
+
+    width: 100%;
+    max-width: none;
+
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+}
+
+.tile-card__media.media--framed,
+.tile-card__media .media--framed,
+.tile-card__media.media--bordered,
+.tile-card__media .media--bordered,
+.tile-card__media.media--shadow,
+.tile-card__media .media--shadow {
+    padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
 }
 
 .tile-card__media--cover img,
-.tile-card__media--cover video {
+.tile-card__media--cover video,
+.tile-card__media--cover .media__image,
+.tile-card__media--cover .media__video {
     object-fit: cover;
 }
 
 .tile-card__media--contain img,
-.tile-card__media--contain video {
+.tile-card__media--contain video,
+.tile-card__media--contain .media__image,
+.tile-card__media--contain .media__video {
     object-fit: contain;
 }
 
@@ -960,16 +860,18 @@ HTML-Beispiele
     top: 0;
     right: 0;
     bottom: auto;
+    z-index: 2;
 
     max-width: 100%;
 
-    padding: 0.35rem 0.45rem;
+    padding: 0.28rem 0.35rem;
 
     color: var(--tile-credit-color);
     background: var(--tile-credit-bg);
 
     font-size: var(--tile-credit-size);
-    line-height: 1.2;
+    font-weight: var(--font-weight-regular, 500);
+    line-height: 1.1;
     white-space: nowrap;
 
     writing-mode: vertical-rl;
@@ -989,6 +891,18 @@ HTML-Beispiele
     display: none;
 }
 
+/* media.css-Credits innerhalb von Kacheln angleichen. */
+
+.tile-card__media .media__credit,
+.tile-card__media .media__credit--vertical {
+    font-size: var(--tile-credit-size);
+}
+
+.tile-card__media .media__credit--below,
+.tile-card__media .media__caption {
+    display: none;
+}
+
 
 /* ==========================================================================
    Tile Card — Body
@@ -999,27 +913,29 @@ HTML-Beispiele
 
     display: grid;
     align-content: start;
-    gap: var(--spacing-3, 1rem);
+    gap: var(--tile-body-gap);
 
     padding: var(--tile-body-padding);
-    padding-bottom: calc(var(--tile-body-padding) + var(--tile-action-size) * 0.35);
+    padding-right: calc(var(--tile-body-padding) + var(--tile-action-size) + 0.5rem);
+    padding-bottom: calc(var(--tile-body-padding) + 0.15rem);
 }
 
 .tile-card__meta {
     margin: 0;
 
     color: var(--tile-text-muted);
-    font-size: 0.95rem;
+    font-size: var(--tile-meta-size);
     font-weight: var(--font-weight-regular, 500);
-    line-height: 1.35;
+    line-height: 1.3;
 }
 
 .tile-card__kicker {
     margin: 0;
 
-    color: var(--color-secondary-cta);
-    font-size: 0.85rem;
+    color: color-mix(in srgb, var(--color-secondary-cta) 42%, var(--color-ink));
+    font-size: 0.78rem;
     font-weight: var(--font-weight-bold, 700);
+    line-height: 1.25;
     letter-spacing: 0.03em;
     text-transform: uppercase;
 }
@@ -1030,13 +946,32 @@ HTML-Beispiele
     color: var(--tile-text);
     font-size: var(--tile-title-size);
     font-weight: var(--font-weight-regular, 500);
-    line-height: 1.28;
+    line-height: 1.24;
 }
 
 .tile-card__title a,
 .tile-card--link .tile-card__title {
     color: inherit;
     text-decoration: none;
+}
+
+.tile-card__title a,
+.tile-card__title a:link,
+.tile-card__title a:visited,
+.tile-card__title a:hover,
+.tile-card__title a:focus,
+.tile-card__title a:active {
+    display: inline !important;
+
+    color: inherit !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+
+    padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    text-decoration: none !important;
 }
 
 .tile-card__text {
@@ -1051,13 +986,14 @@ HTML-Beispiele
     margin: 0;
 
     color: var(--tile-text-muted);
-    font-size: 0.95rem;
+    font-size: var(--tile-date-size);
+    line-height: 1.35;
 }
 
 .tile-card__tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.4rem;
 
     margin: 0;
     padding: 0;
@@ -1069,12 +1005,12 @@ HTML-Beispiele
     display: inline-flex;
     align-items: center;
 
-    padding: 0.25rem 0.5rem;
+    padding: 0.2rem 0.45rem;
 
     color: var(--color-ink);
     background: color-mix(in srgb, var(--color-secondary-cta) 18%, var(--color-white));
 
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     line-height: 1.2;
 }
 
@@ -1083,10 +1019,17 @@ HTML-Beispiele
    Tile Card — Action
    ========================================================================== */
 
-.tile-card__action {
+.tile-card__action,
+a.tile-card__action,
+a.tile-card__action:link,
+a.tile-card__action:visited,
+a.tile-card__action:hover,
+a.tile-card__action:focus,
+a.tile-card__action:active {
     position: absolute;
     right: 0;
     bottom: 0;
+    z-index: 2;
 
     width: var(--tile-action-size);
     height: var(--tile-action-size);
@@ -1100,43 +1043,32 @@ HTML-Beispiele
     border: 0;
 
     text-decoration: none;
+
+    transition:
+        background-color 180ms ease-in-out,
+        color 180ms ease-in-out;
 }
 
 .tile-card__action .vdb-icon,
 .tile-card__action svg {
-    width: 1.45rem;
-    height: 1.45rem;
+    width: 1rem;
+    height: 1rem;
 }
 
 .tile-card--link:hover .tile-card__action,
-.tile-card__action:hover {
-    color: var(--tile-action-color);
-    background: var(--tile-action-bg-hover);
+.tile-card__action:hover,
+a.tile-card__action:hover,
+a.tile-card__action:focus {
+    color: var(--tile-action-color) !important;
+    background: var(--tile-action-bg-hover) !important;
+    background-color: var(--tile-action-bg-hover) !important;
+    background-image: none !important;
 }
 
-.tile-card--primary {
-    --tile-action-bg: var(--color-primary);
-    --tile-action-color: var(--color-ink);
-    --tile-action-bg-hover: color-mix(in srgb, var(--color-primary) 70%, var(--color-white));
-}
-
-.tile-card--secondary-cta {
-    --tile-action-bg: var(--color-secondary-cta);
-    --tile-action-color: var(--color-ink);
-    --tile-action-bg-hover: color-mix(in srgb, var(--color-secondary-cta) 70%, var(--color-white));
-}
-
-.tile-card--secondary-highlight,
-.tile-card--plum {
-    --tile-action-bg: var(--color-secondary-highlight);
-    --tile-action-color: var(--color-white);
-    --tile-action-bg-hover: color-mix(in srgb, var(--color-secondary-highlight) 70%, var(--color-white));
-}
-
-.tile-card--ink {
-    --tile-action-bg: var(--color-ink);
-    --tile-action-color: var(--color-white);
-    --tile-action-bg-hover: color-mix(in srgb, var(--color-ink) 70%, var(--color-white));
+.tile-card__action:focus-visible,
+a.tile-card__action:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--tile-focus-ring) !important;
 }
 
 
@@ -1160,7 +1092,7 @@ HTML-Beispiele
 
 .tile-card--overlay {
     grid-template-rows: 1fr;
-    min-height: var(--tile-overlay-min-height, 24rem);
+    min-height: var(--tile-overlay-min-height, 20rem);
 }
 
 .tile-card--overlay .tile-card__media {
@@ -1174,11 +1106,9 @@ HTML-Beispiele
     align-self: end;
 
     color: var(--color-white);
-    background: linear-gradient(
-        180deg,
-        transparent 0%,
-        color-mix(in srgb, var(--color-ink) 82%, transparent) 100%
-    );
+    background: linear-gradient(180deg,
+            transparent 0%,
+            color-mix(in srgb, var(--color-ink) 82%, transparent) 100%);
 }
 
 .tile-card--overlay .tile-card__title,
@@ -1188,14 +1118,17 @@ HTML-Beispiele
     color: var(--color-white);
 }
 
+.tile-card--minimal {
+    --tile-bg: transparent;
+    --tile-hover-bg: transparent;
+
+    background: transparent;
+    border: 0;
+}
+
 .tile-card--minimal .tile-card__body {
     padding-inline: 0;
     background: transparent;
-}
-
-.tile-card--minimal {
-    background: transparent;
-    border-color: transparent;
 }
 
 
@@ -1213,7 +1146,7 @@ HTML-Beispiele
     margin: 0 0 var(--spacing-3, 1rem);
 
     color: var(--color-ink);
-    font-size: clamp(1.25rem, 2vw, 1.5rem);
+    font-size: clamp(1.05rem, 1.8vw, 1.3rem);
     font-weight: var(--font-weight-bold, 700);
     line-height: 1.2;
     letter-spacing: 0.02em;
@@ -1227,14 +1160,40 @@ HTML-Beispiele
 
 .event-item {
     display: grid;
-    grid-template-columns: 7.5rem minmax(0, 1fr);
-    gap: var(--spacing-3, 1rem);
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    gap: var(--spacing-2, 0.75rem);
 
-    padding: var(--spacing-3, 1rem) 0;
+    padding: 0.85rem 0;
 
     color: var(--color-ink);
     border-bottom: 1px solid var(--list-border);
     text-decoration: none;
+}
+
+/* Event-Links gegen links.css absichern. */
+
+a.event-item,
+a.event-item:link,
+a.event-item:visited,
+a.event-item:hover,
+a.event-item:focus,
+a.event-item:active {
+    display: grid !important;
+
+    color: var(--color-ink) !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+
+    padding: 0.85rem 0 !important;
+
+    border-inline: 0 !important;
+    border-top: 0 !important;
+    border-bottom: 1px solid var(--list-border) !important;
+    border-radius: 0 !important;
+
+    box-shadow: none !important;
+    text-decoration: none !important;
 }
 
 .event-item:hover .event-item__title {
@@ -1242,15 +1201,16 @@ HTML-Beispiele
     text-underline-offset: 0.18em;
 }
 
-.event-item:focus-visible {
+.event-item:focus-visible,
+a.event-item:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 4px var(--tile-focus-ring);
+    box-shadow: 0 0 0 4px var(--tile-focus-ring) !important;
 }
 
 .event-item__date {
     display: grid;
     align-content: start;
-    gap: 0.25rem;
+    gap: 0.2rem;
 
     color: var(--tile-text-muted);
     font-style: normal;
@@ -1258,13 +1218,13 @@ HTML-Beispiele
 
 .event-item__day {
     color: var(--tile-text-muted);
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     font-weight: var(--font-weight-bold, 700);
 }
 
 .event-item__time {
     color: var(--tile-text-muted);
-    font-size: 1.05rem;
+    font-size: 0.9rem;
 }
 
 .event-item__content {
@@ -1273,7 +1233,7 @@ HTML-Beispiele
 
 .event-item__title {
     color: var(--color-ink);
-    font-size: 1.1rem;
+    font-size: 0.98rem;
     line-height: 1.35;
 }
 
@@ -1289,25 +1249,52 @@ HTML-Beispiele
 
 .news-list__item {
     display: grid;
-    gap: var(--spacing-2, 0.5rem);
+    gap: 0.45rem;
 
-    padding: var(--spacing-3, 1rem) 0;
+    padding: 0.85rem 0;
 
     color: var(--color-ink);
     border-bottom: 1px solid var(--list-border);
     text-decoration: none;
 }
 
-.news-list__item:focus-visible {
+/* Kurzmeldungs-Links gegen links.css absichern. */
+
+a.news-list__item,
+a.news-list__item:link,
+a.news-list__item:visited,
+a.news-list__item:hover,
+a.news-list__item:focus,
+a.news-list__item:active {
+    display: grid !important;
+
+    color: var(--color-ink) !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+
+    padding: 0.85rem 0 !important;
+
+    border-inline: 0 !important;
+    border-top: 0 !important;
+    border-bottom: 1px solid var(--list-border) !important;
+    border-radius: 0 !important;
+
+    box-shadow: none !important;
+    text-decoration: none !important;
+}
+
+.news-list__item:focus-visible,
+a.news-list__item:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 4px var(--tile-focus-ring);
+    box-shadow: 0 0 0 4px var(--tile-focus-ring) !important;
 }
 
 .news-list__title {
     margin: 0;
 
     color: var(--color-ink);
-    font-size: 1.1rem;
+    font-size: 0.98rem;
     font-weight: var(--font-weight-regular, 500);
     line-height: 1.35;
     text-decoration: underline;
@@ -1316,19 +1303,20 @@ HTML-Beispiele
 }
 
 .news-list__item:hover .news-list__title {
-    color: var(--color-secondary-cta);
+    color: color-mix(in srgb, var(--color-secondary-cta) 42%, var(--color-ink));
 }
 
 .news-list__text {
     margin: 0;
 
     color: var(--tile-text-muted);
-    line-height: 1.5;
+    font-size: 0.88rem;
+    line-height: 1.45;
 }
 
 .news-list__date {
     color: var(--tile-text-muted);
-    font-size: 0.95rem;
+    font-size: 0.82rem;
 }
 
 
@@ -1341,7 +1329,7 @@ HTML-Beispiele
     align-items: center;
     gap: var(--spacing-2, 0.5rem);
 
-    margin-top: var(--spacing-4, 1.5rem);
+    margin-top: var(--spacing-3, 1rem);
 }
 
 .grid-pager__button {
@@ -1377,15 +1365,15 @@ HTML-Beispiele
 
 .grid-pager__button .vdb-icon,
 .grid-pager__button svg {
-    width: 1.25rem;
-    height: 1.25rem;
+    width: 1.05rem;
+    height: 1.05rem;
 }
 
 .grid-pager__count {
     padding-inline: 0.5rem;
 
     color: var(--tile-text-muted);
-    font-size: 0.95rem;
+    font-size: 0.85rem;
 }
 
 
@@ -1429,6 +1417,24 @@ HTML-Beispiele
 }
 
 @media (max-width: 720px) {
+
+
+    .grid-block--split .grid-block__header {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .grid-block--split .grid-block__actions {
+        grid-column: 1;
+        grid-row: auto;
+
+        justify-content: flex-start;
+        margin-top: var(--spacing-2, 0.5rem);
+    }
+
+    .grid-block--center.grid-block--split .grid-block__actions {
+        justify-content: center;
+    }
+
     .grid,
     .grid--2col,
     .grid--3col,
@@ -1436,7 +1442,8 @@ HTML-Beispiele
         grid-template-columns: minmax(0, 1fr);
     }
 
-    .event-item {
+    .event-item,
+    a.event-item {
         grid-template-columns: minmax(0, 1fr);
         gap: var(--spacing-2, 0.5rem);
     }
@@ -1447,8 +1454,9 @@ HTML-Beispiele
     }
 
     .tile-card__body {
+        gap: var(--tile-body-gap-compact);
         padding: var(--tile-body-padding-compact);
-        padding-bottom: calc(var(--tile-body-padding-compact) + var(--tile-action-size) * 0.4);
+        padding-bottom: calc(var(--tile-body-padding-compact) + var(--tile-action-size) * 0.2);
     }
 }
 
@@ -1457,16 +1465,25 @@ HTML-Beispiele
         flex-wrap: wrap;
     }
 
-    .tile-card__credit {
-        font-size: 0.75rem;
+    .tile-card__credit,
+    .tile-card__media .media__credit,
+    .tile-card__media .media__credit--vertical {
+        font-size: 0.68rem;
     }
 
     .tile-card__action {
-        --tile-action-size: 2.75rem;
+        --tile-action-size: 2.1rem;
+    }
+
+    .tile-card__action .vdb-icon,
+    .tile-card__action svg {
+        width: 0.95rem;
+        height: 0.95rem;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     .tile-card,
     .tile-card__action,
     .grid-pager__button {

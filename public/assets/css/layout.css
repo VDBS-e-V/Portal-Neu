@@ -40,6 +40,16 @@ section.no-padding {
     padding: 0 inherit;
 }
 
+section.extra-small {
+    padding-left: calc(var(--spacing-section-padding-width) * 6) !important;
+    padding-right: calc(var(--spacing-section-padding-width) * 6) !important;
+}
+
+section.small {
+    padding-left: calc(var(--spacing-section-padding-width) * 3) !important;
+    padding-right: calc(var(--spacing-section-padding-width) * 3) !important;
+}
+
 section.long-width {
     grid-column: surface-start / surface-end;
 }

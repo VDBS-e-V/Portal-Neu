@@ -50,14 +50,14 @@
    <div class="container container--text-media">
        <div class="container__text">...</div>
        <div class="container__buttons btn-group">...</div>
-       <figure class="container__media">...</figure>
+       <figure class="container__media media">...</figure>
    </div>
 
    Falsch:
 
    <div class="container container--text-media">
        <div class="container__text">
-           <figure class="container__media">...</figure>
+           <figure class="container__media media">...</figure>
            ...
        </div>
    </div>
@@ -79,6 +79,30 @@
    .container__media
    - enthält Bild, Video, SVG oder anderes visuelles Material
    - für Bilder meistens als <figure> verwenden
+   - kann mit Klassen aus media.css kombiniert werden
+
+
+   Zusammenspiel mit media.css
+   --------------------------------------------------------------------------
+   containers.css steuert nur die Position des Media-Slots im Container.
+
+   media.css steuert:
+   - Bildquellen
+   - Bildunterschriften
+   - vertikale Credits
+   - horizontale Credit-Overlays
+   - Captions unter Bildern
+   - Media-Frames
+   - Bildverhältnisse innerhalb von Captions
+
+   Empfohlene Lade-Reihenfolge:
+
+   tokens.css
+   media.css
+   containers.css
+
+   Dadurch können Container die allgemeinen Media-Klassen nutzen, ohne dass
+   Bildquellen mehrfach gestaltet werden müssen.
 
 
    Button-Integration
@@ -111,19 +135,69 @@
 
    Media-Logik
    --------------------------------------------------------------------------
-   Für Fotos:
+   Für Fotos im Container:
    - .container__media--cover verwenden
    - das Bild füllt den Rahmen und kann beschnitten werden
 
-   Für Illustrationen:
+   Für Illustrationen im Container:
    - .container__media--contain verwenden
    - das Bild bleibt vollständig sichtbar
 
-   Seitenverhältnisse:
+   Für Bildquellen im Bild:
+   - zusätzlich media.css nutzen
+   - .media
+   - .media--credit-overlay
+   - .media__credit
+   - .media__credit--vertical oder .media__credit--overlay
+
+   Für Bildunterschriften unter dem Bild:
+   - keine Ratio-Klasse auf das äußere <figure> setzen
+   - stattdessen .media__frame mit .media__frame--ratio-* nutzen
+
+   Richtig für Caption unter dem Bild:
+
+   <figure class="container__media media">
+       <div class="media__frame media__frame--cover media__frame--ratio-16-9">
+           <img class="media__image" src="bild.jpg" alt="">
+       </div>
+
+       <figcaption class="media__caption">
+           ...
+       </figcaption>
+   </figure>
+
+   Falsch für Caption unter dem Bild:
+
+   <figure class="container__media container__media--ratio-16-9 media">
+       <img class="media__image" src="bild.jpg" alt="">
+       <figcaption class="media__caption">...</figcaption>
+   </figure>
+
+   Warum?
+   Die Caption würde sonst in das Seitenverhältnis des äußeren <figure>
+   hineingerechnet.
+
+
+   Seitenverhältnisse im Container
+   --------------------------------------------------------------------------
+   Wenn das Bild allein im Media-Slot steht:
+
    - .container__media--ratio-16-9
    - .container__media--ratio-4-3
    - .container__media--ratio-1-1
+   - .container__media--ratio-21-9
+   - .container__media--ratio-3-2
    - .container__media--ratio-auto
+
+   Wenn unter dem Bild eine Caption folgt:
+
+   - .media__frame--ratio-16-9
+   - .media__frame--ratio-4-3
+   - .media__frame--ratio-1-1
+   - .media__frame--ratio-21-9
+   - .media__frame--ratio-3-2
+   - .media__frame--ratio-auto
+
 
    Größen:
    - Standard: Bild nutzt die verfügbare Grid-Spalte
@@ -155,8 +229,14 @@
    .container--media-dominant
    - Bild nimmt mehr Raum ein als Text
 
+   .container--media-heavy
+   - Bild nimmt deutlich mehr Raum ein als Text
+
    .container--text-dominant
    - Text nimmt mehr Raum ein als Bild
+
+   .container--text-heavy
+   - Text nimmt deutlich mehr Raum ein als Bild
 
    .container--narrow
    - schmaler, zentrierter Container
@@ -186,13 +266,21 @@
    HTML-Beispiele
    ==========================================================================
 
-   1. Bild links, Text rechts
+   1. Bild links, Text rechts mit vertikaler Bildquelle im Bild
    --------------------------------------------------------------------------
 
    <section id="zugang-zum-portal">
        <div class="container container--media-text container--balanced">
-           <figure class="container__media container__media--contain container__media--ratio-4-3">
-               <img src="/assets/images/home/home_zugang.png" alt="Zugang zum Portal">
+           <figure class="container__media container__media--contain container__media--ratio-4-3 media media--credit-overlay">
+               <img
+                   class="media__image"
+                   src="/assets/images/home/home_zugang.png"
+                   alt="Zugang zum Portal"
+               >
+
+               <figcaption class="media__credit media__credit--vertical">
+                   Bildquelle: VDBS / Max Mustermann
+               </figcaption>
            </figure>
 
            <div class="container__text">
@@ -217,7 +305,7 @@
    </section>
 
 
-   2. Text links, Bild rechts
+   2. Text links, Bild rechts mit Caption und Quelle unter dem Bild
    --------------------------------------------------------------------------
 
    <section id="kontakt" class="section--surface">
@@ -237,14 +325,30 @@
                </a>
            </div>
 
-           <figure class="container__media container__media--contain container__media--ratio-4-3">
-               <img src="/assets/images/home/home_kontakt.png" alt="Kontakt">
+           <figure class="container__media media">
+               <div class="media__frame media__frame--contain media__frame--ratio-4-3">
+                   <img
+                       class="media__image"
+                       src="/assets/images/home/home_kontakt.png"
+                       alt="Kontakt"
+                   >
+               </div>
+
+               <figcaption class="media__caption">
+                   <span class="media__caption-title">
+                       Kontakt und Unterstützung im VDBS Serviceportal
+                   </span>
+
+                   <span class="media__credit media__credit--below">
+                       Bildquelle: VDBS / Max Mustermann
+                   </span>
+               </figcaption>
            </figure>
        </div>
    </section>
 
 
-   3. Bild stärker gewichtet
+   3. Bild stärker gewichtet mit horizontalem Credit-Overlay
    --------------------------------------------------------------------------
 
    <section>
@@ -264,8 +368,17 @@
                </a>
            </div>
 
-           <figure class="container__media container__media--cover container__media--ratio-16-9">
-               <img src="/assets/images/home/studium.jpg" alt="Studierende">
+           <figure class="container__media container__media--cover container__media--ratio-16-9 media media--credit-overlay">
+               <img
+                   class="media__image"
+                   src="/assets/images/home/studium.jpg"
+                   alt="Studierende"
+               >
+
+               <figcaption class="media__credit media__credit--overlay media__credit--bottom-right">
+                   <span class="media__credit-label">Bildquelle:</span>
+                   <span class="media__credit-text">VDBS / Max Mustermann</span>
+               </figcaption>
            </figure>
        </div>
    </section>
@@ -317,7 +430,7 @@
    </section>
 
 
-   6. Mobil zuerst Bild, dann Text
+   6. Mobil zuerst Bild, dann Text mit vertikaler Bildquelle
    --------------------------------------------------------------------------
 
    <section>
@@ -333,9 +446,57 @@
                </a>
            </div>
 
-           <figure class="container__media container__media--contain container__media--ratio-4-3">
-               <img src="/assets/images/home/home_zugang.png" alt="Serviceportal">
+           <figure class="container__media container__media--contain container__media--ratio-4-3 media media--credit-overlay">
+               <img
+                   class="media__image"
+                   src="/assets/images/home/home_zugang.png"
+                   alt="Serviceportal"
+               >
+
+               <figcaption class="media__credit media__credit--vertical">
+                   Bildquelle: VDBS / Max Mustermann
+               </figcaption>
            </figure>
+       </div>
+   </section>
+
+
+   7. Container-Bild mit natürlicher Höhe und Caption
+   --------------------------------------------------------------------------
+
+   <section>
+       <div class="container container--media-text container--balanced">
+           <figure class="container__media media">
+               <img
+                   class="media__image"
+                   src="/assets/images/home/campus.jpg"
+                   alt="Menschen auf einem Campus"
+               >
+
+               <figcaption class="media__caption">
+                   <span class="media__caption-title">
+                       Beratungssituation auf dem Campus
+                   </span>
+
+                   <span class="media__credit media__credit--below">
+                       Bildquelle: VDBS / Max Mustermann
+                   </span>
+               </figcaption>
+           </figure>
+
+           <div class="container__text">
+               <h2>Beratung und Begleitung</h2>
+               <p>
+                   Wir unterstützen beim Zugang zum Portal und bei Fragen zur
+                   Nutzung der zentralen Services.
+               </p>
+           </div>
+
+           <div class="container__buttons btn-group btn-group--vertical">
+               <a href="#" class="btn btn--primary btn--md">
+                   Beratung anfragen
+               </a>
+           </div>
        </div>
    </section>
 
@@ -431,24 +592,50 @@
 
 .container__media {
     grid-area: media;
+    position: relative;
+
     min-width: 0;
 
     width: 100%;
     max-width: none;
     margin: 0;
 
-    overflow: hidden;
+    overflow: visible;
     border-radius: var(--container-media-radius, 0);
     justify-self: stretch;
 }
 
-.container__media img,
-.container__media video,
-.container__media svg {
+.container__media>img,
+.container__media>video,
+.container__media>svg,
+.container__media>picture>img,
+.container__media>.media__image,
+.container__media>.media__video {
     display: block;
+
     width: 100%;
     max-width: 100%;
     height: auto;
+}
+
+
+/* ==========================================================================
+   Kompatibilität mit media.css
+   --------------------------------------------------------------------------
+   Bildquellen, Captions und Media-Frames werden in media.css gestaltet.
+   Hier wird nur sichergestellt, dass sie im Container-Slot korrekt fließen.
+   ========================================================================== */
+
+.container__media.media {
+    margin: 0;
+}
+
+.container__media .media__frame {
+    width: 100%;
+}
+
+.container__media .media__caption {
+    width: 100%;
 }
 
 
@@ -505,59 +692,97 @@
     background: var(--container-media-background, transparent);
 }
 
-.container__media--cover img,
-.container__media--cover video {
+
+/* Direkte Bilder im Container-Slot */
+
+.container__media--cover>img,
+.container__media--cover>video,
+.container__media--cover>picture>img,
+.container__media--cover>.media__image,
+.container__media--cover>.media__video {
     width: 100%;
     height: 100%;
+
     object-fit: cover;
 }
 
-.container__media--contain img,
-.container__media--contain video {
+.container__media--contain>img,
+.container__media--contain>video,
+.container__media--contain>picture>img,
+.container__media--contain>.media__image,
+.container__media--contain>.media__video {
     width: 100%;
     height: 100%;
+
     object-fit: contain;
 }
 
+
+/* Seitenverhältnisse für direkte Media-Slots */
+
 .container__media--ratio-auto {
     aspect-ratio: auto;
+    overflow: visible;
 }
 
 .container__media--ratio-16-9 {
     aspect-ratio: 16 / 9;
+    overflow: hidden;
 }
 
 .container__media--ratio-4-3 {
     aspect-ratio: 4 / 3;
+    overflow: hidden;
 }
 
 .container__media--ratio-1-1 {
     aspect-ratio: 1 / 1;
+    overflow: hidden;
 }
 
 .container__media--ratio-21-9 {
     aspect-ratio: 21 / 9;
+    overflow: hidden;
 }
 
 .container__media--ratio-3-2 {
     aspect-ratio: 3 / 2;
+    overflow: hidden;
 }
 
-.container__media--ratio-auto img,
-.container__media--ratio-auto video {
+.container__media--ratio-auto>img,
+.container__media--ratio-auto>video,
+.container__media--ratio-auto>picture>img,
+.container__media--ratio-auto>.media__image,
+.container__media--ratio-auto>.media__video {
     height: auto;
 }
 
-.container__media--ratio-16-9 img,
-.container__media--ratio-4-3 img,
-.container__media--ratio-1-1 img,
-.container__media--ratio-21-9 img,
-.container__media--ratio-3-2 img,
-.container__media--ratio-16-9 video,
-.container__media--ratio-4-3 video,
-.container__media--ratio-1-1 video,
-.container__media--ratio-21-9 video,
-.container__media--ratio-3-2 video {
+.container__media--ratio-16-9>img,
+.container__media--ratio-4-3>img,
+.container__media--ratio-1-1>img,
+.container__media--ratio-21-9>img,
+.container__media--ratio-3-2>img,
+.container__media--ratio-16-9>video,
+.container__media--ratio-4-3>video,
+.container__media--ratio-1-1>video,
+.container__media--ratio-21-9>video,
+.container__media--ratio-3-2>video,
+.container__media--ratio-16-9>picture>img,
+.container__media--ratio-4-3>picture>img,
+.container__media--ratio-1-1>picture>img,
+.container__media--ratio-21-9>picture>img,
+.container__media--ratio-3-2>picture>img,
+.container__media--ratio-16-9>.media__image,
+.container__media--ratio-4-3>.media__image,
+.container__media--ratio-1-1>.media__image,
+.container__media--ratio-21-9>.media__image,
+.container__media--ratio-3-2>.media__image,
+.container__media--ratio-16-9>.media__video,
+.container__media--ratio-4-3>.media__video,
+.container__media--ratio-1-1>.media__video,
+.container__media--ratio-21-9>.media__video,
+.container__media--ratio-3-2>.media__video {
     width: 100%;
     height: 100%;
 }
@@ -581,15 +806,12 @@
 
 .container--text-buttons {
     grid-template-columns:
-        minmax(0, 1fr)
-        minmax(16rem, var(--container-buttons-width, 24rem));
+        minmax(0, 1fr) minmax(16rem, var(--container-buttons-width, 24rem));
     grid-template-areas:
         "text buttons";
 
-    column-gap: var(
-        --container-gap,
-        clamp(var(--spacing-5, 2rem), 6vw, var(--spacing-10, 5rem))
-    );
+    column-gap: var(--container-gap,
+            clamp(var(--spacing-5, 2rem), 6vw, var(--spacing-10, 5rem)));
     row-gap: var(--container-stack-gap, var(--spacing-4, 1.5rem));
 
     align-items: center;
@@ -605,16 +827,13 @@
 
 .container--text-media {
     grid-template-columns:
-        minmax(0, var(--container-text-column, 28rem))
-        minmax(0, 1fr);
+        minmax(0, var(--container-text-column, 28rem)) minmax(0, 1fr);
     grid-template-areas:
         "text media"
         "buttons media";
 
-    column-gap: var(
-        --container-gap,
-        clamp(var(--spacing-5, 2rem), 6vw, var(--spacing-10, 5rem))
-    );
+    column-gap: var(--container-gap,
+            clamp(var(--spacing-5, 2rem), 6vw, var(--spacing-10, 5rem)));
     row-gap: var(--container-stack-gap, var(--spacing-4, 1.5rem));
 
     align-items: center;
@@ -625,16 +844,13 @@
 
 .container--media-text {
     grid-template-columns:
-        minmax(0, 1fr)
-        minmax(0, var(--container-text-column, 28rem));
+        minmax(0, 1fr) minmax(0, var(--container-text-column, 28rem));
     grid-template-areas:
         "media text"
         "media buttons";
 
-    column-gap: var(
-        --container-gap,
-        clamp(var(--spacing-5, 2rem), 6vw, var(--spacing-10, 5rem))
-    );
+    column-gap: var(--container-gap,
+            clamp(var(--spacing-5, 2rem), 6vw, var(--spacing-10, 5rem)));
     row-gap: var(--container-stack-gap, var(--spacing-4, 1.5rem));
 
     align-items: center;
@@ -650,8 +866,7 @@
 .container--balanced.container--text-media,
 .container--balanced.container--media-text {
     grid-template-columns:
-        minmax(0, 1fr)
-        minmax(0, 1fr);
+        minmax(0, 1fr) minmax(0, 1fr);
 }
 
 
@@ -659,14 +874,12 @@
 
 .container--media-dominant.container--text-media {
     grid-template-columns:
-        minmax(0, 0.85fr)
-        minmax(0, 1.15fr);
+        minmax(0, 0.85fr) minmax(0, 1.15fr);
 }
 
 .container--media-dominant.container--media-text {
     grid-template-columns:
-        minmax(0, 1.15fr)
-        minmax(0, 0.85fr);
+        minmax(0, 1.15fr) minmax(0, 0.85fr);
 }
 
 
@@ -674,14 +887,12 @@
 
 .container--media-heavy.container--text-media {
     grid-template-columns:
-        minmax(0, 0.7fr)
-        minmax(0, 1.3fr);
+        minmax(0, 0.7fr) minmax(0, 1.3fr);
 }
 
 .container--media-heavy.container--media-text {
     grid-template-columns:
-        minmax(0, 1.3fr)
-        minmax(0, 0.7fr);
+        minmax(0, 1.3fr) minmax(0, 0.7fr);
 }
 
 
@@ -689,14 +900,12 @@
 
 .container--text-dominant.container--text-media {
     grid-template-columns:
-        minmax(0, 1.15fr)
-        minmax(0, 0.85fr);
+        minmax(0, 1.15fr) minmax(0, 0.85fr);
 }
 
 .container--text-dominant.container--media-text {
     grid-template-columns:
-        minmax(0, 0.85fr)
-        minmax(0, 1.15fr);
+        minmax(0, 0.85fr) minmax(0, 1.15fr);
 }
 
 
@@ -704,14 +913,12 @@
 
 .container--text-heavy.container--text-media {
     grid-template-columns:
-        minmax(0, 1.3fr)
-        minmax(0, 0.7fr);
+        minmax(0, 1.3fr) minmax(0, 0.7fr);
 }
 
 .container--text-heavy.container--media-text {
     grid-template-columns:
-        minmax(0, 0.7fr)
-        minmax(0, 1.3fr);
+        minmax(0, 0.7fr) minmax(0, 1.3fr);
 }
 
 
@@ -727,6 +934,7 @@
 
 .visually-hidden {
     position: absolute;
+
     width: 1px;
     height: 1px;
     padding: 0;
@@ -745,6 +953,7 @@
    ========================================================================== */
 
 @media (max-width: 900px) {
+
     .container,
     .container--text-only,
     .container--text-buttons,
@@ -820,6 +1029,7 @@
 }
 
 @media (max-width: 560px) {
+
     .container,
     .container--text-only,
     .container--text-buttons,

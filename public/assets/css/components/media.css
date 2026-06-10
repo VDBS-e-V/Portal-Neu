@@ -1,0 +1,1542 @@
+/*
+Media — Bild-, Quellen-, Caption- und Galerie-System
+==============================================================================
+Zweck
+------------------------------------------------------------------------------
+Diese Datei definiert ein allgemeines Medien-System für das VDBS Portal.
+
+Sie eignet sich für:
+- Bilder in Artikeln
+- Bilder in Containern
+- Hero-Bilder
+- Card-Bilder
+- Galerien
+- Bildquellen / Credits
+- Bildunterschriften
+- Overlays
+- responsive Bildverhältnisse
+- Videos und eingebettete Medien
+- Logos / Illustrationen
+
+
+Gestaltungsziel
+------------------------------------------------------------------------------
+Das System orientiert sich an einem redaktionellen Hochschul-/Verwaltungsstil:
+
+1. Bildquelle im Bild
+   - vertikal am rechten Bildrand
+   - dunkler halbtransparenter Hintergrund
+   - weiße Schrift
+   - kompakt, zurückhaltend, aber lesbar
+
+2. Bildunterschrift unter dem Bild
+   - Beschreibung direkt unter dem Bild
+   - Bildquelle darunter
+   - keine farbige Box
+   - dezente Trennlinie unter dem Caption-Bereich
+
+3. Allgemeine Medienlogik
+   - Bilder können natürlich hoch sein
+   - Bilder können feste Seitenverhältnisse bekommen
+   - Bildquellen bleiben zentral über media.css steuerbar
+   - andere Komponenten wie containers.css, hero.css oder grids.css können
+     die Klassen dieses Systems mitnutzen
+
+
+Grundprinzip
+------------------------------------------------------------------------------
+Nutze für Medien möglichst <figure>.
+
+Einfaches Bild ohne Caption:
+
+<figure class="media">
+    <img
+        class="media__image"
+        src="/assets/images/beispiel.jpg"
+        alt="Beschreibung des Bildes"
+    >
+</figure>
+
+
+Bildquelle vertikal im Bild:
+
+<figure class="media media--credit-overlay">
+    <img
+        class="media__image"
+        src="/assets/images/beispiel.jpg"
+        alt="Gebäude der Freien Universität Berlin"
+    >
+
+    <figcaption class="media__credit media__credit--vertical">
+        Bildquelle: Bernd Wannenmacher
+    </figcaption>
+</figure>
+
+
+Bildquelle horizontal im Bild:
+
+<figure class="media media--credit-overlay">
+    <img
+        class="media__image"
+        src="/assets/images/beispiel.jpg"
+        alt="Studierende auf dem Campus"
+    >
+
+    <figcaption class="media__credit media__credit--overlay media__credit--bottom-right">
+        Bildquelle: Max Mustermann
+    </figcaption>
+</figure>
+
+
+Bildunterschrift und Quelle unter dem Bild:
+
+<figure class="media">
+    <img
+        class="media__image"
+        src="/assets/images/beispiel.jpg"
+        alt="Studierende in einem Seminarraum"
+    >
+
+    <figcaption class="media__caption">
+        <span class="media__caption-title">
+            Studierende am Institut für Publizistik- und Kommunikationswissenschaft
+        </span>
+
+        <span class="media__credit media__credit--below">
+            Bildquelle: Michael Fahrig
+        </span>
+    </figcaption>
+</figure>
+
+
+Bild mit festem Verhältnis und Bildquelle im Bild:
+
+<figure class="media media--ratio-16-9 media--credit-overlay">
+    <img
+        class="media__image"
+        src="/assets/images/beispiel.jpg"
+        alt="Studierende auf dem Campus"
+    >
+
+    <figcaption class="media__credit media__credit--vertical">
+        Bildquelle: Max Mustermann
+    </figcaption>
+</figure>
+
+
+Bild mit festem Verhältnis und Caption darunter:
+
+Wichtig:
+Wenn eine Caption unter dem Bild stehen soll, sollte das Seitenverhältnis nicht
+auf dem äußeren <figure> liegen. Sonst wird die Caption in das Seitenverhältnis
+hineingerechnet. Nutze dafür .media__frame.
+
+<figure class="media">
+    <div class="media__frame media__frame--ratio-16-9">
+        <img
+            class="media__image"
+            src="/assets/images/beispiel.jpg"
+            alt="Studierende in einem Seminarraum"
+        >
+    </div>
+
+    <figcaption class="media__caption">
+        <span class="media__caption-title">
+            Studierende am Institut für Publizistik- und Kommunikationswissenschaft
+        </span>
+
+        <span class="media__credit media__credit--below">
+            Bildquelle: Michael Fahrig
+        </span>
+    </figcaption>
+</figure>
+
+
+Illustration vollständig anzeigen:
+
+<figure class="media media--surface">
+    <div class="media__frame media__frame--contain media__frame--ratio-4-3">
+        <img
+            class="media__image"
+            src="/assets/images/illustration.svg"
+            alt="Beschreibung der Illustration"
+        >
+    </div>
+
+    <figcaption class="media__caption">
+        <span class="media__caption-title">
+            Schematische Darstellung des Serviceportals
+        </span>
+    </figcaption>
+</figure>
+
+
+Galerie:
+
+<div class="media-gallery media-gallery--3">
+    <figure class="media media--ratio-4-3 media--credit-overlay">
+        <img class="media__image" src="/assets/images/a.jpg" alt="">
+        <figcaption class="media__credit media__credit--vertical">
+            Bildquelle: Name
+        </figcaption>
+    </figure>
+
+    <figure class="media media--ratio-4-3 media--credit-overlay">
+        <img class="media__image" src="/assets/images/b.jpg" alt="">
+        <figcaption class="media__credit media__credit--vertical">
+            Bildquelle: Name
+        </figcaption>
+    </figure>
+
+    <figure class="media media--ratio-4-3 media--credit-overlay">
+        <img class="media__image" src="/assets/images/c.jpg" alt="">
+        <figcaption class="media__credit media__credit--vertical">
+            Bildquelle: Name
+        </figcaption>
+    </figure>
+</div>
+
+
+Container-Kompatibilität:
+
+<figure class="container__media container__media--cover container__media--ratio-16-9 media media--credit-overlay">
+    <img
+        class="media__image"
+        src="/assets/images/home/studium.jpg"
+        alt="Studierende"
+    >
+
+    <figcaption class="media__credit media__credit--vertical">
+        Bildquelle: VDBS / Max Mustermann
+    </figcaption>
+</figure>
+
+
+Container mit Caption unter dem Bild:
+
+<figure class="container__media media">
+    <div class="media__frame media__frame--cover media__frame--ratio-16-9">
+        <img
+            class="media__image"
+            src="/assets/images/home/studium.jpg"
+            alt="Studierende"
+        >
+    </div>
+
+    <figcaption class="media__caption">
+        <span class="media__caption-title">
+            Studierende in einem Seminar
+        </span>
+
+        <span class="media__credit media__credit--below">
+            Bildquelle: VDBS / Max Mustermann
+        </span>
+    </figcaption>
+</figure>
+
+
+Rundungslogik
+------------------------------------------------------------------------------
+Default:
+- keine abgerundeten Ecken
+
+Optionale Rundungen:
+- .media--rounded
+- .media__frame--rounded
+- .media-card--rounded
+- .media-gallery--rounded
+
+Wichtig:
+Bei Galerien werden mit .media-gallery--rounded nur die äußeren Medienelemente
+gerundet. Innenkanten zwischen Bildern bleiben gerade.
+
+
+Kontrastlogik
+------------------------------------------------------------------------------
+Bildquellen müssen auf Bildern und Flächen lesbar bleiben.
+
+Grundregeln:
+- Credits unter Bildern nutzen gedämpften Ink-Text.
+- Credits im Bild nutzen standardmäßig ein dunkles halbtransparentes Overlay
+  mit weißer Schrift.
+- Helle Overlay-Variante ist optional für sehr dunkle Bilder.
+- Links werden nicht in zu hellen Akzentfarben gesetzt, sondern abgedunkelt.
+- Kleine Texte wie Credits sollten nie direkt Primary, CTA, Sun oder Lime auf
+  Weiß nutzen, weil der Kontrast zu schwach sein kann.
+
+
+Farblogik
+------------------------------------------------------------------------------
+Alle Farben kommen aus tokens.css.
+
+Verwendete Tokens:
+- --color-ink
+- --color-white
+- --color-surface-bg
+- --color-primary
+- --color-secondary-cta
+- --color-secondary-highlight
+- --color-accent-amber
+- --color-accent-teal
+- --color-accent-berry
+- --color-accent-sun
+- --color-accent-lime
+- --color-status-success
+- --color-status-error
+- --color-status-warning
+- --color-status-info
+
+Einheitliche Farbmischungen:
+- schwächere Farbe:
+  color-mix(in srgb, [FARBE] 70%, var(--color-white))
+
+- sicherer Akzenttext:
+  color-mix(in srgb, [FARBE] 42%, var(--color-ink))
+
+- dunkles Overlay:
+  color-mix(in srgb, var(--color-ink) 82%, transparent)
+
+- helles Overlay:
+  color-mix(in srgb, var(--color-white) 90%, transparent)
+
+- Border:
+  color-mix(in srgb, var(--color-ink) 16%, transparent)
+
+- Fokus-Ring:
+  color-mix(in srgb, var(--color-primary) 32%, transparent)
+
+
+Klassenübersicht
+==============================================================================
+
+Basis
+------------------------------------------------------------------------------
+
+.media
+- Allgemeiner Wrapper für Bilder, Videos oder eingebettete Medien.
+- Meist auf <figure> verwenden.
+
+.media__frame
+- Innerer Bildrahmen.
+- Besonders wichtig, wenn ein Bild ein festes Seitenverhältnis haben soll,
+  aber darunter noch eine Caption steht.
+
+.media__image
+- Bild innerhalb der Media-Komponente.
+
+.media__video
+- Video innerhalb der Media-Komponente.
+
+.media__iframe
+- Eingebetteter Inhalt, zum Beispiel Karte oder Video.
+
+
+Caption / Bildunterschrift
+------------------------------------------------------------------------------
+
+.media__caption
+- Bildunterschrift unter dem Bild.
+- Enthält optional Beschreibung und Bildquelle.
+- Hat eine dezente Trennlinie unten.
+
+.media__caption-title
+- Erste Zeile der Bildunterschrift.
+- Meist beschreibender Bildtext.
+
+.media__caption-text
+- Ergänzender Beschreibungstext.
+
+.media__caption--no-border
+- Entfernt die Trennlinie unter der Caption.
+
+.media__caption--compact
+- Kompaktere Caption.
+
+
+Bildquelle
+------------------------------------------------------------------------------
+
+.media__credit
+- Bildquelle oder Copyright-Hinweis.
+
+.media__credit-label
+- Kleines Label wie „Bild:“ oder „Bildquelle:“.
+
+.media__credit-text
+- Name der Quelle oder Urheber:innenangabe.
+
+.media__credit-link
+- Link zur Quelle oder Lizenz.
+
+.media__credit--below
+- Quelle unter dem Bild, meist innerhalb von .media__caption.
+
+.media__credit--overlay
+- Quelle als horizontales Overlay auf dem Bild.
+
+.media__credit--vertical
+- Quelle vertikal am rechten Bildrand.
+
+.media__credit--top-left
+.media__credit--top-right
+.media__credit--bottom-left
+.media__credit--bottom-right
+- Position des horizontalen Overlays.
+
+.media__credit--dark
+- Dunkles Overlay mit weißer Schrift.
+
+.media__credit--light
+- Helles Overlay mit Ink-Schrift.
+
+.media__credit--compact
+- Kompaktere Quelle.
+
+.media__credit--hidden
+- Visuell versteckt, aber für Screenreader lesbar.
+
+
+Flächen und Rahmen
+------------------------------------------------------------------------------
+
+.media--surface
+- Helle Hintergrundfläche.
+
+.media--white
+- Weißer Hintergrund.
+
+.media--ink
+- Dunkler Hintergrund.
+
+.media--bordered
+- Rahmen um das Medium.
+
+.media--framed
+- Rahmen plus Innenabstand.
+
+.media--shadow
+- Dezenter Schatten.
+
+.media--rounded
+- Optionale Rundung.
+- Default bleibt ohne Rundung.
+
+
+Bildverhalten
+------------------------------------------------------------------------------
+
+.media--cover
+.media__frame--cover
+- Bild füllt den verfügbaren Bereich und wird ggf. zugeschnitten.
+
+.media--contain
+.media__frame--contain
+- Bild wird vollständig angezeigt und nicht zugeschnitten.
+
+.media--ratio-21-9
+.media--ratio-16-9
+.media--ratio-3-2
+.media--ratio-4-3
+.media--ratio-1-1
+.media--ratio-3-4
+.media--ratio-auto
+- Verhältnisoptionen für das äußere .media-Element.
+
+.media__frame--ratio-21-9
+.media__frame--ratio-16-9
+.media__frame--ratio-3-2
+.media__frame--ratio-4-3
+.media__frame--ratio-1-1
+.media__frame--ratio-3-4
+.media__frame--ratio-auto
+- Verhältnisoptionen für den inneren Bildrahmen.
+
+
+Galerien
+------------------------------------------------------------------------------
+
+.media-gallery
+- Grid für mehrere Medien.
+
+.media-gallery--2
+.media-gallery--3
+.media-gallery--4
+- Spaltenanzahl.
+
+.media-gallery--compact
+- Kleinere Abstände.
+
+.media-gallery--loose
+- Größere Abstände.
+
+.media-gallery--rounded
+- Nur äußere Ecken der Galerie abrunden.
+
+
+Media Cards
+------------------------------------------------------------------------------
+
+.media-card
+- Kombination aus Medium, Text und optionaler Aktion.
+
+.media-card__body
+- Textbereich.
+
+.media-card__title
+- Titel.
+
+.media-card__text
+- Beschreibung.
+
+.media-card__meta
+- Zusatzinformation.
+
+.media-card__actions
+- Buttonbereich.
+
+.media-card--surface
+.media-card--white
+.media-card--primary
+.media-card--secondary-cta
+.media-card--plum
+- Farbvarianten.
+
+.media-card--rounded
+- Optionale Rundung.
+
+
+Barrierefreiheit
+------------------------------------------------------------------------------
+- Aussagekräftige Bilder brauchen ein sinnvolles alt-Attribut.
+- Dekorative Bilder bekommen alt="".
+- Bildquellen können in <figcaption> stehen.
+- Wichtige inhaltliche Quellen sollten nicht ausschließlich als Overlay
+  erscheinen, wenn sie leicht übersehen werden können.
+- Links in Credits brauchen erkennbare Fokus-Stile.
+- Text auf Bild sollte immer mit ausreichend starkem Overlay abgesichert werden.
+*/
+
+
+/* ==========================================================================
+   Tokens
+   ========================================================================== */
+
+:root {
+    --media-radius: 0px;
+    --media-radius-rounded: 1rem;
+
+    --media-bg: transparent;
+    --media-surface-bg: var(--color-surface-bg);
+    --media-text: var(--color-ink);
+    --media-text-muted: color-mix(in srgb, var(--color-ink) 78%, var(--color-white));
+    --media-text-soft: color-mix(in srgb, var(--color-ink) 68%, var(--color-white));
+
+    --media-border: color-mix(in srgb, var(--color-ink) 16%, transparent);
+    --media-border-subtle: color-mix(in srgb, var(--color-ink) 18%, transparent);
+    --media-border-strong: color-mix(in srgb, var(--color-ink) 28%, transparent);
+
+    --media-shadow: 0 1rem 3rem color-mix(in srgb, var(--color-ink) 18%, transparent);
+
+    --media-focus-ring: color-mix(in srgb, var(--color-primary) 32%, transparent);
+
+    --media-safe-link-text: color-mix(in srgb,
+            var(--color-secondary-cta) 42%,
+            var(--color-ink));
+
+    --media-safe-link-text-hover: var(--color-ink);
+
+    --media-credit-bg-dark: color-mix(in srgb, var(--color-ink) 82%, transparent);
+    --media-credit-bg-light: color-mix(in srgb, var(--color-white) 90%, transparent);
+
+    --media-credit-text-dark: var(--color-white);
+    --media-credit-text-light: var(--color-ink);
+
+    --media-credit-padding-y: 0.35rem;
+    --media-credit-padding-x: 0.5rem;
+    --media-credit-font-size: 0.78rem;
+    --media-credit-line-height: 1.25;
+
+    --media-credit-vertical-padding-y: 0.4rem;
+    --media-credit-vertical-padding-x: 0.32rem;
+    --media-credit-vertical-font-size: 0.76rem;
+
+    --media-caption-padding-top: 0.5rem;
+    --media-caption-padding-bottom: 0.5rem;
+    --media-caption-font-size: 0.75rem;
+    --media-caption-line-height: 1.45;
+
+    --media-gap: var(--spacing-3, 1rem);
+    --media-gallery-gap: var(--spacing-4, 1.5rem);
+
+    --media-card-padding: var(--spacing-4, 1.5rem);
+    --media-card-bg: var(--color-white);
+    --media-card-text: var(--color-ink);
+    --media-card-muted: color-mix(in srgb, var(--color-ink) 76%, var(--color-white));
+
+    --media-transition: 180ms ease-in-out;
+}
+
+
+/* ==========================================================================
+   Media Basis
+   ========================================================================== */
+
+.media {
+    position: relative;
+
+    width: 100%;
+    margin: 0;
+
+    display: block;
+
+    color: var(--media-text);
+    background: var(--media-bg);
+    border-radius: var(--media-radius);
+
+    overflow: visible;
+}
+
+.media__frame {
+    position: relative;
+
+    width: 100%;
+    margin: 0;
+
+    display: block;
+
+    color: inherit;
+    background: transparent;
+    border-radius: var(--media-radius);
+
+    overflow: hidden;
+}
+
+.media__image,
+.media__video,
+.media__iframe,
+.media>img,
+.media>video,
+.media>iframe,
+.media>picture>img,
+.media__frame>img,
+.media__frame>video,
+.media__frame>iframe,
+.media__frame>picture>img {
+    display: block;
+
+    width: 100%;
+    height: auto;
+
+    color: inherit;
+    background: transparent;
+    border: 0;
+}
+
+.media__image,
+.media>img,
+.media>picture>img,
+.media__frame>img,
+.media__frame>picture>img {
+    object-fit: cover;
+}
+
+.media__video,
+.media>video,
+.media__frame>video {
+    object-fit: cover;
+}
+
+.media__iframe,
+.media>iframe,
+.media__frame>iframe {
+    aspect-ratio: 16 / 9;
+    min-height: 16rem;
+}
+
+
+/* ==========================================================================
+   Flächen und Rahmen
+   ========================================================================== */
+
+.media--surface {
+    --media-bg: var(--color-surface-bg);
+}
+
+.media--white {
+    --media-bg: var(--color-white);
+}
+
+.media--ink {
+    --media-bg: var(--color-ink);
+    --media-text: var(--color-white);
+    --media-text-muted: color-mix(in srgb, var(--color-white) 86%, var(--color-ink));
+    --media-text-soft: color-mix(in srgb, var(--color-white) 76%, var(--color-ink));
+}
+
+.media--bordered {
+    border: 1px solid var(--media-border);
+}
+
+.media--framed {
+    padding: var(--spacing-3, 1rem);
+
+    background: var(--media-bg);
+    border: 1px solid var(--media-border);
+}
+
+.media--shadow {
+    box-shadow: var(--media-shadow);
+}
+
+.media--rounded {
+    border-radius: var(--media-radius-rounded);
+    overflow: hidden;
+}
+
+.media__frame--rounded {
+    border-radius: var(--media-radius-rounded);
+    overflow: hidden;
+}
+
+
+/* ==========================================================================
+   Bildverhalten
+   ========================================================================== */
+
+.media--cover .media__image,
+.media--cover .media__video,
+.media--cover>img,
+.media--cover>video,
+.media--cover>picture>img,
+.media__frame--cover .media__image,
+.media__frame--cover .media__video,
+.media__frame--cover>img,
+.media__frame--cover>video,
+.media__frame--cover>picture>img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+.media--contain,
+.media__frame--contain {
+    display: grid;
+    place-items: center;
+}
+
+.media--contain .media__image,
+.media--contain .media__video,
+.media--contain>img,
+.media--contain>video,
+.media--contain>picture>img,
+.media__frame--contain .media__image,
+.media__frame--contain .media__video,
+.media__frame--contain>img,
+.media__frame--contain>video,
+.media__frame--contain>picture>img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+}
+
+
+/* ==========================================================================
+   Verhältnisoptionen auf .media
+   ========================================================================== */
+
+.media--ratio-auto {
+    aspect-ratio: auto;
+}
+
+.media--ratio-21-9 {
+    aspect-ratio: 21 / 9;
+    overflow: hidden;
+}
+
+.media--ratio-16-9 {
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+}
+
+.media--ratio-3-2 {
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+}
+
+.media--ratio-4-3 {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+}
+
+.media--ratio-1-1 {
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+}
+
+.media--ratio-3-4 {
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+}
+
+.media--ratio-21-9 .media__image,
+.media--ratio-16-9 .media__image,
+.media--ratio-3-2 .media__image,
+.media--ratio-4-3 .media__image,
+.media--ratio-1-1 .media__image,
+.media--ratio-3-4 .media__image,
+.media--ratio-21-9 .media__video,
+.media--ratio-16-9 .media__video,
+.media--ratio-3-2 .media__video,
+.media--ratio-4-3 .media__video,
+.media--ratio-1-1 .media__video,
+.media--ratio-3-4 .media__video,
+.media--ratio-21-9>img,
+.media--ratio-16-9>img,
+.media--ratio-3-2>img,
+.media--ratio-4-3>img,
+.media--ratio-1-1>img,
+.media--ratio-3-4>img,
+.media--ratio-21-9>video,
+.media--ratio-16-9>video,
+.media--ratio-3-2>video,
+.media--ratio-4-3>video,
+.media--ratio-1-1>video,
+.media--ratio-3-4>video,
+.media--ratio-21-9>picture>img,
+.media--ratio-16-9>picture>img,
+.media--ratio-3-2>picture>img,
+.media--ratio-4-3>picture>img,
+.media--ratio-1-1>picture>img,
+.media--ratio-3-4>picture>img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+
+/* ==========================================================================
+   Verhältnisoptionen auf .media__frame
+   ========================================================================== */
+
+.media__frame--ratio-auto {
+    aspect-ratio: auto;
+}
+
+.media__frame--ratio-21-9 {
+    aspect-ratio: 21 / 9;
+}
+
+.media__frame--ratio-16-9 {
+    aspect-ratio: 16 / 9;
+}
+
+.media__frame--ratio-3-2 {
+    aspect-ratio: 3 / 2;
+}
+
+.media__frame--ratio-4-3 {
+    aspect-ratio: 4 / 3;
+}
+
+.media__frame--ratio-1-1 {
+    aspect-ratio: 1 / 1;
+}
+
+.media__frame--ratio-3-4 {
+    aspect-ratio: 3 / 4;
+}
+
+.media__frame--ratio-21-9 .media__image,
+.media__frame--ratio-16-9 .media__image,
+.media__frame--ratio-3-2 .media__image,
+.media__frame--ratio-4-3 .media__image,
+.media__frame--ratio-1-1 .media__image,
+.media__frame--ratio-3-4 .media__image,
+.media__frame--ratio-21-9 .media__video,
+.media__frame--ratio-16-9 .media__video,
+.media__frame--ratio-3-2 .media__video,
+.media__frame--ratio-4-3 .media__video,
+.media__frame--ratio-1-1 .media__video,
+.media__frame--ratio-3-4 .media__video,
+.media__frame--ratio-21-9>img,
+.media__frame--ratio-16-9>img,
+.media__frame--ratio-3-2>img,
+.media__frame--ratio-4-3>img,
+.media__frame--ratio-1-1>img,
+.media__frame--ratio-3-4>img,
+.media__frame--ratio-21-9>video,
+.media__frame--ratio-16-9>video,
+.media__frame--ratio-3-2>video,
+.media__frame--ratio-4-3>video,
+.media__frame--ratio-1-1>video,
+.media__frame--ratio-3-4>video,
+.media__frame--ratio-21-9>picture>img,
+.media__frame--ratio-16-9>picture>img,
+.media__frame--ratio-3-2>picture>img,
+.media__frame--ratio-4-3>picture>img,
+.media__frame--ratio-1-1>picture>img,
+.media__frame--ratio-3-4>picture>img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+
+/* ==========================================================================
+   Caption / Bildunterschrift
+   ========================================================================== */
+
+.media__caption {
+    padding: var(--media-caption-padding-top) 0 var(--media-caption-padding-bottom);
+
+    color: var(--media-text-muted);
+    background: transparent;
+    border-bottom: 1px solid var(--media-border-subtle);
+
+    font-size: var(--media-caption-font-size);
+    line-height: var(--media-caption-line-height);
+}
+
+.media__caption> :first-child {
+    margin-top: 0;
+}
+
+.media__caption> :last-child {
+    margin-bottom: 0;
+}
+
+.media__caption-title {
+    display: block;
+
+    margin: 0;
+
+    color: color-mix(in srgb, var(--color-ink) 84%, var(--color-white));
+    font-size: var(--media-caption-font-size);
+    font-weight: var(--font-weight-regular, 500);
+    line-height: var(--media-caption-line-height);
+}
+
+.media__caption-text {
+    display: block;
+
+    margin: 0;
+
+    color: var(--media-text-muted);
+    font-size: var(--media-caption-font-size);
+    font-weight: var(--font-weight-regular, 500);
+    line-height: var(--media-caption-line-height);
+}
+
+.media__caption-title+.media__caption-text,
+.media__caption-title+.media__credit,
+.media__caption-text+.media__credit {
+    margin-top: 0.1rem;
+}
+
+.media__caption--compact {
+    --media-caption-padding-top: 0.35rem;
+    --media-caption-padding-bottom: 0.35rem;
+    --media-caption-font-size: 0.82rem;
+}
+
+.media__caption--no-border {
+    border-bottom: 0;
+}
+
+.media__caption strong {
+    color: var(--media-text);
+}
+
+.media__caption a {
+    color: var(--media-safe-link-text);
+
+    font-weight: var(--font-weight-bold, 700);
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.18em;
+}
+
+.media__caption a:hover,
+.media__caption a:focus {
+    color: var(--media-safe-link-text-hover);
+}
+
+.media__caption a:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--media-focus-ring);
+}
+
+
+/* ==========================================================================
+   Bildquelle / Credit
+   ========================================================================== */
+
+.media__credit {
+    max-width: min(28rem, calc(100% - 1rem));
+
+    color: var(--media-text-muted);
+    font-size: var(--media-credit-font-size);
+    font-weight: var(--font-weight-regular, 500);
+    line-height: var(--media-credit-line-height);
+}
+
+.media__credit-label {
+    color: inherit;
+    font-weight: var(--font-weight-regular, 500);
+}
+
+.media__credit-text {
+    color: inherit;
+    font-weight: var(--font-weight-regular, 500);
+}
+
+.media__credit-link {
+    color: var(--media-safe-link-text);
+
+    font-weight: var(--font-weight-bold, 700);
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.16em;
+}
+
+.media__credit-link:hover,
+.media__credit-link:focus {
+    color: var(--media-safe-link-text-hover);
+}
+
+.media__credit-link:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--media-focus-ring);
+}
+
+
+/* Quelle unterhalb des Bildes */
+
+.media__credit--below {
+    display: block;
+
+    margin: 0.1rem 0 0;
+    padding: 0;
+
+    color: var(--media-text-muted);
+    background: transparent;
+
+    font-size: var(--media-caption-font-size);
+    font-weight: var(--font-weight-regular, 500);
+    line-height: 1.4;
+}
+
+
+/* Quelle als horizontales Overlay */
+
+.media__credit--overlay,
+.media--credit-overlay .media__credit:not(.media__credit--below):not(.media__credit--vertical) {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+
+    max-width: min(28rem, calc(100% - 1rem));
+
+    padding: var(--media-credit-padding-y) var(--media-credit-padding-x);
+
+    color: var(--media-credit-text-dark);
+    background: var(--media-credit-bg-dark);
+
+    font-size: var(--media-credit-font-size);
+    font-weight: var(--font-weight-regular, 500);
+    line-height: var(--media-credit-line-height);
+}
+
+
+/* Overlay-Positionen */
+
+.media__credit--top-left {
+    top: 0;
+    right: auto;
+    bottom: auto;
+    left: 0;
+}
+
+.media__credit--top-right {
+    top: 0;
+    right: 0;
+    bottom: auto;
+    left: auto;
+}
+
+.media__credit--bottom-left {
+    top: auto;
+    right: auto;
+    bottom: 0;
+    left: 0;
+}
+
+.media__credit--bottom-right {
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: auto;
+}
+
+
+/* Vertikale Quelle am rechten Bildrand */
+
+.media__credit--vertical {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: auto;
+    left: auto;
+    z-index: 2;
+
+    max-width: none;
+    max-height: 100%;
+
+    padding:
+        var(--media-credit-vertical-padding-y) var(--media-credit-vertical-padding-x);
+
+    color: var(--media-credit-text-dark);
+    background: var(--media-credit-bg-dark);
+
+    font-size: var(--media-credit-vertical-font-size);
+    font-weight: var(--font-weight-regular, 500);
+    line-height: 1.2;
+    white-space: nowrap;
+
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+}
+
+
+/* Helles Overlay für sehr dunkle Bilder */
+
+.media__credit--light {
+    color: var(--media-credit-text-light);
+    background: var(--media-credit-bg-light);
+}
+
+
+/* Dunkles Overlay explizit */
+
+.media__credit--dark {
+    color: var(--media-credit-text-dark);
+    background: var(--media-credit-bg-dark);
+}
+
+
+/* Kompakte Quelle */
+
+.media__credit--compact {
+    --media-credit-padding-y: 0.25rem;
+    --media-credit-padding-x: 0.38rem;
+    --media-credit-font-size: 0.7rem;
+    --media-credit-vertical-padding-y: 0.25rem;
+    --media-credit-vertical-padding-x: 0.28rem;
+    --media-credit-vertical-font-size: 0.68rem;
+}
+
+
+/* Visuell versteckte Quelle */
+
+.media__credit--hidden {
+    position: absolute;
+
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+
+    border: 0;
+}
+
+
+/* ==========================================================================
+   Media Overlay für Text
+   ========================================================================== */
+
+.media__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+
+    display: grid;
+    align-content: end;
+    gap: var(--spacing-2, 0.5rem);
+
+    padding: var(--spacing-4, 1.5rem);
+
+    color: var(--color-white);
+    background: linear-gradient(180deg,
+            transparent 0%,
+            color-mix(in srgb, var(--color-ink) 72%, transparent) 100%);
+
+    pointer-events: none;
+}
+
+.media__overlay-title {
+    margin: 0;
+
+    color: inherit;
+    font-size: clamp(1.25rem, 3vw, 2rem);
+    font-weight: var(--font-weight-bold, 700);
+    line-height: 1.15;
+}
+
+.media__overlay-text {
+    max-width: 42rem;
+    margin: 0;
+
+    color: color-mix(in srgb, var(--color-white) 88%, var(--color-ink));
+    line-height: 1.45;
+}
+
+
+/* ==========================================================================
+   Galerie
+   ========================================================================== */
+
+.media-gallery {
+    display: grid;
+    gap: var(--media-gallery-gap);
+
+    width: 100%;
+}
+
+.media-gallery--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.media-gallery--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.media-gallery--4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.media-gallery--auto {
+    grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+}
+
+.media-gallery--compact {
+    --media-gallery-gap: var(--spacing-2, 0.5rem);
+}
+
+.media-gallery--loose {
+    --media-gallery-gap: var(--spacing-6, 2.5rem);
+}
+
+
+/* Galerie: nur äußere Ecken abrunden */
+
+.media-gallery--rounded {
+    border-radius: var(--media-radius-rounded);
+}
+
+.media-gallery--rounded>.media {
+    border-radius: 0;
+}
+
+.media-gallery--rounded>.media:first-child {
+    border-start-start-radius: var(--media-radius-rounded);
+}
+
+.media-gallery--rounded>.media:last-child {
+    border-end-end-radius: var(--media-radius-rounded);
+}
+
+.media-gallery--rounded.media-gallery--2>.media:nth-child(2),
+.media-gallery--rounded.media-gallery--3>.media:nth-child(3),
+.media-gallery--rounded.media-gallery--4>.media:nth-child(4) {
+    border-start-end-radius: var(--media-radius-rounded);
+}
+
+.media-gallery--rounded.media-gallery--2>.media:nth-last-child(2),
+.media-gallery--rounded.media-gallery--3>.media:nth-last-child(3),
+.media-gallery--rounded.media-gallery--4>.media:nth-last-child(4) {
+    border-end-start-radius: var(--media-radius-rounded);
+}
+
+.media-gallery--rounded>.media:only-child {
+    border-radius: var(--media-radius-rounded);
+}
+
+
+/* ==========================================================================
+   Media Card
+   ========================================================================== */
+
+.media-card {
+    display: grid;
+    gap: 0;
+
+    color: var(--media-card-text);
+    background: var(--media-card-bg);
+    border: 1px solid var(--media-border);
+    border-radius: var(--media-radius);
+
+    overflow: hidden;
+}
+
+.media-card__body {
+    display: grid;
+    gap: var(--spacing-3, 1rem);
+
+    padding: var(--media-card-padding);
+}
+
+.media-card__title {
+    margin: 0;
+
+    color: var(--media-card-text);
+    font-size: clamp(1.25rem, 2vw, 1.6rem);
+    font-weight: var(--font-weight-bold, 700);
+    line-height: 1.2;
+}
+
+.media-card__text {
+    margin: 0;
+
+    color: var(--media-card-muted);
+    line-height: 1.5;
+}
+
+.media-card__meta {
+    margin: 0;
+
+    color: var(--media-card-muted);
+    font-size: 0.9rem;
+    font-weight: var(--font-weight-bold, 700);
+}
+
+.media-card__actions {
+    margin-top: var(--spacing-2, 0.5rem);
+}
+
+.media-card--surface {
+    --media-card-bg: var(--color-surface-bg);
+    --media-card-text: var(--color-ink);
+    --media-card-muted: color-mix(in srgb, var(--color-ink) 76%, var(--color-surface-bg));
+}
+
+.media-card--white {
+    --media-card-bg: var(--color-white);
+    --media-card-text: var(--color-ink);
+    --media-card-muted: color-mix(in srgb, var(--color-ink) 76%, var(--color-white));
+}
+
+.media-card--primary {
+    --media-card-bg: color-mix(in srgb, var(--color-primary) 70%, var(--color-white));
+    --media-card-text: var(--color-ink);
+    --media-card-muted: color-mix(in srgb, var(--color-ink) 76%, var(--media-card-bg));
+}
+
+.media-card--secondary-cta {
+    --media-card-bg: color-mix(in srgb, var(--color-secondary-cta) 70%, var(--color-white));
+    --media-card-text: var(--color-ink);
+    --media-card-muted: color-mix(in srgb, var(--color-ink) 76%, var(--media-card-bg));
+}
+
+.media-card--plum,
+.media-card--secondary-highlight {
+    --media-card-bg: var(--color-secondary-highlight);
+    --media-card-text: var(--color-white);
+    --media-card-muted: color-mix(in srgb, var(--color-white) 86%, var(--color-secondary-highlight));
+}
+
+.media-card--rounded {
+    border-radius: var(--media-radius-rounded);
+}
+
+
+/* ==========================================================================
+   Kompatibilität mit bestehenden Komponenten
+   ========================================================================== */
+
+.hero__credit {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+
+    padding:
+        var(--media-credit-vertical-padding-y) var(--media-credit-vertical-padding-x);
+
+    color: var(--media-credit-text-dark);
+    background: var(--media-credit-bg-dark);
+
+    font-size: var(--media-credit-vertical-font-size);
+    font-weight: var(--font-weight-regular, 500);
+    line-height: 1.2;
+    white-space: nowrap;
+
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+}
+
+.tile-card__credit {
+    color: var(--media-credit-text-dark);
+    background: var(--media-credit-bg-dark);
+}
+
+
+/* ==========================================================================
+   Utilities
+   ========================================================================== */
+
+.media--full-width {
+    width: 100%;
+}
+
+.media--max-content {
+    width: max-content;
+    max-width: 100%;
+}
+
+.media--center {
+    margin-inline: auto;
+}
+
+.media--align-start {
+    justify-self: start;
+}
+
+.media--align-center {
+    justify-self: center;
+}
+
+.media--align-end {
+    justify-self: end;
+}
+
+.media--no-overflow {
+    overflow: hidden;
+}
+
+.media--no-margin {
+    margin: 0;
+}
+
+
+/* ==========================================================================
+   Responsive Verhalten
+   ========================================================================== */
+
+@media (max-width: 900px) {
+
+    .media-gallery--3,
+    .media-gallery--4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .media-gallery--rounded>.media {
+        border-radius: 0;
+    }
+
+    .media-gallery--rounded>.media:first-child {
+        border-start-start-radius: var(--media-radius-rounded);
+    }
+
+    .media-gallery--rounded>.media:nth-child(2) {
+        border-start-end-radius: var(--media-radius-rounded);
+    }
+
+    .media-gallery--rounded>.media:nth-last-child(2) {
+        border-end-start-radius: var(--media-radius-rounded);
+    }
+
+    .media-gallery--rounded>.media:last-child {
+        border-end-end-radius: var(--media-radius-rounded);
+    }
+}
+
+@media (max-width: 720px) {
+
+    .media-gallery--2,
+    .media-gallery--3,
+    .media-gallery--4 {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .media-gallery--rounded>.media,
+    .media-gallery--rounded>.media:first-child,
+    .media-gallery--rounded>.media:nth-child(2),
+    .media-gallery--rounded>.media:nth-child(3),
+    .media-gallery--rounded>.media:nth-child(4),
+    .media-gallery--rounded>.media:nth-last-child(2),
+    .media-gallery--rounded>.media:nth-last-child(3),
+    .media-gallery--rounded>.media:nth-last-child(4),
+    .media-gallery--rounded>.media:last-child {
+        border-radius: 0;
+    }
+
+    .media-gallery--rounded>.media:first-child {
+        border-start-start-radius: var(--media-radius-rounded);
+        border-start-end-radius: var(--media-radius-rounded);
+    }
+
+    .media-gallery--rounded>.media:last-child {
+        border-end-start-radius: var(--media-radius-rounded);
+        border-end-end-radius: var(--media-radius-rounded);
+    }
+
+    .media__overlay {
+        padding: var(--spacing-3, 1rem);
+    }
+
+    .media__credit--vertical,
+    .hero__credit {
+        writing-mode: horizontal-tb;
+        transform: none;
+
+        top: auto;
+        right: 0;
+        bottom: 0;
+        left: auto;
+
+        max-width: min(28rem, calc(100% - 1rem));
+
+        padding: var(--media-credit-padding-y) var(--media-credit-padding-x);
+
+        font-size: var(--media-credit-font-size);
+        line-height: var(--media-credit-line-height);
+    }
+}
+
+@media (max-width: 560px) {
+    .media-card__body {
+        padding: var(--spacing-3, 1rem);
+    }
+
+    .media__credit {
+        max-width: calc(100% - 0.5rem);
+    }
+
+    .media__credit--overlay,
+    .media--credit-overlay .media__credit:not(.media__credit--below):not(.media__credit--vertical),
+    .media__credit--vertical,
+    .hero__credit {
+        font-size: 0.7rem;
+    }
+
+    .media__caption {
+        font-size: 0.84rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .media,
+    .media__image,
+    .media__video,
+    .media-card {
+        transition: none;
+    }
+}
