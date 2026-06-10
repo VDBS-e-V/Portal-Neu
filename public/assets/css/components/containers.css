@@ -1,44 +1,652 @@
 /* Containers component
-	Bereich
-	- Grundlegende Layout-Container, Reihen- und Spalten-Utilities sowie Hilfsklassen für responsive Strukturen.
+   ==========================================================================
+   Zweck
+   --------------------------------------------------------------------------
+   Diese Datei steuert Inhaltscontainer innerhalb von <section>-Elementen.
 
-	Ziel
-	- Ein konsistentes Seitenraster bereitstellen.
-	- Häufige Layoutmuster wie zweispaltige Inhalte, vertikale Stapel und zentrierte Inhalte ohne Seiten-CSS abbilden.
+   Die Section selbst entscheidet über die äußere Fläche:
+   - <section> = normale Section ohne Background
+   - <section class="section--surface"> = Section mit Background
 
-	Grundprinzip
-	- `.container` definiert die maximale Breite und den Innenabstand.
-	- `.row`, `.col` und `stack` steuern die grobe Inhaltsanordnung.
-	- Utility-Klassen ergänzen kleinräumige Anpassungen.
+   Der .container entscheidet über die innere Anordnung:
+   - Text
+   - Buttons / Button-Gruppen
+   - Bild / Media
 
-	Wichtige Klassen
-	- Wrapper: `.container`, `.container--narrow`, `.container--wide`
-	- Zeilen/Spalten: `.row`, `.col`, `.col--one-third`, `.col--two-thirds`, `.stack`
-	- Helpers: `.center`, `.visually-hidden`
+   Wichtig
+   --------------------------------------------------------------------------
+   Die Button-Gestaltung selbst kommt NICHT aus dieser Datei.
+   Buttons und Button-Gruppen werden über buttons.css gesteuert:
 
-	Strukturhinweise
-	- `.row` und `.col` eignen sich für horizontale Anordnungen mit flexibler Breitenverteilung.
-	- `.stack` ist ideal für vertikale Formgruppen oder Inhaltsabfolgen.
-	- `.visually-hidden` bleibt für Screenreader verfügbar, ohne sichtbar zu sein.
+   - .btn
+   - .btn--primary
+   - .btn--secondary-cta
+   - .btn--secondary-highlight
+   - .btn--md
+   - .btn-group
+   - .btn-group--horizontal
+   - .btn-group--vertical
+   - .btn-group--sec-stretch
+   - .btn-group--gap-*
 
-	Hinweise zur Verwendung
-	- Die Komponenten sollen Seitenlayouts stabilisieren und Inline-Styles überflüssig machen.
-	- Für schmale Inhaltsbereiche `.container--narrow`, für breite Dashboards `.container--wide` verwenden.
+   Diese Datei positioniert Button-Gruppen nur innerhalb des Container-Layouts.
+
+
+   Grundstruktur
+   --------------------------------------------------------------------------
+
+   <section>
+       <div class="container container--text-media container--balanced">
+           <div class="container__text">
+               <h2>Überschrift</h2>
+               <p>Beschreibungstext.</p>
+           </div>
+
+           <div class="container__buttons btn-group btn-group--horizontal">
+               <a href="#" class="btn btn--primary btn--md">Primärer Button</a>
+           </div>
+
+           <figure class="container__media container__media--cover container__media--ratio-4-3">
+               <img src="bild.jpg" alt="Beschreibung des Bildes">
+           </figure>
+       </div>
+   </section>
+
+
+   Slots
+   --------------------------------------------------------------------------
+   .container__text
+   - enthält Überschrift, Fließtext, Listen oder andere Textelemente
+
+   .container__buttons
+   - enthält eine .btn-group aus buttons.css
+
+   .container__media
+   - enthält Bild, Video, SVG oder anderes visuelles Material
+
+
+   Container-Varianten
+   --------------------------------------------------------------------------
+   .container
+   - Standard: Inhalte stehen untereinander
+
+   .container--text-only
+   - reiner Textcontainer
+   - optional mit Buttons darunter
+
+   .container--text-buttons
+   - Text links, Buttons rechts
+
+   .container--text-media
+   - Text und Buttons links, Bild rechts
+
+   .container--media-text
+   - Bild links, Text und Buttons rechts
+
+   .container--balanced
+   - Text und Bild ungefähr gleich breit
+
+   .container--media-dominant
+   - Bild nimmt mehr Raum ein als Text
+
+   .container--text-dominant
+   - Text nimmt mehr Raum ein als Bild
+
+   .container--narrow
+   - schmaler, zentrierter Container
+
+   .container--center
+   - Inhalt und Text zentriert
+
+   .container--align-start
+   - Inhalt oben ausrichten
+
+   .container--align-center
+   - Inhalt vertikal mittig ausrichten
+
+   .container--mobile-media-first
+   - Bild erscheint mobil vor dem Text
+
+   .container__media--small
+   - bewusst kleinere Bildfläche
+
+   .container__media--large
+   - bewusst größere Bildfläche mit leichter Maximalbegrenzung
+
+   .container__media--full
+   - Bild darf die gesamte verfügbare Spaltenbreite nutzen
+
+   .container__media--cover
+   - Bild füllt den Rahmen und wird bei Bedarf beschnitten
+
+   .container__media--contain
+   - Bild wird vollständig angezeigt, ohne Beschnitt
+
+
+   HTML-Beispiele
+   ==========================================================================
+
+   1. Bild links, Text rechts
+   --------------------------------------------------------------------------
+
+   <section id="zugang-zum-portal">
+       <div class="container container--media-text container--balanced">
+           <figure class="container__media container__media--contain container__media--ratio-4-3">
+               <img src="/assets/images/home/home_zugang.png" alt="Zugang zum Portal">
+           </figure>
+
+           <div class="container__text">
+               <h2>Zugang zum Portal</h2>
+
+               <p>
+                   Hier finden Sie alle Informationen, die Sie benötigen, um auf
+                   das VDBS Serviceportal zuzugreifen.
+               </p>
+           </div>
+
+           <div class="container__buttons btn-group btn-group--vertical">
+               <a href="#" class="btn btn--primary btn--md">Zum Portal</a>
+           </div>
+       </div>
+   </section>
+
+
+   2. Text links, Bild rechts
+   --------------------------------------------------------------------------
+
+   <section id="kontakt" class="section--surface">
+       <div class="container container--text-media container--balanced">
+           <div class="container__text">
+               <h2>Kontakt</h2>
+
+               <p>
+                   Sollten Sie Fragen oder Probleme haben, können Sie uns
+                   jederzeit kontaktieren.
+               </p>
+           </div>
+
+           <div class="container__buttons btn-group btn-group--vertical">
+               <a href="#" class="btn btn--primary btn--md">Kontakt aufnehmen</a>
+           </div>
+
+           <figure class="container__media container__media--contain container__media--ratio-4-3">
+               <img src="/assets/images/home/home_kontakt.png" alt="Kontakt">
+           </figure>
+       </div>
+   </section>
+
+
+   3. Bild stärker gewichtet
+   --------------------------------------------------------------------------
+
+   <section>
+       <div class="container container--text-media container--media-dominant">
+           <div class="container__text">
+               <h2>Studium</h2>
+               <p>Beschreibungstext.</p>
+           </div>
+
+           <div class="container__buttons btn-group btn-group--vertical btn-group--gap-sm">
+               <a href="#" class="btn btn--primary btn--md">Studienangebot entdecken</a>
+               <a href="#" class="btn btn--secondary-cta-light btn--md">Lehramt studieren</a>
+           </div>
+
+           <figure class="container__media container__media--cover container__media--ratio-16-9">
+               <img src="/assets/images/home/studium.jpg" alt="Studierende">
+           </figure>
+       </div>
+   </section>
+
+
+   4. Text links, Buttons rechts
+   --------------------------------------------------------------------------
+
+   <section class="section--surface">
+       <div class="container container--text-buttons">
+           <div class="container__text">
+               <h2>Haltung &amp; Verantwortung</h2>
+               <p>Kurzer Beschreibungstext.</p>
+           </div>
+
+           <div class="container__buttons btn-group btn-group--vertical btn-group--sec-stretch btn-group--gap-sm">
+               <a href="#" class="btn btn--primary btn--md">Primärer Button</a>
+               <a href="#" class="btn btn--secondary-cta-light btn--md">Sekundärer Button</a>
+           </div>
+       </div>
+   </section>
+
+
+   5. Schmaler, zentrierter Textcontainer
+   --------------------------------------------------------------------------
+
+   <section class="section--surface">
+       <div class="container container--text-only container--narrow container--center">
+           <div class="container__text">
+               <h2>Ein starkes Leitbild</h2>
+               <p>Forschung, Lehre und gesellschaftliche Verantwortung gehören zusammen.</p>
+           </div>
+
+           <div class="container__buttons btn-group btn-group--vertical btn-group--main-center">
+               <a href="#" class="btn btn--primary btn--md">Mehr erfahren</a>
+           </div>
+       </div>
+   </section>
+
+
+   Responsives Verhalten
+   --------------------------------------------------------------------------
+   - Ab 900px werden mehrspaltige Container automatisch einspaltig.
+   - Text, Bild und Buttons stapeln sich dann untereinander.
+   - Standard-Reihenfolge mobil:
+     1. Text
+     2. Bild
+     3. Buttons
+   - Mit .container--mobile-media-first:
+     1. Bild
+     2. Text
+     3. Buttons
+
+   Hinweis zu Bildern
+   --------------------------------------------------------------------------
+   Für Fotos:
+   - meistens .container__media--cover verwenden
+
+   Für Illustrationen:
+   - meistens .container__media--contain verwenden
+
+   Für ungefähr 50 / 50:
+   - .container--balanced verwenden
+
+   Für großes Bild:
+   - .container--media-dominant verwenden
 */
 
-.container { max-width: var(--max-width); margin: 0 auto; padding: 0 var(--spacing-container); box-sizing: border-box; }
-.container--narrow { max-width: 900px; }
-.container--wide { max-width: 1400px; }
 
-.row { display:flex; gap: var(--spacing-3); flex-wrap:wrap; }
-.col { flex: 1 1 0; min-width: 220px; }
-.col--one-third { flex: 1 1 33%; }
-.col--two-thirds { flex: 2 1 66%; }
+/* ==========================================================================
+   Basis-Container
+   ========================================================================== */
 
-.stack { display:flex; flex-direction:column; gap: var(--spacing-2); }
+.container {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+        "text"
+        "buttons"
+        "media";
+    gap: var(--container-stack-gap, var(--spacing-4, 1.5rem));
+    align-items: start;
+}
 
-/* helpers */
-.center { display:flex; justify-content:center; align-items:center; }
-.visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 
-@media (max-width: 720px) { .col--one-third, .col--two-thirds { flex-basis: 100%; } }
+/* ==========================================================================
+   Breiten- und Ausrichtungsvarianten
+   ========================================================================== */
+
+.container--narrow {
+    max-width: var(--container-narrow-max, 48rem);
+    margin-inline: auto;
+}
+
+.container--wide {
+    max-width: none;
+}
+
+.container--center {
+    justify-items: center;
+    text-align: center;
+}
+
+.container--center .container__text,
+.container--center .container__buttons,
+.container--center .container__media {
+    justify-self: center;
+}
+
+.container--align-start {
+    align-items: start;
+}
+
+.container--align-center {
+    align-items: center;
+}
+
+.container--align-end {
+    align-items: end;
+}
+
+
+/* ==========================================================================
+   Slots
+   ========================================================================== */
+
+.container__text {
+    grid-area: text;
+    min-width: 0;
+    max-width: var(--container-text-max, 42rem);
+}
+
+.container__buttons {
+    grid-area: buttons;
+    min-width: 0;
+}
+
+.container__media {
+    grid-area: media;
+    min-width: 0;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    overflow: hidden;
+    border-radius: var(--container-media-radius, 0);
+    justify-self: stretch;
+}
+
+.container__media img,
+.container__media video,
+.container__media svg {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+}
+
+
+/* ==========================================================================
+   Button-Group-Anpassungen innerhalb von Containern
+   ========================================================================== */
+
+.container__buttons.btn-group {
+    width: 100%;
+}
+
+.container--text-buttons .container__buttons.btn-group {
+    max-width: var(--container-buttons-width, 24rem);
+}
+
+.container--center .container__buttons.btn-group {
+    justify-content: center;
+}
+
+.container--center .container__buttons.btn-group.btn-group--vertical {
+    align-items: center;
+}
+
+
+/* ==========================================================================
+   Media-Optionen
+   ========================================================================== */
+
+.container--text-media .container__media,
+.container--media-text .container__media {
+    width: 100%;
+    max-width: none;
+    justify-self: stretch;
+}
+
+.container__media--small {
+    width: min(100%, var(--container-media-small-width, 22rem));
+    max-width: var(--container-media-small-width, 22rem);
+    justify-self: start;
+}
+
+.container__media--large {
+    width: min(100%, var(--container-media-large-width, 42rem));
+    max-width: var(--container-media-large-width, 42rem);
+}
+
+.container__media--full {
+    width: 100%;
+    max-width: none;
+}
+
+.container__media--cover,
+.container__media--contain {
+    background: var(--container-media-background, transparent);
+}
+
+.container__media--cover img,
+.container__media--cover video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.container__media--contain img,
+.container__media--contain video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.container__media--ratio-16-9 {
+    aspect-ratio: 16 / 9;
+}
+
+.container__media--ratio-4-3 {
+    aspect-ratio: 4 / 3;
+}
+
+.container__media--ratio-1-1 {
+    aspect-ratio: 1 / 1;
+}
+
+.container__media--ratio-16-9 img,
+.container__media--ratio-4-3 img,
+.container__media--ratio-1-1 img,
+.container__media--ratio-16-9 video,
+.container__media--ratio-4-3 video,
+.container__media--ratio-1-1 video {
+    width: 100%;
+    height: 100%;
+}
+
+
+/* ==========================================================================
+   Container-Varianten
+   ========================================================================== */
+
+/* Nur Text, optional mit Buttons darunter */
+
+.container--text-only {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+        "text"
+        "buttons";
+}
+
+
+/* Text links, Buttons rechts */
+
+.container--text-buttons {
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(16rem, var(--container-buttons-width, 24rem));
+    grid-template-areas:
+        "text buttons";
+    column-gap: var(
+        --container-gap,
+        clamp(var(--spacing-5, 2rem), 6vw, var(--spacing-10, 5rem))
+    );
+    row-gap: var(--container-stack-gap, var(--spacing-4, 1.5rem));
+    align-items: center;
+}
+
+.container--text-buttons .container__buttons {
+    justify-self: end;
+    width: min(100%, var(--container-buttons-width, 24rem));
+}
+
+
+/* Text und Buttons links, Bild rechts */
+
+.container--text-media {
+    grid-template-columns:
+        minmax(0, var(--container-text-column, 28rem))
+        minmax(0, 1fr);
+    grid-template-areas:
+        "text media"
+        "buttons media";
+    column-gap: var(
+        --container-gap,
+        clamp(var(--spacing-5, 2rem), 6vw, var(--spacing-10, 5rem))
+    );
+    row-gap: var(--container-stack-gap, var(--spacing-4, 1.5rem));
+    align-items: center;
+}
+
+
+/* Bild links, Text und Buttons rechts */
+
+.container--media-text {
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, var(--container-text-column, 28rem));
+    grid-template-areas:
+        "media text"
+        "media buttons";
+    column-gap: var(
+        --container-gap,
+        clamp(var(--spacing-5, 2rem), 6vw, var(--spacing-10, 5rem))
+    );
+    row-gap: var(--container-stack-gap, var(--spacing-4, 1.5rem));
+    align-items: center;
+}
+
+
+/* Spaltengewichtung */
+
+/* ungefähr 50 / 50 */
+.container--balanced.container--text-media,
+.container--balanced.container--media-text {
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr);
+}
+
+/* Bild etwas größer als Text */
+.container--media-dominant.container--text-media {
+    grid-template-columns:
+        minmax(0, 0.85fr)
+        minmax(0, 1.15fr);
+}
+
+.container--media-dominant.container--media-text {
+    grid-template-columns:
+        minmax(0, 1.15fr)
+        minmax(0, 0.85fr);
+}
+
+/* Text etwas größer als Bild */
+.container--text-dominant.container--text-media {
+    grid-template-columns:
+        minmax(0, 1.15fr)
+        minmax(0, 0.85fr);
+}
+
+.container--text-dominant.container--media-text {
+    grid-template-columns:
+        minmax(0, 0.85fr)
+        minmax(0, 1.15fr);
+}
+
+
+/* ==========================================================================
+   Helpers
+   ========================================================================== */
+
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+
+/* ==========================================================================
+   Responsive Verhalten
+   ========================================================================== */
+
+@media (max-width: 900px) {
+    .container,
+    .container--text-only,
+    .container--text-buttons,
+    .container--text-media,
+    .container--media-text,
+    .container--balanced.container--text-media,
+    .container--balanced.container--media-text,
+    .container--media-dominant.container--text-media,
+    .container--media-dominant.container--media-text,
+    .container--text-dominant.container--text-media,
+    .container--text-dominant.container--media-text {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            "text"
+            "media"
+            "buttons";
+        gap: var(--container-stack-gap-mobile, var(--spacing-5, 2rem));
+        align-items: start;
+    }
+
+    .container--text-only,
+    .container--text-buttons {
+        grid-template-areas:
+            "text"
+            "buttons";
+    }
+
+    .container--mobile-media-first {
+        grid-template-areas:
+            "media"
+            "text"
+            "buttons";
+    }
+
+    .container__text,
+    .container__buttons,
+    .container__media {
+        width: 100%;
+        max-width: none;
+        justify-self: stretch;
+    }
+
+    .container--text-buttons .container__buttons {
+        width: 100%;
+        max-width: none;
+        justify-self: stretch;
+    }
+
+    .container__buttons.btn-group {
+        width: 100%;
+    }
+
+    .container__buttons.btn-group.btn-group--vertical,
+    .container__buttons.btn-group.btn-group--sec-stretch {
+        align-items: stretch;
+    }
+
+    .container__buttons.btn-group.btn-group--sec-stretch .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 560px) {
+    .container,
+    .container--text-only,
+    .container--text-buttons,
+    .container--text-media,
+    .container--media-text {
+        gap: var(--container-stack-gap-small, var(--spacing-4, 1.5rem));
+    }
+}

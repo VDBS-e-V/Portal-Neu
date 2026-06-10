@@ -78,36 +78,38 @@
 
 </style>
 
-<div class="hero" role="banner" aria-label="Hero - Willkommen">
-	<div class="hero__inner">
-		<div class="hero__copy">
-			<h1 class="hero__title"><?= htmlspecialchars($title ?? 'Willkommen im VDBS Serviceportal', ENT_QUOTES, 'UTF-8') ?></h1>
-			<p class="hero__lead"><span class="hero__lead__badge">Zentrale Services, Zugang zu Ihrem Konto und Hilfestellungen — schnell und übersichtlich.</span></p>
-		</div>
-	</div>
-</div>
+<section id="hero" class="long-width no-padding">
+    <div class="hero" role="banner" aria-label="Hero - Willkommen">
+        <div class="hero__inner">
+            <div class="hero__copy">
+                <h1 class="hero__title"><?= htmlspecialchars($title ?? 'Willkommen im VDBS Serviceportal', ENT_QUOTES, 'UTF-8') ?></h1>
+                <p class="hero__lead"><span class="hero__lead__badge">Zentrale Services, Zugang zu Ihrem Konto und Hilfestellungen — schnell und übersichtlich.</span></p>
+            </div>
+        </div>
+    </div>
 
-<div class="hero__tiles" role="navigation" aria-label="Portal Schnellzugriff">
-    <?php
-		// Erzeuge eine zufällige Reihenfolge der Buchstaben a-e
-		$letters = range('a', 'e');
-		shuffle($letters);
+    <div class="hero__tiles" role="navigation" aria-label="Portal Schnellzugriff">
+        <?php
+            // Erzeuge eine zufällige Reihenfolge der Buchstaben a-e
+            $letters = range('a', 'e');
+            shuffle($letters);
 
-        // Links
-        $links = [
-            1 => ["/ueber-das-portal", "Über das Portal"],
-            2 => ["/zugang-zum-portal", "Zugang zum Portal"],
-            3 => ["/mein-konto", "Mein Konto"],
-            4 => ["/hilfe", "Hilfe"]
-        ];
+            // Links
+            $links = [
+                1 => ["/ueber-das-portal", "Über das Portal"],
+                2 => ["/zugang-zum-portal", "Zugang zum Portal"],
+                3 => ["/mein-konto", "Mein Konto"],
+                4 => ["/hilfe", "Hilfe"]
+            ];
 
-        $i = 0;
-        while ($i < 4) {
-            echo '<a class="hero__tile hero__tile--' . $letters[$i] . ' link--no-style" href="' . htmlspecialchars($links[$i + 1][0], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($links[$i + 1][1], ENT_QUOTES, 'UTF-8') . '</a>';
-            $i++;
-        }
-	?>        
-</div>
+            $i = 0;
+            while ($i < 4) {
+                echo '<a class="hero__tile hero__tile--' . $letters[$i] . ' link--no-style" href="' . htmlspecialchars($links[$i + 1][0], ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($links[$i + 1][1], ENT_QUOTES, 'UTF-8') . '</a>';
+                $i++;
+            }
+        ?>        
+    </div>
+</section>
 
 <section id="uebersicht-portal">
 	<div class="btn-group btn-group--horizontal btn-group--main-center btn-group--gap-md" role="group" aria-label="Optionen Übersicht Portal">
@@ -131,5 +133,47 @@
         <a href="/styleguide" class="link--no-style"><button class="btn btn--secondary-cta-light btn--md">StyleGuide</button></a>
         <a href="/teamende" class="link--no-style"><button class="btn btn--secondary-cta-light btn--md">Teamende</button></a>
         <a href="/mitglieder" class="link--no-style"><button class="btn btn--secondary-cta-light btn--md">Mitglieder</button></a>
+    </div>
+</section>
+
+<section id="zugang-zum-portal">
+    <div class="container container--text-media container--balanced">
+        <figure class="container__media container__media--contain container__media--ratio-4-3">
+            <img src="/assets/images/home/home_zugang.png" alt="Zugang zum Portal">
+        </figure>
+
+        <div class="container__text">
+            <h3>Zugang zum Portal</h3>
+
+            <p>
+                Hier finden Sie alle Informationen, die Sie benötigen, um auf das VDBS Serviceportal zuzugreifen. Wenn Sie bereits ein Konto haben, können Sie sich hier anmelden. Wenn Sie noch kein Konto haben, können Sie sich hier registrieren. 
+            </p>
+        </div>
+
+        <div class="container__buttons btn-group btn-group--vertical btn-group--sec-start btn-group--gap-sm">
+            <a href="/zugang-zum-portal" class="btn btn--primary btn--md">Zugang zum Portal</a>
+            <a href="/kontakt?preset=1" class="btn btn--secondary-cta-light btn--md">Hilfe kontaktieren</a>
+        </div>
+    </div>
+</section>
+
+<section id="kontakt" class="section--surface">
+    <div class="container container--media-text container--balanced">  
+        <figure class="container__media container__media--cover container__media--ratio-4-3">
+            <img src="/assets/images/home/home_kontakt.png" alt="Campus der Universität">
+        </figure>
+        <div class="container__text">          
+            <h3>Kontakt</h3>
+
+            <p>
+                Sollten Sie Fragen oder Probleme haben, können Sie uns jederzeit kontaktieren. Wir helfen Ihnen gerne weiter. Sie erreichen uns unter den E-Mail-Adressen: <br>
+                <b>Support</b> support@portal.vdb.schule <br>
+                <b>Kontakt</b> kontakt@vdb.schule 
+            </p>
+        </div>
+
+        <div class="container__buttons btn-group btn-group--vertical">
+            <a href="/kontakt" class="btn btn--primary btn--md">Kontaktformular öffnen</a>
+        </div>
     </div>
 </section>

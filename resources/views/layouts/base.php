@@ -7,10 +7,8 @@
 <body class="layout">
 	<?php require __DIR__ . '/../parts/header.php'; ?>
 
-	<main class="site-main" role="main">
-		<div class="container">
-			<?= $content ?? '' ?>
-		</div>
+	<main role="main">
+		<?= $content ?? '' ?>
 	</main>
 
 	<?php require __DIR__ . '/../parts/footer.php'; ?>

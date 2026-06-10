@@ -253,3 +253,17 @@ form {
     background-color: rgba(112, 89, 140, 0.15);
     color: var(--color-ink);
 }
+
+
+/* TinyMCE */
+.tox-tinymce {
+    border-radius: 0px !important;
+    -webkit-border-radius: 0px !important;
+    -moz-border-radius: 0px !important;
+    -ms-border-radius: 0px !important;
+    -o-border-radius: 0px !important;
+    border: 1px solid color-mix(var(--color-ink) 10%) !important;
+}
+.tox-promotion-link {
+    display: none !important;
+}

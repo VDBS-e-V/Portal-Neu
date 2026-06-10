@@ -1,68 +1,688 @@
+/*
+VDB Icons — SVG-Sprite Icon-System
+==============================================================================
+Zweck
+------------------------------------------------------------------------------
+Diese Datei steuert die Darstellung von Icons aus dem VDBS Icon-Sprite.
+
+Icons werden über ein SVG-Sprite eingebunden:
+
+<svg class="vdb-icon" aria-hidden="true">
+    <use href="/assets/icons/vdb-icons.svg#icon-home"></use>
+</svg>
+
+Grundprinzip
+------------------------------------------------------------------------------
+- .vdb-icon kommt immer auf das <svg>-Element.
+- Das Icon nutzt currentColor.
+- Die Farbe kann direkt vom Elternelement kommen.
+- Alternativ kann eine Farbklasse gesetzt werden, z. B. .vdb-icon--primary.
+- Größen werden über Klassen wie .vdb-icon--sm oder .vdb-icon--lg gesetzt.
+- Strichstärken werden über Klassen wie .vdb-icon--regular oder .vdb-icon--bold gesetzt.
+
+
+Farblogik
+------------------------------------------------------------------------------
+Alle Farben kommen aus tokens.css:
+
+Neutrals:
+- --color-ink
+- --color-white
+- --color-surface-bg
+
+Brand:
+- --color-primary
+
+Secondary:
+- --color-secondary-cta
+- --color-secondary-highlight
+
+Accents:
+- --color-accent-amber
+- --color-accent-teal
+- --color-accent-berry
+- --color-accent-sun
+- --color-accent-lime
+
+Status:
+- --color-status-success
+- --color-status-error
+- --color-status-warning
+- --color-status-info
+
+
+Einheitliche Farbmischungen
+------------------------------------------------------------------------------
+Helle Icon-Flächen:
+color-mix(in srgb, [FARBE] 14%, var(--color-white))
+
+Hover-Flächen:
+color-mix(in srgb, [FARBE] 20%, var(--color-white))
+
+Focus-Ring:
+color-mix(in srgb, [FARBE] 32%, transparent)
+
+Subtile Linien:
+color-mix(in srgb, var(--color-ink) 16%, transparent)
+
+
+HTML-Beispiele
+==============================================================================
+
+1. Einfaches dekoratives Icon
+------------------------------------------------------------------------------
+
+<svg class="vdb-icon vdb-icon--primary" aria-hidden="true">
+    <use href="/assets/icons/vdb-icons.svg#icon-info"></use>
+</svg>
+
+
+2. Icon im Button links
+------------------------------------------------------------------------------
+
+<a href="/portal" class="btn btn--primary btn--md">
+    <svg class="vdb-icon" aria-hidden="true">
+        <use href="/assets/icons/vdb-icons.svg#icon-login"></use>
+    </svg>
+    Anmelden
+</a>
+
+
+3. Icon im Button rechts
+------------------------------------------------------------------------------
+
+<a href="/portal" class="btn btn--primary btn--md btn--icon-right">
+    Zum Portal
+    <svg class="vdb-icon" aria-hidden="true">
+        <use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use>
+    </svg>
+</a>
+
+
+4. Nur Icon als Button
+------------------------------------------------------------------------------
+
+<button class="btn btn--primary btn--md btn--icon-only" aria-label="Suche öffnen">
+    <svg class="vdb-icon" aria-hidden="true">
+        <use href="/assets/icons/vdb-icons.svg#icon-search"></use>
+    </svg>
+</button>
+
+
+5. Icon-Link
+------------------------------------------------------------------------------
+
+<a href="mailto:support@portal.vdb.schule" class="vdb-icon-link">
+    <svg class="vdb-icon" aria-hidden="true">
+        <use href="/assets/icons/vdb-icons.svg#icon-mail"></use>
+    </svg>
+    support@portal.vdb.schule
+</a>
+
+
+6. Icon-Label ohne Link
+------------------------------------------------------------------------------
+
+<span class="vdb-icon-label">
+    <svg class="vdb-icon vdb-icon--secondary-cta" aria-hidden="true">
+        <use href="/assets/icons/vdb-icons.svg#icon-info"></use>
+    </svg>
+    Hinweis
+</span>
+
+
+7. Feature-Icon in Icon-Box
+------------------------------------------------------------------------------
+
+<div class="vdb-icon-box vdb-icon-box--primary">
+    <svg class="vdb-icon" aria-hidden="true">
+        <use href="/assets/icons/vdb-icons.svg#icon-portal"></use>
+    </svg>
+</div>
+
+
+8. Kontaktliste mit Icons
+------------------------------------------------------------------------------
+
+<ul class="vdb-icon-list">
+    <li>
+        <svg class="vdb-icon vdb-icon--secondary-cta" aria-hidden="true">
+            <use href="/assets/icons/vdb-icons.svg#icon-mail"></use>
+        </svg>
+        support@portal.vdb.schule
+    </li>
+
+    <li>
+        <svg class="vdb-icon vdb-icon--primary" aria-hidden="true">
+            <use href="/assets/icons/vdb-icons.svg#icon-web"></use>
+        </svg>
+        vdb.schule
+    </li>
+</ul>
+
+
+Barrierefreiheit
+------------------------------------------------------------------------------
+Dekorative Icons:
+- aria-hidden="true"
+
+<svg class="vdb-icon" aria-hidden="true">
+    <use href="/assets/icons/vdb-icons.svg#icon-info"></use>
+</svg>
+
+Icon-only Buttons:
+- brauchen immer aria-label
+
+<button class="btn btn--primary btn--icon-only" aria-label="Menü öffnen">
+    <svg class="vdb-icon" aria-hidden="true">
+        <use href="/assets/icons/vdb-icons.svg#icon-menu"></use>
+    </svg>
+</button>
+
+Bedeutungsvolle Icons im Text:
+- sichtbaren Text ergänzen oder .visually-hidden nutzen
+
+<span class="visually-hidden">Warnung</span>
+<svg class="vdb-icon vdb-icon--warning" aria-hidden="true">
+    <use href="/assets/icons/vdb-icons.svg#icon-warning"></use>
+</svg>
+*/
+
+
+/* ==========================================================================
+   Tokens
+   ========================================================================== */
+
+:root {
+    --vdb-icon-size: 1.25em;
+    --vdb-icon-stroke-width: 1.5;
+    --vdb-icon-gap: 0.5rem;
+
+    --vdb-icon-focus-ring-width: 4px;
+    --vdb-icon-focus-ring-color: color-mix(
+        in srgb,
+        var(--color-primary) 32%,
+        transparent
+    );
+
+    --vdb-icon-hover-opacity: 0.86;
+
+    --vdb-icon-box-size: 3rem;
+    --vdb-icon-box-radius: 0;
+
+    --vdb-icon-box-color: var(--color-primary);
+    --vdb-icon-box-background: color-mix(
+        in srgb,
+        var(--color-primary) 14%,
+        var(--color-white)
+    );
+
+    --vdb-icon-border-subtle: color-mix(
+        in srgb,
+        var(--color-ink) 16%,
+        transparent
+    );
+}
+
+
+/* ==========================================================================
+   Basis-Icon
+   ========================================================================== */
+
 .vdb-icon {
-  width: 1.25em;
-  height: 1.25em;
-  display: inline-block;
-  vertical-align: -0.18em;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: var(--vdb-icon-stroke-width);
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  flex: 0 0 auto;
+    width: var(--vdb-icon-size);
+    height: var(--vdb-icon-size);
+
+    display: inline-block;
+    vertical-align: -0.18em;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: var(--vdb-icon-stroke-width);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+
+    color: currentColor;
+    flex: 0 0 auto;
 }
 
-.vdb-icon--2xs { width: .75rem; height: .75rem; }
-.vdb-icon--xs  { width: 1rem; height: 1rem; }
-.vdb-icon--sm  { width: 1.25rem; height: 1.25rem; }
-.vdb-icon--md  { width: 1.5rem; height: 1.5rem; }
-.vdb-icon--lg  { width: 2rem; height: 2rem; }
-.vdb-icon--xl  { width: 2.5rem; height: 2.5rem; }
-.vdb-icon--2xl { width: 3rem; height: 3rem; }
-.vdb-icon--3xl { width: 4rem; height: 4rem; }
 
-.vdb-icon--thin      { --vdb-icon-stroke-width: 1.25; }
-.vdb-icon--regular   { --vdb-icon-stroke-width: 1.5; }
-.vdb-icon--medium    { --vdb-icon-stroke-width: 2; }
-.vdb-icon--bold      { --vdb-icon-stroke-width: 2.5; }
-.vdb-icon--extrabold { --vdb-icon-stroke-width: 3; }
+/* ==========================================================================
+   Größen
+   ========================================================================== */
 
-.vdb-icon--primary            { color: var(--color-primary); }
-.vdb-icon--secondary-cta      { color: var(--color-secondary-cta); }
+.vdb-icon--2xs {
+    --vdb-icon-size: 0.75rem;
+}
+
+.vdb-icon--xs {
+    --vdb-icon-size: 1rem;
+}
+
+.vdb-icon--sm {
+    --vdb-icon-size: 1.25rem;
+}
+
+.vdb-icon--md {
+    --vdb-icon-size: 1.5rem;
+}
+
+.vdb-icon--lg {
+    --vdb-icon-size: 2rem;
+}
+
+.vdb-icon--xl {
+    --vdb-icon-size: 2.5rem;
+}
+
+.vdb-icon--2xl {
+    --vdb-icon-size: 3rem;
+}
+
+.vdb-icon--3xl {
+    --vdb-icon-size: 4rem;
+}
+
+
+/* ==========================================================================
+   Strichstärken
+   ========================================================================== */
+
+.vdb-icon--thin {
+    --vdb-icon-stroke-width: 1.25;
+}
+
+.vdb-icon--regular {
+    --vdb-icon-stroke-width: 1.5;
+}
+
+.vdb-icon--medium {
+    --vdb-icon-stroke-width: 2;
+}
+
+.vdb-icon--bold {
+    --vdb-icon-stroke-width: 2.5;
+}
+
+.vdb-icon--extrabold {
+    --vdb-icon-stroke-width: 3;
+}
+
+
+/* ==========================================================================
+   Farben
+   ========================================================================== */
+
+.vdb-icon--current {
+    color: currentColor;
+}
+
+.vdb-icon--ink,
+.vdb-icon--black {
+    color: var(--color-ink);
+}
+
+.vdb-icon--white {
+    color: var(--color-white);
+}
+
+.vdb-icon--surface {
+    color: var(--color-surface-bg);
+}
+
+.vdb-icon--primary {
+    color: var(--color-primary);
+}
+
+.vdb-icon--secondary-cta {
+    color: var(--color-secondary-cta);
+}
+
 .vdb-icon--secondary-highlight,
-.vdb-icon--plum               { color: var(--color-secondary-highlight); }
-.vdb-icon--amber              { color: var(--color-accent-amber); }
-.vdb-icon--teal               { color: var(--color-accent-teal); }
-.vdb-icon--berry              { color: var(--color-accent-berry); }
-.vdb-icon--sun-yellow         { color: var(--color-accent-sun); }
-.vdb-icon--lime               { color: var(--color-accent-lime); }
-.vdb-icon--white              { color: var(--color-white); }
-.vdb-icon--black              { color: var(--color-ink); }
-.vdb-icon--current            { color: currentColor; }
-
-.vdb-icon-btn,
-.vdb-icon-link {
-  display: inline-flex;
-  align-items: center;
-  gap: .5rem;
+.vdb-icon--plum {
+    color: var(--color-secondary-highlight);
 }
+
+.vdb-icon--amber {
+    color: var(--color-accent-amber);
+}
+
+.vdb-icon--teal {
+    color: var(--color-accent-teal);
+}
+
+.vdb-icon--berry {
+    color: var(--color-accent-berry);
+}
+
+.vdb-icon--sun,
+.vdb-icon--sun-yellow {
+    color: var(--color-accent-sun);
+}
+
+.vdb-icon--lime {
+    color: var(--color-accent-lime);
+}
+
+
+/* Statusfarben */
+
+.vdb-icon--success {
+    color: var(--color-status-success);
+}
+
+.vdb-icon--error,
+.vdb-icon--danger {
+    color: var(--color-status-error);
+}
+
+.vdb-icon--warning {
+    color: var(--color-status-warning);
+}
+
+.vdb-icon--info {
+    color: var(--color-status-info);
+}
+
+
+/* ==========================================================================
+   Icon mit Text
+   ========================================================================== */
+
+.vdb-icon-label,
+.vdb-icon-link,
+.vdb-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--vdb-icon-gap);
+}
+
+.vdb-icon-label {
+    color: inherit;
+}
+
+
+/* ==========================================================================
+   Icon-Link
+   ========================================================================== */
+
+.vdb-icon-link {
+    color: var(--color-secondary-cta);
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.18em;
+}
+
+.vdb-icon-link:hover {
+    color: var(--color-primary);
+}
+
+.vdb-icon-link:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 var(--vdb-icon-focus-ring-width) var(--vdb-icon-focus-ring-color);
+}
+
+
+/* ==========================================================================
+   Einfacher Icon-Button ohne .btn-System
+   --------------------------------------------------------------------------
+   Für reguläre Portal-Buttons bitte .btn aus buttons.css verwenden.
+   Diese Klasse ist nur für kleine, einfache Icon-Aktionen gedacht.
+   ========================================================================== */
 
 .vdb-icon-btn {
-  justify-content: center;
-  border: 0;
-  border-radius: .75rem;
-  padding: .625rem .875rem;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
+    justify-content: center;
+    border: 0;
+    border-radius: 0;
+    padding: 0.625rem 0.875rem;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
 }
 
-.vdb-icon-link {
-  color: var(--color-accent-teal);
-  text-decoration-thickness: .08em;
-  text-underline-offset: .18em;
-}
-
-.vdb-icon-link:hover,
 .vdb-icon-btn:hover {
-  opacity: .82;
+    opacity: var(--vdb-icon-hover-opacity);
+}
+
+.vdb-icon-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 var(--vdb-icon-focus-ring-width) var(--vdb-icon-focus-ring-color);
+}
+
+
+/* ==========================================================================
+   Icon-Box
+   --------------------------------------------------------------------------
+   Für Feature-Kacheln, Cards, Teaser oder visuelle Marker.
+   ========================================================================== */
+
+.vdb-icon-box {
+    width: var(--vdb-icon-box-size);
+    height: var(--vdb-icon-box-size);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--vdb-icon-box-color);
+    background: var(--vdb-icon-box-background);
+    border: 1px solid transparent;
+    border-radius: var(--vdb-icon-box-radius);
+}
+
+.vdb-icon-box .vdb-icon {
+    --vdb-icon-size: 50%;
+}
+
+.vdb-icon-box--sm {
+    --vdb-icon-box-size: 2.5rem;
+}
+
+.vdb-icon-box--md {
+    --vdb-icon-box-size: 3rem;
+}
+
+.vdb-icon-box--lg {
+    --vdb-icon-box-size: 4rem;
+}
+
+.vdb-icon-box--xl {
+    --vdb-icon-box-size: 5rem;
+}
+
+
+/* Brand Icon-Boxen */
+
+.vdb-icon-box--primary {
+    --vdb-icon-box-color: var(--color-primary);
+    --vdb-icon-box-background: color-mix(
+        in srgb,
+        var(--color-primary) 14%,
+        var(--color-white)
+    );
+}
+
+.vdb-icon-box--secondary-cta {
+    --vdb-icon-box-color: var(--color-secondary-cta);
+    --vdb-icon-box-background: color-mix(
+        in srgb,
+        var(--color-secondary-cta) 14%,
+        var(--color-white)
+    );
+}
+
+.vdb-icon-box--secondary-highlight,
+.vdb-icon-box--plum {
+    --vdb-icon-box-color: var(--color-secondary-highlight);
+    --vdb-icon-box-background: color-mix(
+        in srgb,
+        var(--color-secondary-highlight) 14%,
+        var(--color-white)
+    );
+}
+
+
+/* Accent Icon-Boxen */
+
+.vdb-icon-box--amber {
+    --vdb-icon-box-color: var(--color-accent-amber);
+    --vdb-icon-box-background: color-mix(
+        in srgb,
+        var(--color-accent-amber) 14%,
+        var(--color-white)
+    );
+}
+
+.vdb-icon-box--teal {
+    --vdb-icon-box-color: var(--color-accent-teal);
+    --vdb-icon-box-background: color-mix(
+        in srgb,
+        var(--color-accent-teal) 14%,
+        var(--color-white)
+    );
+}
+
+.vdb-icon-box--berry {
+    --vdb-icon-box-color: var(--color-accent-berry);
+    --vdb-icon-box-background: color-mix(
+        in srgb,
+        var(--color-accent-berry) 14%,
+        var(--color-white)
+    );
+}
+
+.vdb-icon-box--sun,
+.vdb-icon-box--sun-yellow {
+    --vdb-icon-box-color: var(--color-accent-sun);
+    --vdb-icon-box-background: color-mix(
+        in srgb,
+        var(--color-accent-sun) 20%,
+        var(--color-white)
+    );
+}
+
+.vdb-icon-box--lime {
+    --vdb-icon-box-color: var(--color-accent-lime);
+    --vdb-icon-box-background: color-mix(
+        in srgb,
+        var(--color-accent-lime) 20%,
+        var(--color-white)
+    );
+}
+
+
+/* Status Icon-Boxen */
+
+.vdb-icon-box--success {
+    --vdb-icon-box-color: var(--color-status-success);
+    --vdb-icon-box-background: color-mix(
+        in srgb,
+        var(--color-status-success) 14%,
+        var(--color-white)
+    );
+}
+
+.vdb-icon-box--error,
+.vdb-icon-box--danger {
+    --vdb-icon-box-color: var(--color-status-error);
+    --vdb-icon-box-background: color-mix(
+        in srgb,
+        var(--color-status-error) 14%,
+        var(--color-white)
+    );
+}
+
+.vdb-icon-box--warning {
+    --vdb-icon-box-color: var(--color-status-warning);
+    --vdb-icon-box-background: color-mix(
+        in srgb,
+        var(--color-status-warning) 16%,
+        var(--color-white)
+    );
+}
+
+.vdb-icon-box--info {
+    --vdb-icon-box-color: var(--color-status-info);
+    --vdb-icon-box-background: color-mix(
+        in srgb,
+        var(--color-status-info) 14%,
+        var(--color-white)
+    );
+}
+
+
+/* Neutrale Icon-Boxen */
+
+.vdb-icon-box--ink {
+    --vdb-icon-box-color: var(--color-white);
+    --vdb-icon-box-background: var(--color-ink);
+}
+
+.vdb-icon-box--surface {
+    --vdb-icon-box-color: var(--color-ink);
+    --vdb-icon-box-background: var(--color-surface-bg);
+    border-color: var(--vdb-icon-border-subtle);
+}
+
+.vdb-icon-box--white {
+    --vdb-icon-box-color: var(--color-ink);
+    --vdb-icon-box-background: var(--color-white);
+    border-color: var(--vdb-icon-border-subtle);
+}
+
+
+/* ==========================================================================
+   Icon-Liste
+   ========================================================================== */
+
+.vdb-icon-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    display: grid;
+    gap: var(--vdb-icon-list-gap, 0.75rem);
+}
+
+.vdb-icon-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--vdb-icon-gap);
+}
+
+.vdb-icon-list .vdb-icon {
+    margin-top: 0.12em;
+}
+
+
+/* ==========================================================================
+   Integration mit Buttons aus buttons.css
+   ========================================================================== */
+
+.btn .vdb-icon {
+    --vdb-icon-size: var(--btn-icon-size, 1.1em);
+}
+
+.btn--icon-only .vdb-icon {
+    margin: 0;
+}
+
+.btn--icon-right .vdb-icon:first-child {
+    order: 2;
+}
+
+
+/* ==========================================================================
+   Utility: nur visuell verstecken
+   ========================================================================== */
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
