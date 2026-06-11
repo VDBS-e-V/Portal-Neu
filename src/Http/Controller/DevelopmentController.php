@@ -23,6 +23,85 @@ final class DevelopmentController extends Controller
         parent::__construct($renderer);
     }
 
+    public function webControlDashboard(Request $request): Response
+    {
+        $areas = $this->areas->findAll();
+        $menus = $this->menus->findAll();
+        $menuItems = $this->menuItemRepository->findAll();
+
+        $activeAreas = 0;
+        $externalAreas = 0;
+
+        foreach ($areas as $area) {
+            if (!empty($area['is_active'])) {
+                $activeAreas++;
+            }
+
+            if (!empty($area['is_external'])) {
+                $externalAreas++;
+            }
+        }
+
+        $activeMenuItems = 0;
+
+        foreach ($menuItems as $menuItem) {
+            if (!empty($menuItem['is_active'])) {
+                $activeMenuItems++;
+            }
+        }
+
+        $menuItemsByMenuId = [];
+
+        foreach ($menuItems as $menuItem) {
+            $menuId = (string) ($menuItem['menu_id'] ?? '');
+
+            if ($menuId === '') {
+                continue;
+            }
+
+            $menuItemsByMenuId[$menuId][] = $menuItem;
+        }
+
+        return $this->html('pages.development.web-control.index', [
+            'title' => 'Web-Control',
+            'areaName' => 'Web-Control',
+            'pageTitle' => 'Dashboard',
+            'areaRootLink' => '/development/web-control',
+            'areaNav' => [
+                [
+                    'label' => 'Dashboard',
+                    'href' => '/development/web-control',
+                    'active' => true,
+                ],
+                [
+                    'label' => 'Bereiche',
+                    'href' => '/development/web-control/areas',
+                    'active' => false,
+                ],
+                [
+                    'label' => 'Menüs',
+                    'href' => '/development/web-control/menus',
+                    'active' => false,
+                ],
+            ],
+            'headerNav' => [],
+            'areas' => $areas,
+            'menus' => $menus,
+            'menuItems' => $menuItems,
+            'menuItemsByMenuId' => $menuItemsByMenuId,
+            'stats' => [
+                'areas_total' => count($areas),
+                'areas_active' => $activeAreas,
+                'areas_external' => $externalAreas,
+                'menus_total' => count($menus),
+                'menu_items_total' => count($menuItems),
+                'menu_items_active' => $activeMenuItems,
+            ],
+            'path' => $request->path,
+            'now' => date('c'),
+        ]);
+    }
+
     // Areas
     public function areasIndex(Request $request): Response
     {

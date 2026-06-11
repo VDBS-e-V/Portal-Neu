@@ -17,6 +17,10 @@ return [
     new Route('GET', '/news', NewsController::class, 'index'),
     new Route('GET', '/news/{id}', NewsController::class, 'show'),
 
+	
+	// Development web control: Dashboard
+	new Route('GET', '/development/web-control', DevelopmentController::class, 'webControlDashboard'),
+
 	// Development web control: Areas
 	new Route('GET', '/development/web-control/areas', DevelopmentController::class, 'areasIndex'),
 	new Route('GET', '/development/web-control/areas/create', DevelopmentController::class, 'areasCreateForm'),
