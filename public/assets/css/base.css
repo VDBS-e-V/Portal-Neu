@@ -1,103 +1,354 @@
+/*
+Base — Grundtypografie, globale Defaults und kleine Elemente
+==============================================================================
+Zweck
+------------------------------------------------------------------------------
+Diese Datei definiert die globale Basis der Website.
+
+Sie enthält:
+- Font-Face-Einbindungen
+- Grundschrift für body
+- Headline-System
+- globale Box-Sizing-Regeln
+- Basisfarben für body
+- Links
+- Code / Pre
+- Trennlinien
+- grundlegende Fokus-Stile
+
+
+Grundprinzip
+------------------------------------------------------------------------------
+base.css ist bewusst allgemein gehalten.
+
+Hier gehören hinein:
+- Typografie
+- globale HTML-Elemente
+- Grundverhalten von body, html, headings, links, code, hr
+
+Hier gehören NICHT hinein:
+- Komponenten wie Buttons, Cards, Tabellen, Forms oder Hero
+- Layout-Grids für main/section
+- seitenbezogene Sonderregeln
+
+
+Kontrastlogik
+------------------------------------------------------------------------------
+- Normaler Text nutzt --color-ink auf --color-white.
+- Links werden nicht direkt in sehr hellen Akzentfarben gesetzt.
+- Stattdessen wird eine sichere Mischung aus CTA-Farbe und Ink genutzt.
+- Code-Flächen sind nur sehr leicht abgesetzt.
+- Fokus-Zustände bleiben sichtbar.
+
+
+Verwendete Tokens
+------------------------------------------------------------------------------
+- --color-ink
+- --color-white
+- --color-surface-bg
+- --color-primary
+- --color-secondary-cta
+- --font-family-base
+- --font-family-accent
+- --font-weight-regular
+- --font-weight-medium
+- --font-weight-bold
+- --font-weight-extrabold
+- --spacing-3
+- --spacing-6
+*/
+
+
+/* ==========================================================================
+   Font Faces
+   ========================================================================== */
+
 /* Open Sans (Variable) */
 @font-face {
-  font-family: "Open Sans";
-  src: url("/assets/fonts/OpenSans-VariableFont_wdth,wght.ttf") format("truetype");
-  font-weight: 300 800;
-  font-style: normal;
-  font-display: swap;
+    font-family: "Open Sans";
+    src: url("/assets/fonts/OpenSans-VariableFont_wdth,wght.ttf") format("truetype");
+    font-weight: 300 800;
+    font-style: normal;
+    font-display: swap;
 }
 
 @font-face {
-  font-family: "Open Sans";
-  src: url("/assets/fonts/OpenSans-Italic-VariableFont_wdth,wght.ttf") format("truetype");
-  font-weight: 300 800;
-  font-style: italic;
-  font-display: swap;
+    font-family: "Open Sans";
+    src: url("/assets/fonts/OpenSans-Italic-VariableFont_wdth,wght.ttf") format("truetype");
+    font-weight: 300 800;
+    font-style: italic;
+    font-display: swap;
 }
 
 /* Source Serif 4 (Variable) */
 @font-face {
-  font-family: "Source Serif 4";
-  src: url("/assets/fonts/SourceSerif4-VariableFont_opsz,wght.ttf") format("truetype");
-  font-weight: 200 900;
-  font-style: normal;
-  font-display: swap;
+    font-family: "Source Serif 4";
+    src: url("/assets/fonts/SourceSerif4-VariableFont_opsz,wght.ttf") format("truetype");
+    font-weight: 200 900;
+    font-style: normal;
+    font-display: swap;
 }
 
 @font-face {
-  font-family: "Source Serif 4";
-  src: url("/assets/fonts/SourceSerif4-Italic-VariableFont_opsz,wght.ttf") format("truetype");
-  font-weight: 200 900;
-  font-style: italic;
-  font-display: swap;
+    font-family: "Source Serif 4";
+    src: url("/assets/fonts/SourceSerif4-Italic-VariableFont_opsz,wght.ttf") format("truetype");
+    font-weight: 200 900;
+    font-style: italic;
+    font-display: swap;
 }
-
-body {
-  font-family: var(--font-family-base);
-  font-weight: var(--font-weight-regular);
-}
-
-h1, h2, h3, .headline {
-  font-family: var(--font-family-base);
-  font-weight: var(--font-weight-bold);
-}
-
-/* Serif nur als Akzent (Claim, Rubrik, Editorial-Zitat) */
-.claim, blockquote, .editorial-accent {
-  font-family: var(--font-family-accent);
-  font-weight: var(--font-weight-regular);
-  font-style: italic; /* optional */
-}
-
-/* ==========================================================================
-   Headlines
-   ========================================================================== */
-
-h1 {
-    font-size: 5rem;
-}
-h2 {
-    font-size: 3.5rem;
-}
-h3 {
-    font-size: 2.5rem;
-}
-h4 {
-    font-size: 2rem;
-}
-h5 {
-    font-size: 1.5rem;
-}
-h6 {
-    font-size: 1.25rem;
-}
-
 
 
 /* ==========================================================================
-   Sonstiges
+   Globale Defaults
    ========================================================================== */
 
 *,
 *::before,
-*::after { box-sizing: border-box; }
+*::after {
+    box-sizing: border-box;
+}
 
 html {
     color-scheme: light;
-    font-size: 16px; /* Basisgröße für rem-Einheiten */
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 
 body {
     margin: 0;
     padding: 0;
-    background-color: var(--color-white);
+
+    color: var(--color-ink);
+    background: var(--color-white);
+
+    font-family: var(--font-family-base);
+    font-weight: var(--font-weight-regular);
+    line-height: 1.5;
+
+    text-rendering: optimizeLegibility;
+}
+
+img,
+picture,
+svg,
+video,
+canvas {
+    display: block;
+    max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+::selection {
+    color: var(--color-ink);
+    background: color-mix(in srgb, var(--color-primary) 70%, var(--color-white));
+}
+
+
+/* ==========================================================================
+   Typografie
+   ========================================================================== */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.headline {
+    margin-block: 0 0.65em;
+
+    color: var(--color-ink);
+
+    font-family: var(--font-family-base);
+    font-weight: var(--font-weight-bold);
+    line-height: 1.1;
+
+    text-wrap: balance;
+}
+
+h1 {
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    font-weight: var(--font-weight-extrabold, 800);
+    letter-spacing: -0.035em;
+}
+
+h2 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: -0.025em;
+}
+
+h3 {
+    font-size: clamp(1.65rem, 3.8vw, 2.5rem);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: -0.015em;
+}
+
+h4 {
+    font-size: clamp(1.35rem, 3vw, 2rem);
+}
+
+h5 {
+    font-size: clamp(1.15rem, 2vw, 1.5rem);
+}
+
+h6 {
+    font-size: clamp(1rem, 1.5vw, 1.25rem);
+}
+
+p {
+    margin-block: 0 1em;
+}
+
+strong,
+b {
+    font-weight: var(--font-weight-bold);
+}
+
+small {
+    font-size: 0.875em;
+}
+
+
+/* Serif nur als Akzent */
+
+.claim,
+blockquote,
+.editorial-accent {
+    font-family: var(--font-family-accent);
+    font-weight: var(--font-weight-regular);
+    font-style: italic;
+}
+
+blockquote {
+    margin: 0;
+    padding-left: var(--spacing-4, 1.5rem);
+
+    color: var(--color-ink);
+    border-left: 0.25rem solid var(--color-primary);
+
+    font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+    line-height: 1.4;
+}
+
+
+/* ==========================================================================
+   Links
+   ========================================================================== */
+
+a {
+    color: color-mix(
+        in srgb,
+        var(--color-secondary-cta, #22B7A3) 42%,
+        var(--color-ink, #0F172A)
+    );
+
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.18em;
+}
+
+a:hover,
+a:focus {
     color: var(--color-ink);
 }
 
-code, pre { font-family: "Courier New", Courier, monospace; background-color: var(--color-white); padding: 0.2em 0.4em; border-radius: 4px; }
+a:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px color-mix(
+        in srgb,
+        var(--color-primary, #2FBF71) 32%,
+        transparent
+    );
+}
+
+
+/* ==========================================================================
+   Code und Pre
+   ========================================================================== */
+
+code,
+pre {
+    color: var(--color-ink);
+    background: color-mix(in srgb, var(--color-ink) 4%, var(--color-white));
+
+    font-family: "Courier New", Courier, monospace;
+
+    border-radius: 0;
+}
+
+code {
+    padding: 0.2em 0.4em;
+}
+
+pre {
+    max-width: 100%;
+    margin: 0 0 1em;
+    padding: var(--spacing-3, 1rem);
+
+    overflow-x: auto;
+}
+
+pre code {
+    padding: 0;
+    background: transparent;
+}
+
+
+/* ==========================================================================
+   Sonstige Elemente
+   ========================================================================== */
 
 hr {
-    border: none;
-    border-top: 1px solid var(--color-ink);
-    margin: 2em 0;
+    border: 0;
+    border-top: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+    margin: var(--spacing-6, 2.5rem) 0;
+}
+
+ul,
+ol {
+    margin-block: 0 1em;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+
+/* ==========================================================================
+   Accessibility
+   ========================================================================== */
+
+:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px color-mix(
+        in srgb,
+        var(--color-primary, #2FBF71) 32%,
+        transparent
+    );
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
 }

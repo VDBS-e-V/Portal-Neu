@@ -9,13 +9,15 @@ use App\Http\Response\Response;
 use App\Presentation\Templating\Renderer;
 use App\Repository\AreaRepository;
 use App\Repository\MenuRepository;
+use App\Repository\MenuItemRepository;
 
 final class DevelopmentController extends Controller
 {
     public function __construct(
         Renderer $renderer,
         private AreaRepository $areas,
-        private MenuRepository $menus
+        private MenuRepository $menus,
+        private MenuItemRepository $menuItemRepository,
     )
     {
         parent::__construct($renderer);
@@ -213,9 +215,34 @@ final class DevelopmentController extends Controller
     {
         $menus = $this->menus->findAll();
         $areas = $this->areas->findAll();
+
         $areasMap = [];
         foreach ($areas as $area) {
             $areasMap[(string) ($area['id'] ?? '')] = (string) ($area['name'] ?? '');
+        }
+
+        /*
+        * Menu Items für die Übersicht laden.
+        * Das Template index.php erwartet:
+        * - $menuItemsByMenuId
+        * - $menuItemCounts
+        */
+        $menuItemsByMenuId = [];
+        $menuItemCounts = [];
+
+        foreach ($this->menuItemRepository->findAll() as $item) {
+            $menuId = (string) ($item['menu_id'] ?? '');
+
+            if ($menuId === '') {
+                continue;
+            }
+
+            if (!isset($menuItemsByMenuId[$menuId])) {
+                $menuItemsByMenuId[$menuId] = [];
+            }
+
+            $menuItemsByMenuId[$menuId][] = $item;
+            $menuItemCounts[$menuId] = ($menuItemCounts[$menuId] ?? 0) + 1;
         }
 
         return $this->html('pages.development.menus.index', [
@@ -223,10 +250,73 @@ final class DevelopmentController extends Controller
             'areaName' => 'Menüs',
             'pageTitle' => 'Übersicht',
             'areaRootLink' => '/development/web-control/menus',
-            'areaNav' => [[ 'label' => 'Menüs', 'href' => '/development/web-control/menus', 'active' => true ]],
+            'areaNav' => [
+                [
+                    'label' => 'Menüs',
+                    'href' => '/development/web-control/menus',
+                    'active' => true,
+                ],
+            ],
             'headerNav' => [],
             'menus' => $menus,
             'areasMap' => $areasMap,
+            'menuItemsByMenuId' => $menuItemsByMenuId,
+            'menuItemCounts' => $menuItemCounts,
+            'path' => $request->path,
+            'now' => date('c'),
+        ]);
+    }
+
+    public function menusEditForm(Request $request): Response
+    {
+        $id = isset($request->query['id']) ? (int) $request->query['id'] : 0;
+
+        if ($id <= 0) {
+            return new Response(302, ['Location' => '/development/web-control/menus'], '');
+        }
+
+        $menu = $this->menus->find($id);
+
+        if (empty($menu)) {
+            return new Response(302, ['Location' => '/development/web-control/menus'], '');
+        }
+
+        $areaLabel = '';
+        foreach ($this->areas->findAll() as $area) {
+            if ((string) ($area['id'] ?? '') === (string) ($menu['area_id'] ?? '')) {
+                $areaLabel = (string) ($area['name'] ?? '');
+                break;
+            }
+        }
+
+        /*
+        * Wichtig:
+        * Ohne diese Zeile bekommt das Template keine Items.
+        * Dann greift in form.php nur:
+        * $menuItems = $menuItems ?? [];
+        */
+        $menuItems = $this->menuItemRepository->findByMenuId($id);
+
+        return $this->html('pages.development.menus.form', [
+            'title' => 'Menü bearbeiten',
+            'areaName' => 'Menüs',
+            'pageTitle' => 'Menü bearbeiten',
+            'areaRootLink' => '/development/web-control/menus',
+            'areaNav' => [
+                [
+                    'label' => 'Menüs',
+                    'href' => '/development/web-control/menus',
+                    'active' => true,
+                ],
+            ],
+            'headerNav' => [],
+            'areas' => [],
+            'areaLabel' => $areaLabel,
+            'menu' => $menu,
+            'menuItems' => $menuItems,
+            'menuItemCreateAction' => '/development/web-control/menu-items/create',
+            'menuItemEditAction' => '/development/web-control/menu-items/edit',
+            'menuItemDeleteAction' => '/development/web-control/menu-items/delete',
             'path' => $request->path,
             'now' => date('c'),
         ]);
@@ -330,41 +420,6 @@ final class DevelopmentController extends Controller
         ]);
     }
 
-    public function menusEditForm(Request $request): Response
-    {
-        $id = isset($request->query['id']) ? (int) $request->query['id'] : 0;
-        if ($id <= 0) {
-            return new Response(302, ['Location' => '/development/web-control/menus'], '');
-        }
-
-        $menu = $this->menus->find($id);
-        if (empty($menu)) {
-            return new Response(302, ['Location' => '/development/web-control/menus'], '');
-        }
-
-        $areaLabel = '';
-        foreach ($this->areas->findAll() as $area) {
-            if ((string) ($area['id'] ?? '') === (string) ($menu['area_id'] ?? '')) {
-                $areaLabel = (string) ($area['name'] ?? '');
-                break;
-            }
-        }
-
-        return $this->html('pages.development.menus.form', [
-            'title' => 'Menü bearbeiten',
-            'areaName' => 'Menüs',
-            'pageTitle' => 'Menü bearbeiten',
-            'areaRootLink' => '/development/web-control/menus',
-            'areaNav' => [[ 'label' => 'Menüs', 'href' => '/development/web-control/menus', 'active' => true ]],
-            'headerNav' => [],
-            'areas' => [],
-            'areaLabel' => $areaLabel,
-            'menu' => $menu,
-            'path' => $request->path,
-            'now' => date('c'),
-        ]);
-    }
-
     public function menusEdit(Request $request): Response
     {
         $body = $request->body;
@@ -401,5 +456,235 @@ final class DevelopmentController extends Controller
         $ok = $this->menus->delete($id);
 
         return new Response($ok ? 302 : 500, ['Location' => '/development/web-control/menus'], '');
+    }
+
+    public function menuItemsCreate(Request $request): Response
+    {
+        $body = $request->body;
+
+        $menuId = $this->bodyInt($body, 'menu_id');
+
+        if ($menuId <= 0 || $this->menus->find($menuId) === []) {
+            return new Response(302, ['Location' => '/development/web-control/menus'], '');
+        }
+
+        $data = $this->menuItemDataFromBody($body, $menuId);
+
+        if ($data['title'] === '') {
+            return $this->redirectToMenuItems($menuId);
+        }
+
+        if (
+            $data['parent_id'] !== null
+            && !$this->menuItemRepository->belongsToMenu($data['parent_id'], $menuId)
+        ) {
+            $data['parent_id'] = null;
+        }
+
+        $this->menuItemRepository->create($data);
+
+        return $this->redirectToMenuItems($menuId);
+    }
+
+    public function menuItemsEdit(Request $request): Response
+    {
+        $body = $request->body;
+
+        $menuId = $this->bodyInt($body, 'menu_id');
+        $itemId = $this->bodyInt($body, 'id');
+
+        if ($menuId <= 0 || $itemId <= 0 || $this->menus->find($menuId) === []) {
+            return new Response(302, ['Location' => '/development/web-control/menus'], '');
+        }
+
+        if (!$this->menuItemRepository->belongsToMenu($itemId, $menuId)) {
+            return $this->redirectToMenuItems($menuId);
+        }
+
+        $data = $this->menuItemDataFromBody($body, $menuId);
+
+        if ($data['title'] === '') {
+            return $this->redirectToMenuItems($menuId);
+        }
+
+        if ($data['parent_id'] === $itemId) {
+            $data['parent_id'] = null;
+        }
+
+        if (
+            $data['parent_id'] !== null
+            && !$this->menuItemRepository->belongsToMenu($data['parent_id'], $menuId)
+        ) {
+            $data['parent_id'] = null;
+        }
+
+        unset($data['menu_id']);
+
+        $this->menuItemRepository->update($itemId, $data);
+
+        return $this->redirectToMenuItems($menuId);
+    }
+
+    public function menuItemsDelete(Request $request): Response
+    {
+        $body = $request->body;
+
+        $menuId = $this->bodyInt($body, 'menu_id');
+        $itemId = $this->bodyInt($body, 'id');
+
+        if ($menuId <= 0 || $itemId <= 0 || $this->menus->find($menuId) === []) {
+            return new Response(302, ['Location' => '/development/web-control/menus'], '');
+        }
+
+        $this->menuItemRepository->deleteFromMenu($itemId, $menuId);
+
+        return $this->redirectToMenuItems($menuId);
+    }
+
+    private function menuItemDataFromBody(array $body, int $menuId): array
+    {
+        $level = $this->bodyInt($body, 'level', 1);
+
+        if ($level < 1) {
+            $level = 1;
+        }
+
+        if ($level > 3) {
+            $level = 3;
+        }
+
+        $target = $this->bodyString($body, 'target');
+        $target = $target === '_blank' ? '_blank' : null;
+
+        return [
+            'menu_id' => $menuId,
+            'parent_id' => $this->bodyNullableInt($body, 'parent_id'),
+            'title' => $this->bodyString($body, 'title'),
+            'slug' => $this->bodyNullableString($body, 'slug'),
+            'url' => $this->bodyNullableString($body, 'url'),
+            'route_name' => $this->bodyNullableString($body, 'route_name'),
+            'icon' => $this->bodyNullableString($body, 'icon'),
+            'target' => $target,
+            'order_index' => $this->bodyNullableInt($body, 'order_index'),
+            'level' => $level,
+            'is_active' => $this->bodyBool($body, 'is_active') ? 1 : 0,
+        ];
+    }
+
+    private function bodyString(array $body, string $key, string $default = ''): string
+    {
+        return trim((string) ($body[$key] ?? $default));
+    }
+
+    private function bodyNullableString(array $body, string $key): ?string
+    {
+        $value = $this->bodyString($body, $key);
+
+        return $value === '' ? null : $value;
+    }
+
+    private function bodyInt(array $body, string $key, int $default = 0): int
+    {
+        $value = $body[$key] ?? $default;
+
+        if ($value === '' || $value === null) {
+            return $default;
+        }
+
+        return (int) $value;
+    }
+
+    private function bodyNullableInt(array $body, string $key): ?int
+    {
+        $value = $body[$key] ?? null;
+
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        return (int) $value;
+    }
+
+    private function bodyBool(array $body, string $key): bool
+    {
+        return isset($body[$key]) && (string) $body[$key] === '1';
+    }
+
+    private function redirectToMenuItems(int $menuId): Response
+    {
+        return new Response(
+            302,
+            ['Location' => '/development/web-control/menus/edit?id=' . urlencode((string) $menuId) . '#menu-items'],
+            ''
+        );
+    }
+
+    private function menuItemDataFromPost(int $menuId): array
+    {
+        $level = $this->postInt('level', 1);
+
+        if ($level < 1) {
+            $level = 1;
+        }
+
+        if ($level > 3) {
+            $level = 3;
+        }
+
+        $target = $this->postString('target');
+        $target = $target === '_blank' ? '_blank' : null;
+
+        return [
+            'menu_id' => $menuId,
+            'parent_id' => $this->postNullableInt('parent_id'),
+            'title' => $this->postString('title'),
+            'slug' => $this->postNullableString('slug'),
+            'url' => $this->postNullableString('url'),
+            'route_name' => $this->postNullableString('route_name'),
+            'icon' => $this->postNullableString('icon'),
+            'target' => $target,
+            'order_index' => $this->postNullableInt('order_index'),
+            'level' => $level,
+            'is_active' => $this->postBool('is_active') ? 1 : 0,
+        ];
+    }
+
+    private function postString(string $key, string $default = ''): string
+    {
+        return trim((string) ($_POST[$key] ?? $default));
+    }
+
+    private function postNullableString(string $key): ?string
+    {
+        $value = $this->postString($key);
+
+        return $value === '' ? null : $value;
+    }
+
+    private function postInt(string $key, int $default = 0): int
+    {
+        $value = $_POST[$key] ?? $default;
+
+        if ($value === '' || $value === null) {
+            return $default;
+        }
+
+        return (int) $value;
+    }
+
+    private function postNullableInt(string $key): ?int
+    {
+        $value = $_POST[$key] ?? null;
+
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        return (int) $value;
+    }
+
+    private function postBool(string $key): bool
+    {
+        return isset($_POST[$key]) && (string) $_POST[$key] === '1';
     }
 }

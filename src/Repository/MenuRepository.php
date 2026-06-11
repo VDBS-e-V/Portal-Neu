@@ -55,13 +55,13 @@ final class MenuRepository
 
     public function findAll(): array
     {
-        $stmt = $this->pdo->query('SELECT * FROM pt_menus ORDER BY area_id ASC, name ASC');
+        $stmt = $this->pdo->query('SELECT * FROM pt_menus ORDER BY area_id ASC, is_default DESC, name ASC, id ASC');
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 
     public function findForArea(int $areaId): array
     {
-        $stmt = $this->pdo->prepare('SELECT * FROM pt_menus WHERE area_id = :area_id LIMIT 1');
+        $stmt = $this->pdo->prepare('SELECT * FROM pt_menus WHERE area_id = :area_id ORDER BY is_default DESC, id ASC LIMIT 1');
         $stmt->execute(['area_id' => $areaId]);
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
     }

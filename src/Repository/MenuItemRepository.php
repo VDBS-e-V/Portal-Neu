@@ -78,6 +78,54 @@ final class MenuItemRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 
+        public function findByMenuId(int $menuId, bool $onlyActive = false): array
+    {
+        $sql = 'SELECT * FROM pt_menu_items WHERE menu_id = :menu_id';
+        $params = ['menu_id' => $menuId];
+
+        if ($onlyActive) {
+            $sql .= ' AND is_active = 1';
+        }
+
+        $sql .= ' ORDER BY COALESCE(parent_id, 0) ASC, COALESCE(order_index, 999999) ASC, id ASC';
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    public function findInMenu(int $id, int $menuId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT * FROM pt_menu_items WHERE id = :id AND menu_id = :menu_id LIMIT 1'
+        );
+
+        $stmt->execute([
+            'id' => $id,
+            'menu_id' => $menuId,
+        ]);
+
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    public function belongsToMenu(int $id, int $menuId): bool
+    {
+        return $this->findInMenu($id, $menuId) !== [];
+    }
+
+    public function deleteFromMenu(int $id, int $menuId): bool
+    {
+        $stmt = $this->pdo->prepare(
+            'DELETE FROM pt_menu_items WHERE id = :id AND menu_id = :menu_id'
+        );
+
+        return (bool) $stmt->execute([
+            'id' => $id,
+            'menu_id' => $menuId,
+        ]);
+    }
+
     public function update(int $id, array $data): bool
     {
         if (empty($data)) {

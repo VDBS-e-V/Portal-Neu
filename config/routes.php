@@ -17,14 +17,6 @@ return [
     new Route('GET', '/news', NewsController::class, 'index'),
     new Route('GET', '/news/{id}', NewsController::class, 'show'),
 
-	// Areas management
-	new Route('GET', '/areas', DevelopmentController::class, 'areasIndex'),
-	new Route('GET', '/areas/create', DevelopmentController::class, 'areasCreateForm'),
-	new Route('POST', '/areas/create', DevelopmentController::class, 'areasCreate'),
-	new Route('GET', '/areas/edit', DevelopmentController::class, 'areasEditForm'),
-	new Route('POST', '/areas/edit', DevelopmentController::class, 'areasEdit'),
-	new Route('POST', '/areas/delete', DevelopmentController::class, 'areasDelete'),
-
 	// Development web control: Areas
 	new Route('GET', '/development/web-control/areas', DevelopmentController::class, 'areasIndex'),
 	new Route('GET', '/development/web-control/areas/create', DevelopmentController::class, 'areasCreateForm'),
@@ -41,6 +33,12 @@ return [
 	new Route('POST', '/development/web-control/menus/edit', DevelopmentController::class, 'menusEdit'),
 	new Route('POST', '/development/web-control/menus/delete', DevelopmentController::class, 'menusDelete'),
 
+	// Development web control: Menu Items
+	new Route('POST', '/development/web-control/menu-items/create', DevelopmentController::class, 'menuItemsCreate'),
+	new Route('POST', '/development/web-control/menu-items/edit', DevelopmentController::class, 'menuItemsEdit'),
+	new Route('POST', '/development/web-control/menu-items/delete', DevelopmentController::class, 'menuItemsDelete'),
+
+	// Style Guide
 	new Route('GET', '/styleguide', StyleGuideController::class, 'index'),
 	new Route('GET', '/styleguide/buttons', StyleGuideController::class, 'buttons'),
     new Route('GET', '/styleguide/buttons/generator', StyleGuideController::class, 'buttonGenerator'),
