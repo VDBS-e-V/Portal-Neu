@@ -60,29 +60,7 @@ final class StyleGuideController extends Controller
 
     public function gridsGenerator(Request $request): Response
     {
-        $areas = [];
-        foreach ($this->areas->findAll() as $area) {
-            $areas[] = [
-                'name' => (string) ($area['name'] ?? ''),
-                'link' => (string) ($area['start_path'] ?? '/'),
-            ];
-        }
-
-        return $this->html('pages/style-guide/grids-generator', [
-            'title' => 'Grids Generator',
-            'areaName' => 'Style Guide',
-            'pageTitle' => 'Grids Generator',
-            'areaRootLink' => '/',
-            'areaNav' => [[
-                'label' => 'Start',
-                'href' => '/',
-                'active' => true,
-            ]],
-            'headerNav' => [],
-            'areas' => $areas,
-            'path' => $request->path,
-            'now' => date('c'),
-        ]);
+        return $this->stylePage($request, 'pages/style-guide/grids-generator', 'Grids Generator');
     }
 
     public function heros(Request $request): Response
@@ -92,29 +70,7 @@ final class StyleGuideController extends Controller
 
     public function herosGenerator(Request $request): Response
     {
-        $areas = [];
-        foreach ($this->areas->findAll() as $area) {
-            $areas[] = [
-                'name'=> (string) ($area['name'] ??''),
-                'link'=> (string) ($area['start_path'] ??'/'),
-            ];
-        }
-        
-        return $this->html('pages/style-guide/heros-generator', [
-            'title' => 'Heros Generator',
-            'areaName' => 'Style Guide',
-            'pageTitle' => 'Heros Generator',
-            'areaRootLink' => '/',
-            'areaNav' => [[
-                'label' => 'Start',
-                'href' => '/',
-                'active' => true,
-            ]],
-            'headerNav' => [],
-            'areas' => $areas,
-            'path' => $request->path,
-            'now' => date('c'),
-        ]);
+        return $this->stylePage($request, 'pages/style-guide/heros-generator', 'Heros Generator');
     }
 
     public function links(Request $request): Response
@@ -134,29 +90,7 @@ final class StyleGuideController extends Controller
 
     public function popoversGenerator(Request $request): Response
     {
-        $areas = [];
-        foreach ($this->areas->findAll() as $area) {
-            $areas[] = [
-                'name' => (string) ($area['name'] ?? ''),
-                'link' => (string) ($area['start_path'] ?? '/'),
-            ];
-        }
-
-        return $this->html('pages/style-guide/popovers-generator', [
-            'title' => 'Popovers Generator',
-            'areaName' => 'Style Guide',
-            'pageTitle' => 'Popovers Generator',
-            'areaRootLink' => '/',
-            'areaNav' => [[
-                'label' => 'Start',
-                'href' => '/',
-                'active' => true,
-            ]],
-            'headerNav' => [],
-            'areas' => $areas,
-            'path' => $request->path,
-            'now' => date('c'),
-        ]);
+        return $this->stylePage($request, 'pages/style-guide/popovers-generator', 'Popovers Generator');
     }
 
     public function summaries(Request $request): Response
