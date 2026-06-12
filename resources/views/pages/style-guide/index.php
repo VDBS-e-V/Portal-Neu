@@ -14,12 +14,11 @@
 		<a class="btn btn--outline btn--md" href="/styleguide/error-pages">Error Pages</a>
 		<a class="btn btn--outline btn--md" href="/styleguide/forms">Forms</a>
 		<a class="btn btn--outline btn--md" href="/styleguide/grids">Grids</a>
-		<a class="btn btn--outline btn--md" href="/styleguide/hero">Hero</a>
+		<a class="btn btn--outline btn--md" href="/styleguide/heros">Heros</a>
 		<a class="btn btn--outline btn--md" href="/styleguide/icons">Icons</a>
-		<a class="btn btn--outline btn--md" href="/styleguide/icons/generator">Icon Generator</a>
 		<a class="btn btn--outline btn--md" href="/styleguide/links">Links</a>
 		<a class="btn btn--outline btn--md" href="/styleguide/lists">Lists</a>
-		<a class="btn btn--outline btn--md" href="/styleguide/pop-ups">Pop-ups</a>
+		<a class="btn btn--outline btn--md" href="/styleguide/popovers">Popovers</a>
 		<a class="btn btn--outline btn--md" href="/styleguide/search">Search</a>
 		<a class="btn btn--outline btn--md" href="/styleguide/sections">Sections</a>
 		<a class="btn btn--outline btn--md" href="/styleguide/stats-grid">Stats Grid</a>

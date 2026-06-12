@@ -1,58 +1,605 @@
-<?php declare(strict_types=1); ?>
-<script>
-(function () {
-  function attachHandlers() {
-    const cards = document.querySelectorAll('.grid .card');
-    if (!cards || cards.length === 0) return;
+<?php
+declare(strict_types=1);
 
-    cards.forEach(card => {
-      card.style.cursor = 'pointer';
-      if (!card.hasAttribute('tabindex')) card.setAttribute('tabindex', '0');
-    });
+$iconCategories = [
+    'Basis / Navigation' => [
+        'icon-home',
+        'icon-menu',
+        'icon-close',
+        'icon-arrow-left',
+        'icon-arrow-right',
+        'icon-arrow-down',
+        'icon-arrow-up',
+        'icon-breadcrumb',
+        'icon-search',
+        'icon-filter',
+        'icon-sort',
+        'icon-more',
+    ],
+    'Kontakt & Account' => [
+        'icon-mail',
+        'icon-phone',
+        'icon-fax',
+        'icon-web',
+        'icon-link',
+        'icon-location',
+        'icon-message',
+        'icon-user',
+        'icon-login',
+        'icon-logout',
+        'icon-lock',
+        'icon-settings',
+        'icon-bell',
+    ],
+    'Aktionen & Inhalte' => [
+        'icon-edit',
+        'icon-save',
+        'icon-trash',
+        'icon-upload',
+        'icon-download',
+        'icon-share',
+        'icon-print',
+        'icon-copy',
+        'icon-external-link',
+        'icon-plus',
+        'icon-minus',
+        'icon-check',
+        'icon-document',
+        'icon-image',
+        'icon-calendar',
+        'icon-time',
+        'icon-folder',
+        'icon-book',
+        'icon-list',
+        'icon-grid',
+    ],
+    'Vereinsportal' => [
+        'icon-dashboard',
+        'icon-portal',
+        'icon-members',
+        'icon-member-card',
+        'icon-organization',
+        'icon-board',
+        'icon-meeting',
+        'icon-minutes',
+        'icon-task',
+        'icon-announcement',
+        'icon-inbox',
+        'icon-form',
+        'icon-invoice',
+        'icon-finance',
+        'icon-roles',
+        'icon-school',
+        'icon-course',
+        'icon-workshop',
+        'icon-certificate',
+        'icon-feedback',
+    ],
+    'Bibliothekssoftware' => [
+        'icon-barcode',
+        'icon-isbn',
+        'icon-catalog',
+        'icon-scan',
+        'icon-borrow',
+        'icon-return',
+        'icon-due-date',
+        'icon-reservation',
+        'icon-media',
+        'icon-shelf',
+        'icon-category',
+        'icon-author',
+        'icon-publisher',
+        'icon-cover',
+        'icon-qr',
+        'icon-inventory',
+        'icon-statistics',
+        'icon-open-book',
+        'icon-book-stack',
+        'icon-bookshelf',
+        'icon-laptop',
+        'icon-bookmark',
+        'icon-plant',
+    ],
+    'Methodenverwaltung' => [
+        'icon-method',
+        'icon-materials',
+        'icon-tag',
+        'icon-duration',
+        'icon-phase',
+        'icon-group-size',
+        'icon-age',
+        'icon-moderation',
+        'icon-approve',
+        'icon-reject',
+        'icon-version',
+        'icon-report',
+        'icon-comment',
+        'icon-rating',
+        'icon-visibility',
+    ],
+    'Demokratie / Bildung' => [
+        'icon-vote-box',
+        'icon-megaphone',
+        'icon-group',
+        'icon-flag',
+        'icon-parliament',
+        'icon-star',
+        'icon-open-book',
+        'icon-book-stack',
+        'icon-bookshelf',
+        'icon-laptop',
+        'icon-bookmark',
+        'icon-plant',
+    ],
+    'Datenschutz / Technik' => [
+        'icon-shield',
+        'icon-cookie',
+        'icon-accessibility',
+        'icon-eye',
+        'icon-server',
+        'icon-api',
+        'icon-database',
+        'icon-backup',
+        'icon-sync',
+        'icon-export',
+        'icon-import',
+        'icon-template',
+        'icon-layout',
+        'icon-permission-key',
+    ],
+    'Social' => [
+        'icon-heart',
+        'icon-like',
+        'icon-project',
+    ],
+    'Weitere / Aliase' => [
+        'icon-access-denied',
+        'icon-account',
+        'icon-archive',
+        'icon-association',
+        'icon-audio',
+        'icon-ballot',
+        'icon-book-search',
+        'icon-cancel',
+        'icon-chat',
+        'icon-checklist',
+        'icon-committee',
+        'icon-community',
+        'icon-consent',
+        'icon-contact-form',
+        'icon-data',
+        'icon-delete',
+        'icon-desk-lamp',
+        'icon-discussion',
+        'icon-donate',
+        'icon-election',
+        'icon-error',
+        'icon-event',
+        'icon-external-service',
+        'icon-globe',
+        'icon-hand-up',
+        'icon-help',
+        'icon-imprint',
+        'icon-info',
+        'icon-library',
+        'icon-library-card',
+        'icon-library-software',
+        'icon-loan',
+        'icon-maintenance',
+        'icon-material',
+        'icon-media-list',
+        'icon-member',
+        'icon-method-admin',
+        'icon-methods',
+        'icon-moderate',
+        'icon-newsletter',
+        'icon-no-results',
+        'icon-not-found',
+        'icon-offline',
+        'icon-password',
+        'icon-pdf',
+        'icon-permission',
+        'icon-permissions',
+        'icon-pin',
+        'icon-podium',
+        'icon-profile',
+        'icon-publication',
+        'icon-register',
+        'icon-reports',
+        'icon-reservations',
+        'icon-returns',
+        'icon-reviews',
+        'icon-role',
+        'icon-school-library',
+        'icon-server-problem',
+        'icon-spinner',
+        'icon-student-council',
+        'icon-success',
+        'icon-sv',
+        'icon-tags',
+        'icon-team',
+        'icon-tile-view',
+        'icon-verein',
+        'icon-video',
+        'icon-volunteer',
+        'icon-vote-check',
+        'icon-warning',
+        'icon-website',
+    ],
+];
 
-    // Click delegation
-    document.addEventListener('click', function (e) {
-      const card = e.target.closest('.grid .card');
-      if (!card) return;
-      const nameEl = card.querySelector('.name');
-      if (!nameEl) return;
-      const icon = nameEl.textContent.trim();
-      if (!icon) return;
-      const url = '/styleguide/icons/generator?icon=' + encodeURIComponent(icon);
-      window.location.href = url;
-    });
+$iconColors = [
+    'vdb-icon--primary' => 'Primary',
+    'vdb-icon--secondary-cta' => 'Secondary CTA',
+    'vdb-icon--secondary-highlight' => 'Secondary Highlight',
+    'vdb-icon--amber' => 'Amber',
+    'vdb-icon--teal' => 'Teal',
+    'vdb-icon--berry' => 'Berry',
+    'vdb-icon--plum' => 'Plum',
+    'vdb-icon--sun-yellow' => 'Sun Yellow',
+    'vdb-icon--lime' => 'Lime',
+];
 
-    // Keyboard support: Enter or Space on focused card
-    document.addEventListener('keydown', function (e) {
-      if (e.key !== 'Enter' && e.key !== ' ') return;
-      const card = document.activeElement && document.activeElement.closest && document.activeElement.closest('.grid .card');
-      if (!card) return;
-      e.preventDefault();
-      card.click();
-    });
-  }
+$iconSizes = [
+    'vdb-icon--2xs' => '2XS',
+    'vdb-icon--xs' => 'XS',
+    'vdb-icon--sm' => 'Small',
+    'vdb-icon--md' => 'Medium',
+    'vdb-icon--lg' => 'Large',
+    'vdb-icon--xl' => 'XL',
+    'vdb-icon--2xl' => '2XL',
+    'vdb-icon--3xl' => '3XL',
+];
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', attachHandlers);
-  } else {
-    attachHandlers();
-  }
-})();
-</script>
-<h1>VDBS Icon Demo</h1>
-<p>Enthält 198 Icons und Aliase für UI, Kontakt, Vereinsportal, Bibliothekssoftware und Methodenverwaltung.</p>
-<p>Beispiel: <code>&lt;svg class="vdb-icon vdb-icon--secondary-cta vdb-icon--medium vdb-icon--md"&gt;&lt;use href="/assets/icons/vdb-icons.svg#icon-mail"&gt;&lt;/use&gt;&lt;/svg&gt;</code></p>
-<h2>Farben</h2>
-<div class="row">
-<svg class="vdb-icon vdb-icon--primary vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-star"></use></svg><svg class="vdb-icon vdb-icon--secondary-cta vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-star"></use></svg><svg class="vdb-icon vdb-icon--secondary-highlight vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-star"></use></svg><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-star"></use></svg><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-star"></use></svg><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-star"></use></svg><svg class="vdb-icon vdb-icon--sun-yellow vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-star"></use></svg><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-star"></use></svg>
-</div>
-<h2>Größen</h2>
-<div class="row">
-<svg class="vdb-icon vdb-icon--teal vdb-icon--2xs"><use href="/assets/icons/vdb-icons.svg#icon-home"></use></svg><svg class="vdb-icon vdb-icon--teal vdb-icon--xs"><use href="/assets/icons/vdb-icons.svg#icon-home"></use></svg><svg class="vdb-icon vdb-icon--teal vdb-icon--sm"><use href="/assets/icons/vdb-icons.svg#icon-home"></use></svg><svg class="vdb-icon vdb-icon--teal vdb-icon--md"><use href="/assets/icons/vdb-icons.svg#icon-home"></use></svg><svg class="vdb-icon vdb-icon--teal vdb-icon--lg"><use href="/assets/icons/vdb-icons.svg#icon-home"></use></svg><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-home"></use></svg><svg class="vdb-icon vdb-icon--teal vdb-icon--2xl"><use href="/assets/icons/vdb-icons.svg#icon-home"></use></svg><svg class="vdb-icon vdb-icon--teal vdb-icon--3xl"><use href="/assets/icons/vdb-icons.svg#icon-home"></use></svg>
-</div>
-<h2>Linienstärken</h2>
-<div class="row">
-<svg class="vdb-icon vdb-icon--primary vdb-icon--thin vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-star"></use></svg><svg class="vdb-icon vdb-icon--secondary-cta vdb-icon--regular vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-star"></use></svg><svg class="vdb-icon vdb-icon--secondary-highlight vdb-icon--medium vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-star"></use></svg><svg class="vdb-icon vdb-icon--amber vdb-icon--bold vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-star"></use></svg><svg class="vdb-icon vdb-icon--teal vdb-icon--extrabold vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-star"></use></svg>
-</div>
-<h2>Basis / Navigation</h2><div class="grid"><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-home"></use></svg><div class="name">icon-home</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-menu"></use></svg><div class="name">icon-menu</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-close"></use></svg><div class="name">icon-close</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-arrow-left"></use></svg><div class="name">icon-arrow-left</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-arrow-right"></use></svg><div class="name">icon-arrow-right</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-arrow-down"></use></svg><div class="name">icon-arrow-down</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-arrow-up"></use></svg><div class="name">icon-arrow-up</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-breadcrumb"></use></svg><div class="name">icon-breadcrumb</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-search"></use></svg><div class="name">icon-search</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-filter"></use></svg><div class="name">icon-filter</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-sort"></use></svg><div class="name">icon-sort</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-more"></use></svg><div class="name">icon-more</div></div></div><h2>Kontakt & Account</h2><div class="grid"><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-mail"></use></svg><div class="name">icon-mail</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-phone"></use></svg><div class="name">icon-phone</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-fax"></use></svg><div class="name">icon-fax</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-web"></use></svg><div class="name">icon-web</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-link"></use></svg><div class="name">icon-link</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-location"></use></svg><div class="name">icon-location</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-message"></use></svg><div class="name">icon-message</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-user"></use></svg><div class="name">icon-user</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-login"></use></svg><div class="name">icon-login</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-logout"></use></svg><div class="name">icon-logout</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-lock"></use></svg><div class="name">icon-lock</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-settings"></use></svg><div class="name">icon-settings</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-bell"></use></svg><div class="name">icon-bell</div></div></div><h2>Aktionen & Inhalte</h2><div class="grid"><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-edit"></use></svg><div class="name">icon-edit</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-save"></use></svg><div class="name">icon-save</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-trash"></use></svg><div class="name">icon-trash</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-upload"></use></svg><div class="name">icon-upload</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-download"></use></svg><div class="name">icon-download</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-share"></use></svg><div class="name">icon-share</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-print"></use></svg><div class="name">icon-print</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-copy"></use></svg><div class="name">icon-copy</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-external-link"></use></svg><div class="name">icon-external-link</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-plus"></use></svg><div class="name">icon-plus</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-minus"></use></svg><div class="name">icon-minus</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-check"></use></svg><div class="name">icon-check</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-document"></use></svg><div class="name">icon-document</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-image"></use></svg><div class="name">icon-image</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-calendar"></use></svg><div class="name">icon-calendar</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-time"></use></svg><div class="name">icon-time</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-folder"></use></svg><div class="name">icon-folder</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-book"></use></svg><div class="name">icon-book</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-list"></use></svg><div class="name">icon-list</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-grid"></use></svg><div class="name">icon-grid</div></div></div><h2>Vereinsportal</h2><div class="grid"><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-dashboard"></use></svg><div class="name">icon-dashboard</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-portal"></use></svg><div class="name">icon-portal</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-members"></use></svg><div class="name">icon-members</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-member-card"></use></svg><div class="name">icon-member-card</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-organization"></use></svg><div class="name">icon-organization</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-board"></use></svg><div class="name">icon-board</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-meeting"></use></svg><div class="name">icon-meeting</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-minutes"></use></svg><div class="name">icon-minutes</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-task"></use></svg><div class="name">icon-task</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-announcement"></use></svg><div class="name">icon-announcement</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-inbox"></use></svg><div class="name">icon-inbox</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-form"></use></svg><div class="name">icon-form</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-invoice"></use></svg><div class="name">icon-invoice</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-finance"></use></svg><div class="name">icon-finance</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-roles"></use></svg><div class="name">icon-roles</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-school"></use></svg><div class="name">icon-school</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-course"></use></svg><div class="name">icon-course</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-workshop"></use></svg><div class="name">icon-workshop</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-certificate"></use></svg><div class="name">icon-certificate</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-feedback"></use></svg><div class="name">icon-feedback</div></div></div><h2>Bibliothekssoftware</h2><div class="grid"><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-barcode"></use></svg><div class="name">icon-barcode</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-isbn"></use></svg><div class="name">icon-isbn</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-catalog"></use></svg><div class="name">icon-catalog</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-scan"></use></svg><div class="name">icon-scan</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-borrow"></use></svg><div class="name">icon-borrow</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-return"></use></svg><div class="name">icon-return</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-due-date"></use></svg><div class="name">icon-due-date</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-reservation"></use></svg><div class="name">icon-reservation</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-media"></use></svg><div class="name">icon-media</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-shelf"></use></svg><div class="name">icon-shelf</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-category"></use></svg><div class="name">icon-category</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-author"></use></svg><div class="name">icon-author</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-publisher"></use></svg><div class="name">icon-publisher</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-cover"></use></svg><div class="name">icon-cover</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-qr"></use></svg><div class="name">icon-qr</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-inventory"></use></svg><div class="name">icon-inventory</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-statistics"></use></svg><div class="name">icon-statistics</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-open-book"></use></svg><div class="name">icon-open-book</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-book-stack"></use></svg><div class="name">icon-book-stack</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-bookshelf"></use></svg><div class="name">icon-bookshelf</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-laptop"></use></svg><div class="name">icon-laptop</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-bookmark"></use></svg><div class="name">icon-bookmark</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-plant"></use></svg><div class="name">icon-plant</div></div></div><h2>Methodenverwaltung</h2><div class="grid"><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-method"></use></svg><div class="name">icon-method</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-materials"></use></svg><div class="name">icon-materials</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-tag"></use></svg><div class="name">icon-tag</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-duration"></use></svg><div class="name">icon-duration</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-phase"></use></svg><div class="name">icon-phase</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-group-size"></use></svg><div class="name">icon-group-size</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-age"></use></svg><div class="name">icon-age</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-moderation"></use></svg><div class="name">icon-moderation</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-approve"></use></svg><div class="name">icon-approve</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-reject"></use></svg><div class="name">icon-reject</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-version"></use></svg><div class="name">icon-version</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-report"></use></svg><div class="name">icon-report</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-comment"></use></svg><div class="name">icon-comment</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-rating"></use></svg><div class="name">icon-rating</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-visibility"></use></svg><div class="name">icon-visibility</div></div></div><h2>Demokratie / Bildung</h2><div class="grid"><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-vote-box"></use></svg><div class="name">icon-vote-box</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-megaphone"></use></svg><div class="name">icon-megaphone</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-group"></use></svg><div class="name">icon-group</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-flag"></use></svg><div class="name">icon-flag</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-parliament"></use></svg><div class="name">icon-parliament</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-star"></use></svg><div class="name">icon-star</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-open-book"></use></svg><div class="name">icon-open-book</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-book-stack"></use></svg><div class="name">icon-book-stack</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-bookshelf"></use></svg><div class="name">icon-bookshelf</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-laptop"></use></svg><div class="name">icon-laptop</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-bookmark"></use></svg><div class="name">icon-bookmark</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-plant"></use></svg><div class="name">icon-plant</div></div></div><h2>Datenschutz / Technik</h2><div class="grid"><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-shield"></use></svg><div class="name">icon-shield</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-cookie"></use></svg><div class="name">icon-cookie</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-accessibility"></use></svg><div class="name">icon-accessibility</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-eye"></use></svg><div class="name">icon-eye</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-server"></use></svg><div class="name">icon-server</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-api"></use></svg><div class="name">icon-api</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-database"></use></svg><div class="name">icon-database</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-backup"></use></svg><div class="name">icon-backup</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-sync"></use></svg><div class="name">icon-sync</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-export"></use></svg><div class="name">icon-export</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-import"></use></svg><div class="name">icon-import</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-template"></use></svg><div class="name">icon-template</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-layout"></use></svg><div class="name">icon-layout</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-permission-key"></use></svg><div class="name">icon-permission-key</div></div></div><h2>Social</h2><div class="grid"><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-heart"></use></svg><div class="name">icon-heart</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-like"></use></svg><div class="name">icon-like</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-project"></use></svg><div class="name">icon-project</div></div></div><h2>Weitere / Aliase</h2><div class="grid"><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-access-denied"></use></svg><div class="name">icon-access-denied</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-account"></use></svg><div class="name">icon-account</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-archive"></use></svg><div class="name">icon-archive</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-association"></use></svg><div class="name">icon-association</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-audio"></use></svg><div class="name">icon-audio</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-ballot"></use></svg><div class="name">icon-ballot</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-book-search"></use></svg><div class="name">icon-book-search</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-cancel"></use></svg><div class="name">icon-cancel</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-chat"></use></svg><div class="name">icon-chat</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-checklist"></use></svg><div class="name">icon-checklist</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-committee"></use></svg><div class="name">icon-committee</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-community"></use></svg><div class="name">icon-community</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-consent"></use></svg><div class="name">icon-consent</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-contact-form"></use></svg><div class="name">icon-contact-form</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-data"></use></svg><div class="name">icon-data</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-delete"></use></svg><div class="name">icon-delete</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-desk-lamp"></use></svg><div class="name">icon-desk-lamp</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-discussion"></use></svg><div class="name">icon-discussion</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-donate"></use></svg><div class="name">icon-donate</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-election"></use></svg><div class="name">icon-election</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-error"></use></svg><div class="name">icon-error</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-event"></use></svg><div class="name">icon-event</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-external-service"></use></svg><div class="name">icon-external-service</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-globe"></use></svg><div class="name">icon-globe</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-hand-up"></use></svg><div class="name">icon-hand-up</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-help"></use></svg><div class="name">icon-help</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-imprint"></use></svg><div class="name">icon-imprint</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-info"></use></svg><div class="name">icon-info</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-library"></use></svg><div class="name">icon-library</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-library-card"></use></svg><div class="name">icon-library-card</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-library-software"></use></svg><div class="name">icon-library-software</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-loan"></use></svg><div class="name">icon-loan</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-maintenance"></use></svg><div class="name">icon-maintenance</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-material"></use></svg><div class="name">icon-material</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-media-list"></use></svg><div class="name">icon-media-list</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-member"></use></svg><div class="name">icon-member</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-method-admin"></use></svg><div class="name">icon-method-admin</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-methods"></use></svg><div class="name">icon-methods</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-moderate"></use></svg><div class="name">icon-moderate</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-newsletter"></use></svg><div class="name">icon-newsletter</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-no-results"></use></svg><div class="name">icon-no-results</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-not-found"></use></svg><div class="name">icon-not-found</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-offline"></use></svg><div class="name">icon-offline</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-password"></use></svg><div class="name">icon-password</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-pdf"></use></svg><div class="name">icon-pdf</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-permission"></use></svg><div class="name">icon-permission</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-permissions"></use></svg><div class="name">icon-permissions</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-pin"></use></svg><div class="name">icon-pin</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-podium"></use></svg><div class="name">icon-podium</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-profile"></use></svg><div class="name">icon-profile</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-publication"></use></svg><div class="name">icon-publication</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-register"></use></svg><div class="name">icon-register</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-reports"></use></svg><div class="name">icon-reports</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-reservations"></use></svg><div class="name">icon-reservations</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-returns"></use></svg><div class="name">icon-returns</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-reviews"></use></svg><div class="name">icon-reviews</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-role"></use></svg><div class="name">icon-role</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-school-library"></use></svg><div class="name">icon-school-library</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-server-problem"></use></svg><div class="name">icon-server-problem</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-spinner"></use></svg><div class="name">icon-spinner</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-student-council"></use></svg><div class="name">icon-student-council</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-success"></use></svg><div class="name">icon-success</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-sv"></use></svg><div class="name">icon-sv</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-tags"></use></svg><div class="name">icon-tags</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-team"></use></svg><div class="name">icon-team</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-tile-view"></use></svg><div class="name">icon-tile-view</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-verein"></use></svg><div class="name">icon-verein</div></div><div class="card"><svg class="vdb-icon vdb-icon--berry vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-video"></use></svg><div class="name">icon-video</div></div><div class="card"><svg class="vdb-icon vdb-icon--amber vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-volunteer"></use></svg><div class="name">icon-volunteer</div></div><div class="card"><svg class="vdb-icon vdb-icon--plum vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-vote-check"></use></svg><div class="name">icon-vote-check</div></div><div class="card"><svg class="vdb-icon vdb-icon--teal vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-warning"></use></svg><div class="name">icon-warning</div></div><div class="card"><svg class="vdb-icon vdb-icon--lime vdb-icon--xl"><use href="/assets/icons/vdb-icons.svg#icon-website"></use></svg><div class="name">icon-website</div></div></div>
+$iconStrokes = [
+    'vdb-icon--thin' => 'Thin',
+    'vdb-icon--regular' => 'Regular',
+    'vdb-icon--medium' => 'Medium',
+    'vdb-icon--bold' => 'Bold',
+    'vdb-icon--extrabold' => 'Extra Bold',
+];
 
+if (!function_exists('vdb_icons_e')) {
+    function vdb_icons_e($value): string
+    {
+        return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+    }
+}
+
+if (!function_exists('vdb_icons_icon')) {
+    function vdb_icons_icon(string $icon, string $classes = 'vdb-icon--primary vdb-icon--xl vdb-icon--regular'): string
+    {
+        return '<svg class="vdb-icon ' . vdb_icons_e($classes) . '" aria-hidden="true"><use href="/assets/icons/vdb-icons.svg#' . vdb_icons_e($icon) . '"></use></svg>';
+    }
+}
+
+$iconCount = count(array_unique(array_merge(...array_values($iconCategories))));
+$categoryCount = count($iconCategories);
+$cardColorCycle = ['vdb-icon--primary', 'vdb-icon--secondary-cta', 'vdb-icon--secondary-highlight', 'vdb-icon--teal'];
+?>
+
+<section id="icons-uebersicht" class="section--surface">
+    <div class="container container--text-only container--narrow container--center">
+        <div class="container__text">
+            <h1>Übersicht: Icons</h1>
+
+            <p>
+                Diese Seite zeigt das VDBS-Icon-System im aktuellen Styleguide-Design:
+                Größen, Farben, Linienstärken, semantische Nutzung und alle verfügbaren
+                Symbole aus dem Sprite.
+            </p>
+
+            <p>
+                Grundregel: Jedes Icon erhält zuerst <code>.vdb-icon</code>. Danach
+                ergänzt du Größe, Farbe und bei Bedarf Linienstärke. Für reine
+                Schmuckicons wird <code>aria-hidden="true"</code> gesetzt.
+            </p>
+        </div>
+
+        <div class="container__buttons btn-group btn-group--vertical btn-group--main-center btn-group--gap-sm">
+            <a href="/styleguide/icons/generator" class="btn btn--primary btn--md">
+                Zum Icon Generator
+            </a>
+
+            <a href="#icons-inhaltsverzeichnis" class="btn btn--primary-light btn--md">
+                Zum Inhaltsverzeichnis
+            </a>
+
+            <a href="#icons-bibliothek" class="btn btn--primary-transp btn--md">
+                Zur Icon-Bibliothek
+            </a>
+        </div>
+    </div>
+</section>
+
+<section id="icons-inhaltsverzeichnis">
+    <div class="container container--text-only container--narrow">
+        <div class="container__text">
+            <h2>Inhaltsverzeichnis</h2>
+
+            <p>
+                <a href="/styleguide/icons/generator">Icon Generator öffnen</a><br>
+                <a href="#icon-grundstruktur">1. Grundstruktur eines Icons</a><br>
+                <a href="#icon-farben">2. Farben</a><br>
+                <a href="#icon-groessen">3. Größen</a><br>
+                <a href="#icon-linienstaerken">4. Linienstärken</a><br>
+                <a href="#icon-nutzung">5. Nutzung und Barrierefreiheit</a><br>
+                <a href="#icons-bibliothek">6. Icon-Bibliothek</a><br>
+                <a href="#icons-entscheidungshilfe">7. Entscheidungshilfe</a>
+            </p>
+        </div>
+    </div>
+</section>
+
+<section id="icon-generator-hinweis" class="section--surface">
+    <div class="container container--text-buttons">
+        <div class="container__text">
+            <h2>Icon Generator</h2>
+
+            <p>
+                Mit dem Icon Generator kannst du Symbol, Größe, Farbe,
+                Linienstärke und Ausgabeart visuell zusammenstellen. Der fertige
+                HTML-Code wird direkt erzeugt.
+            </p>
+
+            <p>
+                Die Bibliothek enthält aktuell <strong><?= vdb_icons_e((string) $iconCount) ?></strong>
+                Icons und Aliase in <strong><?= vdb_icons_e((string) $categoryCount) ?></strong>
+                Gruppen.
+            </p>
+
+            <p>
+                Typische Kombination:
+                <code>.vdb-icon</code>, <code>.vdb-icon--primary</code>,
+                <code>.vdb-icon--regular</code>, <code>.vdb-icon--md</code>
+            </p>
+        </div>
+
+        <div class="container__buttons btn-group btn-group--vertical btn-group--sec-stretch btn-group--gap-sm">
+            <a href="/styleguide/icons/generator" class="btn btn--primary btn--md">
+                Icon Generator öffnen
+            </a>
+
+            <a href="#icon-grundstruktur" class="btn btn--primary-transp btn--md">
+                Erst Grundlagen ansehen
+            </a>
+        </div>
+    </div>
+</section>
+
+<section id="icon-grundstruktur" class="section--surface">
+    <div class="container container--text-only container--narrow">
+        <div class="container__text">
+            <h2>1. Grundstruktur eines Icons</h2>
+
+            <p>
+                Icons werden als SVG mit <code>&lt;use&gt;</code> aus
+                <code>/assets/icons/vdb-icons.svg</code> eingebunden.
+                Die Klasse <code>.vdb-icon</code> setzt die gemeinsame Basis.
+            </p>
+
+            <h3>Einfaches Schmuckicon</h3>
+
+            <p>
+                <?= vdb_icons_icon('icon-star', 'vdb-icon--primary vdb-icon--regular vdb-icon--xl') ?>
+            </p>
+
+            <pre><code>&lt;svg class="vdb-icon vdb-icon--primary vdb-icon--regular vdb-icon--xl" aria-hidden="true"&gt;
+    &lt;use href="/assets/icons/vdb-icons.svg#icon-star"&gt;&lt;/use&gt;
+&lt;/svg&gt;</code></pre>
+
+            <h3>Klassenlogik</h3>
+
+            <p>
+                <code>.vdb-icon</code><br>
+                Grundklasse für alle Icons.
+            </p>
+
+            <p>
+                <code>.vdb-icon--primary</code><br>
+                Farbvariante.
+            </p>
+
+            <p>
+                <code>.vdb-icon--regular</code><br>
+                Linienstärke.
+            </p>
+
+            <p>
+                <code>.vdb-icon--md</code><br>
+                Größenvariante.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section id="icon-farben">
+    <div class="container container--text-only container--narrow">
+        <div class="container__text">
+            <h2>2. Farben</h2>
+
+            <p>
+                Die Farbklassen orientieren sich an den Design-Tokens. Für normale
+                UI-Nutzung sind <code>primary</code>, <code>secondary-cta</code>
+                und <code>secondary-highlight</code> die wichtigsten Varianten.
+            </p>
+        </div>
+
+        <div class="grid grid--4col grid--compact">
+            <?php foreach ($iconColors as $class => $label): ?>
+                <div class="tile-card tile-card--surface tile-card--compact">
+                    <div class="tile-card__body">
+                        <?= vdb_icons_icon('icon-star', $class . ' vdb-icon--regular vdb-icon--xl') ?>
+                        <h3 class="tile-card__title"><?= vdb_icons_e($label) ?></h3>
+                        <p class="tile-card__text"><code><?= vdb_icons_e($class) ?></code></p>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
+        <div class="container__text">
+            <h3>Code</h3>
+
+            <pre><code>&lt;svg class="vdb-icon vdb-icon--secondary-cta vdb-icon--regular vdb-icon--md" aria-hidden="true"&gt;
+    &lt;use href="/assets/icons/vdb-icons.svg#icon-mail"&gt;&lt;/use&gt;
+&lt;/svg&gt;</code></pre>
+        </div>
+    </div>
+</section>
+
+<section id="icon-groessen" class="section--surface">
+    <div class="container container--text-only container--narrow">
+        <div class="container__text">
+            <h2>3. Größen</h2>
+
+            <p>
+                Die Größenklassen steuern Breite und Höhe des SVG. Für Fließtext
+                und Buttons ist <code>.vdb-icon--md</code> meist passend; für
+                Kacheln und Vorschauen eignen sich <code>.vdb-icon--xl</code>
+                bis <code>.vdb-icon--3xl</code>.
+            </p>
+        </div>
+
+        <div class="grid grid--4col grid--compact">
+            <?php foreach ($iconSizes as $class => $label): ?>
+                <div class="tile-card tile-card--white tile-card--compact">
+                    <div class="tile-card__body">
+                        <?= vdb_icons_icon('icon-home', 'vdb-icon--primary vdb-icon--regular ' . $class) ?>
+                        <h3 class="tile-card__title"><?= vdb_icons_e($label) ?></h3>
+                        <p class="tile-card__text"><code><?= vdb_icons_e($class) ?></code></p>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+
+<section id="icon-linienstaerken">
+    <div class="container container--text-only container--narrow">
+        <div class="container__text">
+            <h2>4. Linienstärken</h2>
+
+            <p>
+                Linienstärken helfen, Icons an ihre Umgebung anzupassen. In
+                normalem Interface-Kontext ist <code>.vdb-icon--regular</code>
+                oder <code>.vdb-icon--medium</code> meist die ruhigste Wahl.
+            </p>
+        </div>
+
+        <div class="grid grid--4col grid--compact">
+            <?php foreach ($iconStrokes as $class => $label): ?>
+                <div class="tile-card tile-card--surface tile-card--compact">
+                    <div class="tile-card__body">
+                        <?= vdb_icons_icon('icon-star', 'vdb-icon--secondary-cta ' . $class . ' vdb-icon--xl') ?>
+                        <h3 class="tile-card__title"><?= vdb_icons_e($label) ?></h3>
+                        <p class="tile-card__text"><code><?= vdb_icons_e($class) ?></code></p>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+
+<section id="icon-nutzung" class="section--surface">
+    <div class="container container--text-only container--narrow">
+        <div class="container__text">
+            <h2>5. Nutzung und Barrierefreiheit</h2>
+
+            <h3>Dekoratives Icon</h3>
+            <p>
+                Wenn ein Icon nur Text unterstützt, setze <code>aria-hidden="true"</code>.
+            </p>
+
+            <pre><code>&lt;svg class="vdb-icon vdb-icon--primary vdb-icon--regular vdb-icon--md" aria-hidden="true"&gt;
+    &lt;use href="/assets/icons/vdb-icons.svg#icon-info"&gt;&lt;/use&gt;
+&lt;/svg&gt;</code></pre>
+
+            <h3>Bedeutungstragendes Icon</h3>
+            <p>
+                Wenn ein Icon allein eine Bedeutung trägt, braucht es eine
+                zugängliche Beschriftung.
+            </p>
+
+            <pre><code>&lt;svg class="vdb-icon vdb-icon--primary vdb-icon--regular vdb-icon--md" role="img" aria-label="Information"&gt;
+    &lt;use href="/assets/icons/vdb-icons.svg#icon-info"&gt;&lt;/use&gt;
+&lt;/svg&gt;</code></pre>
+
+            <h3>Icon in Button</h3>
+            <p>
+                In Buttons bleibt das Icon meistens dekorativ, weil der Buttontext
+                die Bedeutung bereits erklärt.
+            </p>
+
+            <p>
+                <a href="#" class="btn btn-icon btn--primary btn--md">
+                    <?= vdb_icons_icon('icon-arrow-right', 'vdb-icon--regular vdb-icon--md') ?>
+                    Weiter
+                </a>
+            </p>
+        </div>
+    </div>
+</section>
+
+<section id="icons-bibliothek">
+    <div class="container container--text-only container--wide">
+        <div class="grid-block">
+            <header class="grid-block__header">
+                <p class="grid-block__kicker">Bibliothek</p>
+                <h2 class="grid-block__title">6. Icon-Bibliothek</h2>
+                <p class="grid-block__subtitle">
+                    Wähle ein Icon aus, um es direkt im Generator zu öffnen.
+                    Jede Kachel ist ein normaler Link und funktioniert ohne zusätzliches JavaScript.
+                </p>
+            </header>
+
+            <?php foreach ($iconCategories as $category => $icons): ?>
+                <section id="icons-<?= vdb_icons_e(strtolower(preg_replace('/[^a-z0-9]+/i', '-', (string) $category))) ?>" class="grid-block grid-block--compact">
+                    <header class="grid-block__header">
+                        <h3 class="grid-block__title"><?= vdb_icons_e($category) ?></h3>
+                        <p class="grid-block__subtitle"><?= vdb_icons_e((string) count($icons)) ?> Icons</p>
+                    </header>
+
+                    <div class="grid grid--4col grid--compact grid--stretch">
+                        <?php foreach ($icons as $index => $icon): ?>
+                            <?php $color = $cardColorCycle[$index % count($cardColorCycle)]; ?>
+                            <a class="tile-card tile-card--link tile-card--surface tile-card--compact" href="/styleguide/icons/generator?icon=<?= rawurlencode($icon) ?>" aria-label="<?= vdb_icons_e($icon) ?> im Generator öffnen">
+                                <div class="tile-card__body">
+                                    <?= vdb_icons_icon($icon, $color . ' vdb-icon--regular vdb-icon--xl') ?>
+                                    <h4 class="tile-card__title"><code><?= vdb_icons_e($icon) ?></code></h4>
+                                </div>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </section>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+
+<section id="icons-entscheidungshilfe" class="section--surface">
+    <div class="container container--text-only container--narrow">
+        <div class="container__text">
+            <h2>7. Entscheidungshilfe</h2>
+
+            <p>
+                <code>.vdb-icon--md</code><br>
+                Standardgröße für Buttons, Labels und Interface-Zeilen.
+            </p>
+
+            <p>
+                <code>.vdb-icon--xl</code><br>
+                Gute Größe für Kacheln, Übersichtsseiten und visuelle Vorschauen.
+            </p>
+
+            <p>
+                <code>.vdb-icon--regular</code><br>
+                Ruhige Standard-Linienstärke.
+            </p>
+
+            <p>
+                <code>.vdb-icon--primary</code><br>
+                Normale Hervorhebung. Akzentfarben nur gezielt einsetzen.
+            </p>
+        </div>
+    </div>
+</section>

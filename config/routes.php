@@ -47,13 +47,16 @@ return [
     new Route('GET','/styleguide/containers', StyleGuideController::class, 'containers'),
     new Route('GET','/styleguide/forms', StyleGuideController::class, 'forms'),
     new Route('GET','/styleguide/grids', StyleGuideController::class,'grids'),
+    new Route('GET','/styleguide/grids/generator', StyleGuideController::class,'gridsGenerator'),
     new Route('GET','/styleguide/heros', StyleGuideController::class, 'heros'),
+    new Route('GET','/styleguide/heros/generator', StyleGuideController::class, 'herosGenerator'),
     new Route('GET','/styleguide/links', StyleGuideController::class, 'links'),
     new Route('GET','/styleguide/media', StyleGuideController::class, 'media'),
     new Route('GET','/styleguide/popovers', StyleGuideController::class, 'popovers'),
+    new Route('GET','/styleguide/popovers/generator', StyleGuideController::class, 'popoversGenerator'),
     new Route('GET','/styleguide/summaries', StyleGuideController::class, 'summaries'),
     new Route('GET','/styleguide/tables', StyleGuideController::class, 'tables'),
 	new Route('GET', '/styleguide/icons', StyleGuideController::class, 'icons'),
-	new Route('GET', '/styleguide/icons/generator', StyleGuideController::class, 'iconGenerator'),
+	new Route('GET', '/styleguide/icons/generator', StyleGuideController::class, 'iconsGenerator'),
 ];
 
