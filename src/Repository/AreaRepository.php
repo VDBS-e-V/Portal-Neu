@@ -56,7 +56,7 @@ final class AreaRepository
 
     public function findAll(): array
     {
-        $sql = "SELECT * FROM {$this->table}";
+        $sql = "SELECT * FROM {$this->table} ORDER BY sort_order ASC, name ASC, id ASC";
         $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }

@@ -6,41 +6,24 @@ namespace App\Http\Controller;
 
 use App\Http\Request\Request;
 use App\Http\Response\Response;
+use App\Presentation\Templating\Renderer;
 use App\Repository\AreaRepository;
 
 final class HomeController extends Controller
 {
     public function __construct(
-        \App\Presentation\Templating\Renderer $renderer,
-        private AreaRepository $areas
+        Renderer $renderer,
+        AreaRepository $areas
     ) {
-        parent::__construct($renderer);
+        parent::__construct($renderer, $areas);
     }
 
     public function index(Request $request): Response
     {
-        $areas = [];
-        foreach ($this->areas->findAll() as $area) {
-            $areas[] = [
-                'name' => (string) ($area['name'] ?? ''),
-                'link' => (string) ($area['start_path'] ?? '/'),
-            ];
-        }
-
-        return $this->html('pages/home/index', [
+        return $this->page($request, 'pages/home/index', [
             'title' => 'Startseite',
             'areaName' => 'VDBS Portal',
             'pageTitle' => 'Startseite',
-            'areaRootLink' => '/',
-            'areaNav' => [[
-                'label' => 'Start',
-                'href' => '/',
-                'active' => true,
-            ]],
-            'headerNav' => [],
-            'areas' => $areas,
-            'path' => $request->path,
-            'now' => date('c'),
         ]);
     }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Bootstrap\Container;
 use App\Http\Controller\HomeController;
 use App\Http\Routing\Router;
+use App\Presentation\Navigation\HeaderDataProvider;
 use App\Presentation\Templating\PhpRenderer;
 use App\Presentation\Templating\Renderer;
 // Built-in global classes (PDO, PDOException, RuntimeException) don't need importing
@@ -45,6 +46,13 @@ return [
     AreaRepository::class => static function (Container $container): AreaRepository {
         return new AreaRepository($container->get(PDO::class));
     },
+    HeaderDataProvider::class => static function (Container $container): HeaderDataProvider {
+        return new HeaderDataProvider(
+            $container->get(AreaRepository::class),
+            $container->get(MenuRepository::class),
+            $container->get(MenuItemRepository::class)
+        );
+    },
     HomeController::class => static function (Container $container): HomeController {
         return new HomeController(
             $container->get(Renderer::class),
@@ -64,7 +72,8 @@ return [
         return new DevelopmentController(
             $container->get(Renderer::class),
             $container->get(AreaRepository::class),
-            $container->get(MenuRepository::class)
+            $container->get(MenuRepository::class),
+            $container->get(MenuItemRepository::class)
         );
     },
 ];
