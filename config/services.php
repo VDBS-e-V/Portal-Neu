@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use App\Bootstrap\Container;
+use App\Http\Controller\AuthController;
 use App\Http\Controller\HomeController;
+use App\Http\Controller\UserAccountController;
 use App\Http\Routing\Router;
 use App\Presentation\Navigation\HeaderDataProvider;
 use App\Presentation\Templating\PhpRenderer;
@@ -14,6 +16,7 @@ use App\Repository\AreaRepository;
 use App\Repository\MenuItemRepository;
 use App\Repository\MenuRepository;
 use App\Repository\UserRepository;
+use App\Security\SessionAuth;
 
 return [
     Renderer::class => static function (Container $container): Renderer {
@@ -67,6 +70,29 @@ return [
     },
     UserRepository::class => static function (Container $container): UserRepository {
         return new UserRepository($container->get(PDO::class));
+    },
+    SessionAuth::class => static function (Container $container): SessionAuth {
+
+        return new SessionAuth();
+
+    },
+    UserAccountController::class => static function (Container $container): UserAccountController {
+        return new UserAccountController(
+            $container->get(Renderer::class),
+            $container->get(AreaRepository::class),
+            $container->get(MenuRepository::class),
+            $container->get(MenuItemRepository::class),
+            $container->get(UserRepository::class),
+            $container->get(SessionAuth::class)
+        );
+    },
+    AuthController::class => static function (Container $container): AuthController {
+        return new AuthController(
+            $container->get(Renderer::class),
+            $container->get(AreaRepository::class),
+            $container->get(UserRepository::class),
+            $container->get(SessionAuth::class)
+        );
     },
     DevelopmentController::class => static function (Container $container): DevelopmentController {
         return new DevelopmentController(
