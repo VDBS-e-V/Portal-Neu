@@ -1,4 +1,139 @@
 <?php declare(strict_types=1); ?>
+<?php
+$headerMenuItems = is_array($headerMenus ?? null) ? $headerMenus : [];
+
+$getHeaderMenuChildren = static function (array $item): array {
+	foreach (['children', 'items', 'sub_items', 'submenu', 'submenus'] as $childrenKey) {
+		if (!empty($item[$childrenKey]) && is_array($item[$childrenKey])) {
+			return array_values(array_filter($item[$childrenKey], 'is_array'));
+		}
+	}
+
+	return [];
+};
+
+$normalizeHeaderMenuId = static function (array $item, int $index): string {
+	foreach (['id', 'menu_item_id', 'item_id'] as $idKey) {
+		if (isset($item[$idKey]) && (string) $item[$idKey] !== '') {
+			return (string) $item[$idKey];
+		}
+	}
+
+	if (isset($item['slug']) && (string) $item['slug'] !== '') {
+		return 'slug:' . (string) $item['slug'];
+	}
+
+	return 'index:' . $index;
+};
+
+$buildHeaderMenuTree = static function (array $items) use ($getHeaderMenuChildren, $normalizeHeaderMenuId): array {
+	$hasParentReferences = false;
+
+	foreach ($items as $item) {
+		if (is_array($item) && isset($item['parent_id']) && (string) $item['parent_id'] !== '' && (string) $item['parent_id'] !== '0') {
+			$hasParentReferences = true;
+			break;
+		}
+	}
+
+	if (!$hasParentReferences) {
+		return array_values(array_filter($items, 'is_array'));
+	}
+
+	$byId = [];
+	$order = [];
+
+	foreach ($items as $index => $item) {
+		if (!is_array($item)) {
+			continue;
+		}
+
+		$id = $normalizeHeaderMenuId($item, (int) $index);
+		$item['_header_menu_id'] = $id;
+		$byId[$id] = $item;
+		$order[] = $id;
+	}
+
+	$childrenByParent = ['__root__' => []];
+
+	foreach ($order as $id) {
+		$item = $byId[$id];
+		$parentId = isset($item['parent_id']) ? (string) $item['parent_id'] : '';
+
+		if ($parentId === '' || $parentId === '0' || !isset($byId[$parentId])) {
+			$parentId = '__root__';
+		}
+
+		$childrenByParent[$parentId][] = $id;
+	}
+
+	$buildBranch = static function (string $parentId) use (&$buildBranch, &$byId, &$childrenByParent, $getHeaderMenuChildren): array {
+		$branch = [];
+
+		foreach (($childrenByParent[$parentId] ?? []) as $childId) {
+			$item = $byId[$childId];
+			$nestedChildren = $getHeaderMenuChildren($item);
+			$flatChildren = $buildBranch($childId);
+
+			if (!empty($nestedChildren) || !empty($flatChildren)) {
+				$item['children'] = array_merge($nestedChildren, $flatChildren);
+			}
+
+			$branch[] = $item;
+		}
+
+		return $branch;
+	};
+
+	return $buildBranch('__root__');
+};
+
+$headerMenuTree = $buildHeaderMenuTree($headerMenuItems);
+
+$renderHeaderMenuItem = static function (array $mi, int $depth = 1) use (&$renderHeaderMenuItem, $getHeaderMenuChildren): string {
+	$url = (string) ($mi['url'] ?? ('/' . ltrim((string) ($mi['slug'] ?? ''), '/')));
+	$title = (string) ($mi['title'] ?? ($mi['name'] ?? ''));
+	$children = $getHeaderMenuChildren($mi);
+	$hasChildren = !empty($children);
+
+	$liClass = $depth === 1 ? 'header-bottom-nav-list-item' : 'header-bottom-submenu-item';
+	$linkClass = $depth === 1 ? 'link--no-style header-bottom-nav-link' : 'link--no-style header-bottom-submenu-link';
+
+	if ($hasChildren) {
+		$liClass .= ' has-submenu';
+	}
+
+	if (!empty($mi['active']) || !empty($mi['is_current']) || !empty($mi['current'])) {
+		$liClass .= ' active';
+	}
+
+	$html = '<li class="' . htmlspecialchars($liClass, ENT_QUOTES, 'UTF-8') . '">';
+	$html .= '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" class="' . htmlspecialchars($linkClass, ENT_QUOTES, 'UTF-8') . '"';
+
+	if ($hasChildren) {
+		$html .= ' aria-haspopup="true" aria-expanded="false"';
+	}
+
+	$html .= '><span>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</span></a>';
+
+	if ($hasChildren) {
+		$submenuClass = $depth === 1 ? 'header-bottom-submenu' : 'header-bottom-submenu header-bottom-submenu--nested';
+		$html .= '<ul class="' . htmlspecialchars($submenuClass, ENT_QUOTES, 'UTF-8') . '" aria-label="' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '">';
+
+		foreach ($children as $child) {
+			if (is_array($child)) {
+				$html .= $renderHeaderMenuItem($child, $depth + 1);
+			}
+		}
+
+		$html .= '</ul>';
+	}
+
+	$html .= '</li>';
+
+	return $html;
+};
+?>
 <header class="site-header" role="banner">
 	<div class="header-top">
 		<div class="header-top-logo" onclick="window.location.href='/'" style="cursor: pointer;">
@@ -28,15 +163,11 @@
 		</div>
 		<div class="header-bottom-nav">
 			<ul class="header-bottom-nav-list">
-				<?php if (!empty($headerMenus)): ?>
-					<?php foreach ($headerMenus as $mi): ?>
-						<li class="header-bottom-nav-list-item">
-							<?php
-								$url = (string) ($mi['url'] ?? ('/' . ltrim((string)($mi['slug'] ?? ''), '/')));
-								$title = (string) ($mi['title'] ?? ($mi['name'] ?? ''));
-							?>
-							<a href="<?= htmlspecialchars($url, ENT_QUOTES, 'UTF-8') ?>" class="link--no-style"><?= htmlspecialchars($title, ENT_QUOTES, 'UTF-8') ?></a>
-						</li>
+				<?php if (!empty($headerMenuTree)): ?>
+					<?php foreach ($headerMenuTree as $mi): ?>
+						<?php if (is_array($mi)): ?>
+							<?= $renderHeaderMenuItem($mi) ?>
+						<?php endif; ?>
 					<?php endforeach; ?>
 				<?php endif; ?>
 			</ul>
@@ -126,6 +257,58 @@
 			</div>
 
 			<script>
+			(function(){
+				var nav = document.querySelector('.header-bottom-nav');
+
+				function closeSubmenus(root) {
+					var scope = root || document;
+					scope.querySelectorAll('.submenu-open').forEach(function(item){
+						item.classList.remove('submenu-open');
+						var link = item.querySelector(':scope > a[aria-expanded]');
+						if (link) { link.setAttribute('aria-expanded', 'false'); }
+					});
+				}
+
+				function closeSiblingSubmenus(item) {
+					if (!item || !item.parentElement) { return; }
+
+					Array.prototype.forEach.call(item.parentElement.children, function(sibling){
+						if (sibling !== item && sibling.classList && sibling.classList.contains('submenu-open')) {
+							closeSubmenus(sibling);
+							sibling.classList.remove('submenu-open');
+							var siblingLink = sibling.querySelector(':scope > a[aria-expanded]');
+							if (siblingLink) { siblingLink.setAttribute('aria-expanded', 'false'); }
+						}
+					});
+				}
+
+				if (nav) {
+					nav.addEventListener('click', function(e){
+						var link = e.target.closest('.has-submenu > a');
+						if (!link || !nav.contains(link)) { return; }
+
+						var item = link.parentElement;
+						if (!item.classList.contains('submenu-open')) {
+							e.preventDefault();
+							closeSiblingSubmenus(item);
+							item.classList.add('submenu-open');
+							link.setAttribute('aria-expanded', 'true');
+						}
+					});
+				}
+
+				document.addEventListener('click', function(e){
+					if (!nav || nav.contains(e.target)) { return; }
+					closeSubmenus(document);
+				});
+
+				document.addEventListener('keydown', function(e){
+					if (e.key === 'Escape') {
+						closeSubmenus(document);
+					}
+				});
+			})();
+
 			// Simple popover toggle using existing attributes
 			(function(){
 				function closeAll() {

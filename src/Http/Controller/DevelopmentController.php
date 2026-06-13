@@ -19,7 +19,7 @@ final class DevelopmentController extends Controller
         private MenuRepository $menus,
         private MenuItemRepository $menuItemRepository,
     ) {
-        parent::__construct($renderer, $areas);
+        parent::__construct($renderer, $areas, $menus, $menuItemRepository);
     }
 
     public function webControlDashboard(Request $request): Response
@@ -66,6 +66,7 @@ final class DevelopmentController extends Controller
             'areaName' => 'Web-Control',
             'pageTitle' => 'Dashboard',
             'areaRootLink' => '/development/web-control',
+            'headerAreaKey' => 'development',
             'areaNav' => $this->webControlNav('dashboard'),
             'areas' => $areas,
             'menus' => $menus,
@@ -89,6 +90,7 @@ final class DevelopmentController extends Controller
             'areaName' => 'Web-Control',
             'pageTitle' => 'Bereiche',
             'areaRootLink' => '/development/web-control',
+            'headerAreaKey' => 'development',
             'areaNav' => $this->webControlNav('areas'),
             'areas' => $this->areas->findAll(),
         ]);
@@ -101,6 +103,7 @@ final class DevelopmentController extends Controller
             'areaName' => 'Web-Control',
             'pageTitle' => 'Neuen Bereich erstellen',
             'areaRootLink' => '/development/web-control',
+            'headerAreaKey' => 'development',
             'areaNav' => $this->webControlNav('areas'),
             'area' => null,
             'errors' => [],
@@ -313,6 +316,7 @@ final class DevelopmentController extends Controller
             'areaName' => 'Web-Control',
             'pageTitle' => 'Menüs',
             'areaRootLink' => '/development/web-control',
+            'headerAreaKey' => 'development',
             'areaNav' => $this->webControlNav('menus'),
             'menus' => $menus,
             'areasMap' => $areasMap,
@@ -600,6 +604,7 @@ final class DevelopmentController extends Controller
             'areaName' => 'Web-Control',
             'pageTitle' => $pageTitle,
             'areaRootLink' => '/development/web-control',
+            'headerAreaKey' => 'development',
             'areaNav' => $this->webControlNav('areas'),
             'area' => $area,
             'errors' => $errors,
@@ -621,6 +626,7 @@ final class DevelopmentController extends Controller
             'areaName' => 'Web-Control',
             'pageTitle' => $pageTitle,
             'areaRootLink' => '/development/web-control',
+            'headerAreaKey' => 'development',
             'areaNav' => $this->webControlNav('menus'),
             'areas' => $areas,
             'areaLabel' => $areaLabel,

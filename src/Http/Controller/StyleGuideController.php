@@ -8,14 +8,18 @@ use App\Http\Request\Request;
 use App\Http\Response\Response;
 use App\Presentation\Templating\Renderer;
 use App\Repository\AreaRepository;
+use App\Repository\MenuItemRepository;
+use App\Repository\MenuRepository;
 
 final class StyleGuideController extends Controller
 {
     public function __construct(
         Renderer $renderer,
-        AreaRepository $areas
+        AreaRepository $areas,
+        MenuRepository $menus,
+        MenuItemRepository $menuItems
     ) {
-        parent::__construct($renderer, $areas);
+        parent::__construct($renderer, $areas, $menus, $menuItems);
     }
 
     public function index(Request $request): Response
@@ -109,7 +113,8 @@ final class StyleGuideController extends Controller
             'title' => $title,
             'areaName' => 'Style Guide',
             'pageTitle' => $title,
-            'areaRootLink' => '/',
+            'areaRootLink' => '/development/web-control',
+            'headerAreaKey' => 'development',
             'areaNav' => $this->startNav(),
         ]);
     }
