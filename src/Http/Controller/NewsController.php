@@ -11,7 +11,7 @@ use App\Repository\AreaRepository;
 use App\Repository\MenuItemRepository;
 use App\Repository\MenuRepository;
 
-final class NewsController extends Controller
+final class NewsController extends PageController
 {
     public function __construct(
         Renderer $renderer,
@@ -30,6 +30,24 @@ final class NewsController extends Controller
             'pageTitle' => 'News',
             'areaRootLink' => '/',
             'headerAreaKey' => 'portal',
+        ]);
+    }
+
+    public function show(Request $request): Response
+    {
+        $id = $request->routeInt('id');
+
+        if ($id <= 0) {
+            return $this->redirect('/news');
+        }
+
+        return $this->page($request, 'pages/news/show', [
+            'title' => 'News',
+            'areaName' => 'VDBS Portal',
+            'pageTitle' => 'News',
+            'areaRootLink' => '/',
+            'headerAreaKey' => 'portal',
+            'id' => $id,
         ]);
     }
 }

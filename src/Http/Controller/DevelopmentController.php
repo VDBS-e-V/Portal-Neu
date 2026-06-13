@@ -11,7 +11,7 @@ use App\Repository\AreaRepository;
 use App\Repository\MenuItemRepository;
 use App\Repository\MenuRepository;
 
-final class DevelopmentController extends Controller
+final class DevelopmentController extends PageController
 {
     public function __construct(
         Renderer $renderer,
@@ -106,6 +106,7 @@ final class DevelopmentController extends Controller
             'headerAreaKey' => 'development',
             'areaNav' => $this->webControlNav('areas'),
             'area' => null,
+            'formAction' => '/development/web-control/areas/create',
             'errors' => [],
         ]);
     }
@@ -172,7 +173,7 @@ final class DevelopmentController extends Controller
 
     public function areasEditForm(Request $request): Response
     {
-        $id = $this->queryInt($request, 'id');
+        $id = $this->routeOrQueryInt($request, 'id');
 
         if ($id <= 0) {
             return $this->redirect('/development/web-control/areas');
@@ -195,7 +196,7 @@ final class DevelopmentController extends Controller
     public function areasEdit(Request $request): Response
     {
         $body = $request->body;
-        $id = $this->bodyInt($body, 'id');
+        $id = $this->routeOrBodyInt($request, 'id', 'id');
 
         if ($id <= 0) {
             return $this->redirect('/development/web-control/areas');
@@ -275,7 +276,7 @@ final class DevelopmentController extends Controller
 
     public function areasDelete(Request $request): Response
     {
-        $id = $this->bodyInt($request->body, 'id');
+        $id = $this->routeOrBodyInt($request, 'id', 'id');
 
         if ($id <= 0) {
             return $this->redirect('/development/web-control/areas');
@@ -403,7 +404,7 @@ final class DevelopmentController extends Controller
 
     public function menusEditForm(Request $request): Response
     {
-        $id = $this->queryInt($request, 'id');
+        $id = $this->routeOrQueryInt($request, 'id');
 
         if ($id <= 0) {
             return $this->redirect('/development/web-control/menus');
@@ -430,7 +431,7 @@ final class DevelopmentController extends Controller
     public function menusEdit(Request $request): Response
     {
         $body = $request->body;
-        $id = $this->bodyInt($body, 'id');
+        $id = $this->routeOrBodyInt($request, 'id', 'id');
 
         if ($id <= 0) {
             return $this->redirect('/development/web-control/menus');
@@ -499,7 +500,7 @@ final class DevelopmentController extends Controller
 
     public function menusDelete(Request $request): Response
     {
-        $id = $this->bodyInt($request->body, 'id');
+        $id = $this->routeOrBodyInt($request, 'id', 'id');
 
         if ($id <= 0) {
             return $this->redirect('/development/web-control/menus');
@@ -513,7 +514,7 @@ final class DevelopmentController extends Controller
     public function menuItemsCreate(Request $request): Response
     {
         $body = $request->body;
-        $menuId = $this->bodyInt($body, 'menu_id');
+        $menuId = $this->routeOrBodyInt($request, 'menuId', 'menu_id');
 
         if ($menuId <= 0 || $this->menus->find($menuId) === []) {
             return $this->redirect('/development/web-control/menus');
@@ -540,9 +541,8 @@ final class DevelopmentController extends Controller
     public function menuItemsEdit(Request $request): Response
     {
         $body = $request->body;
-
-        $menuId = $this->bodyInt($body, 'menu_id');
-        $itemId = $this->bodyInt($body, 'id');
+        $menuId = $this->routeOrBodyInt($request, 'menuId', 'menu_id');
+        $itemId = $this->routeOrBodyInt($request, 'itemId', 'id');
 
         if ($menuId <= 0 || $itemId <= 0 || $this->menus->find($menuId) === []) {
             return $this->redirect('/development/web-control/menus');
@@ -578,10 +578,8 @@ final class DevelopmentController extends Controller
 
     public function menuItemsDelete(Request $request): Response
     {
-        $body = $request->body;
-
-        $menuId = $this->bodyInt($body, 'menu_id');
-        $itemId = $this->bodyInt($body, 'id');
+        $menuId = $this->routeOrBodyInt($request, 'menuId', 'menu_id');
+        $itemId = $this->routeOrBodyInt($request, 'itemId', 'id');
 
         if ($menuId <= 0 || $itemId <= 0 || $this->menus->find($menuId) === []) {
             return $this->redirect('/development/web-control/menus');
@@ -599,6 +597,8 @@ final class DevelopmentController extends Controller
         ?array $area,
         array $errors = []
     ): Response {
+        $id = (int) ($area['id'] ?? 0);
+
         return $this->page($request, 'pages/development/areas/form', [
             'title' => $title,
             'areaName' => 'Web-Control',
@@ -607,6 +607,12 @@ final class DevelopmentController extends Controller
             'headerAreaKey' => 'development',
             'areaNav' => $this->webControlNav('areas'),
             'area' => $area,
+            'formAction' => $id > 0
+                ? '/development/web-control/areas/' . urlencode((string) $id) . '/edit'
+                : '/development/web-control/areas/create',
+            'deleteAction' => $id > 0
+                ? '/development/web-control/areas/' . urlencode((string) $id) . '/delete'
+                : '',
             'errors' => $errors,
         ]);
     }
@@ -621,6 +627,8 @@ final class DevelopmentController extends Controller
         string $areaLabel = '',
         array $menuItems = []
     ): Response {
+        $menuId = (int) ($menu['id'] ?? 0);
+
         return $this->page($request, 'pages/development/menus/form', [
             'title' => $title,
             'areaName' => 'Web-Control',
@@ -632,7 +640,15 @@ final class DevelopmentController extends Controller
             'areaLabel' => $areaLabel,
             'menu' => $menu,
             'menuItems' => $menuItems,
-            'menuItemCreateAction' => '/development/web-control/menu-items/create',
+            'formAction' => $menuId > 0
+                ? '/development/web-control/menus/' . urlencode((string) $menuId) . '/edit'
+                : '/development/web-control/menus/create',
+            'deleteAction' => $menuId > 0
+                ? '/development/web-control/menus/' . urlencode((string) $menuId) . '/delete'
+                : '',
+            'menuItemCreateAction' => $menuId > 0
+                ? '/development/web-control/menus/' . urlencode((string) $menuId) . '/items/create'
+                : '/development/web-control/menu-items/create',
             'menuItemEditAction' => '/development/web-control/menu-items/edit',
             'menuItemDeleteAction' => '/development/web-control/menu-items/delete',
             'errors' => $errors,
@@ -736,6 +752,51 @@ final class DevelopmentController extends Controller
         ];
     }
 
+    private function routeOrQueryInt(Request $request, string $key, int $default = 0): int
+    {
+        $value = $this->routeInt($request, $key, $default);
+
+        if ($value !== $default) {
+            return $value;
+        }
+
+        return $this->queryInt($request, $key, $default);
+    }
+
+    private function routeOrBodyInt(
+        Request $request,
+        string $routeKey,
+        string $bodyKey,
+        int $default = 0
+    ): int {
+        $value = $this->routeInt($request, $routeKey, $default);
+
+        if ($value !== $default) {
+            return $value;
+        }
+
+        return $this->bodyInt($request->body, $bodyKey, $default);
+    }
+
+    private function routeInt(Request $request, string $key, int $default = 0): int
+    {
+        if (method_exists($request, 'routeInt')) {
+            return $request->routeInt($key, $default);
+        }
+
+        if (!property_exists($request, 'routeParams')) {
+            return $default;
+        }
+
+        $value = $request->routeParams[$key] ?? $default;
+
+        if ($value === '' || $value === null) {
+            return $default;
+        }
+
+        return (int) $value;
+    }
+
     private function queryInt(Request $request, string $key, int $default = 0): int
     {
         $value = $request->query[$key] ?? $default;
@@ -789,7 +850,7 @@ final class DevelopmentController extends Controller
     private function redirectToMenuItems(int $menuId): Response
     {
         return $this->redirect(
-            '/development/web-control/menus/edit?id=' . urlencode((string) $menuId) . '#menu-items'
+            '/development/web-control/menus/' . urlencode((string) $menuId) . '/edit#menu-items'
         );
     }
 }

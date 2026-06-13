@@ -6,22 +6,9 @@ namespace App\Http\Controller;
 
 use App\Http\Request\Request;
 use App\Http\Response\Response;
-use App\Presentation\Templating\Renderer;
-use App\Repository\AreaRepository;
-use App\Repository\MenuItemRepository;
-use App\Repository\MenuRepository;
 
-final class StyleGuideController extends Controller
+final class StyleGuideController extends PageController
 {
-    public function __construct(
-        Renderer $renderer,
-        AreaRepository $areas,
-        MenuRepository $menus,
-        MenuItemRepository $menuItems
-    ) {
-        parent::__construct($renderer, $areas, $menus, $menuItems);
-    }
-
     public function index(Request $request): Response
     {
         return $this->stylePage($request, 'pages/style-guide/index', 'Übersicht');
