@@ -402,4 +402,83 @@ final class UserRepository
     {
         return in_array($value, $allowed, true) ? $value : $fallback;
     }
+
+    public function headerProfileForUser(int $userId): array
+    {
+        $user = $this->find($userId);
+
+        if ($user === []) {
+            return [];
+        }
+
+        $name = [];
+
+        try {
+            $stmt = $this->pdo->prepare(
+                'SELECT *
+                FROM ids_user_names
+                WHERE user_id = :user_id
+                LIMIT 1'
+            );
+            $stmt->execute(['user_id' => $userId]);
+            $name = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+        } catch (\Throwable) {
+            $name = [];
+        }
+
+        $displayName = trim((string) ($name['preferred_name'] ?? ''));
+
+        if ($displayName === '') {
+            $displayName = trim(
+                trim((string) ($name['first_name'] ?? ''))
+                . ' '
+                . trim((string) ($name['last_name'] ?? ''))
+            );
+        }
+
+        if ($displayName === '') {
+            $displayName = trim((string) ($user['display_name'] ?? ''));
+        }
+
+        if ($displayName === '') {
+            $displayName = trim((string) ($user['email'] ?? ''));
+        }
+
+        $username = trim((string) ($user['username'] ?? ''));
+
+        if ($username === '') {
+            $email = (string) ($user['email'] ?? '');
+            $username = $email !== '' ? strstr($email, '@', true) ?: $email : 'user';
+        }
+
+        $initialsSource = $displayName !== '' ? $displayName : $username;
+        $parts = preg_split('/\s+/', trim($initialsSource)) ?: [];
+        $initials = '';
+
+        foreach ($parts as $part) {
+            if ($part === '') {
+                continue;
+            }
+
+            $initials .= mb_strtoupper(mb_substr($part, 0, 1));
+
+            if (mb_strlen($initials) >= 2) {
+                break;
+            }
+        }
+
+        if ($initials === '') {
+            $initials = 'U';
+        }
+
+        return [
+            'id' => (int) ($user['id'] ?? $userId),
+            'email' => (string) ($user['email'] ?? ''),
+            'username' => $username,
+            'display_name' => $displayName,
+            'initials' => $initials,
+            'avatar_path' => (string) ($user['avatar_path'] ?? '/assets/images/avatars/default.jpg'),
+            'status' => (string) ($user['status'] ?? ''),
+        ];
+    }
 }

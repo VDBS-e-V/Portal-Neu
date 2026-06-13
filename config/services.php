@@ -53,7 +53,9 @@ return [
         return new HeaderDataProvider(
             $container->get(AreaRepository::class),
             $container->get(MenuRepository::class),
-            $container->get(MenuItemRepository::class)
+            $container->get(MenuItemRepository::class),
+            $container->get(UserRepository::class),
+            $container->get(SessionAuth::class)
         );
     },
     HomeController::class => static function (Container $container): HomeController {
@@ -71,10 +73,8 @@ return [
     UserRepository::class => static function (Container $container): UserRepository {
         return new UserRepository($container->get(PDO::class));
     },
-    SessionAuth::class => static function (Container $container): SessionAuth {
-
+    SessionAuth::class => static function (): SessionAuth {
         return new SessionAuth();
-
     },
     UserAccountController::class => static function (Container $container): UserAccountController {
         return new UserAccountController(

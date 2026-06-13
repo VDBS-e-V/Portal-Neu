@@ -14,7 +14,6 @@ header {
     flex-direction: column;
 }
 
-/* Downward shimmer overlay */
 header::after {
     content: "";
     position: absolute;
@@ -22,7 +21,7 @@ header::after {
     top: -30%;
     width: 200%;
     height: 30%;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.) 50%, rgba(255, 255, 255, 0) 100%);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0) 100%);
     transform: translateY(-120%);
     filter: blur(10px);
     animation: shimmer-down 2.5s linear infinite;
@@ -184,7 +183,6 @@ div.header-bottom-nav a:active {
     text-decoration: underline;
 }
 
-/* Unsichtbare Hover-Brücke zwischen Hauptmenüpunkt und Submenu */
 li.header-bottom-nav-list-item.has-submenu::after,
 li.header-bottom-nav-list-item:has(> .header-bottom-submenu)::after {
     content: "";
@@ -207,7 +205,6 @@ li.header-bottom-nav-list-item:focus-within:has(> .header-bottom-submenu)::after
     display: block;
 }
 
-/* Submenu: linksbündig zum Hauptmenüpunkt, am unteren Rand des Headers */
 .header-bottom-submenu,
 ul.header-bottom-submenu {
     position: absolute;
@@ -414,21 +411,38 @@ button.header-bottom-user-avatar img {
     color: var(--color-ink);
 }
 
+.header-user-popover-logout-form {
+    margin: 0;
+}
+
 .header-user-popover-logout {
-    display: flex;
-    align-items: center;
+    width: 100%;
+    justify-content: flex-start;
     gap: .6rem;
-    padding: var(--spacing-1) var(--spacing-2);
-    color: var(--color-primary, #0b5fff);
-    font-weight: var(--font-weight-medium);
+    text-align: left;
+    cursor: pointer;
 }
 
 .header-user-popover-logout .popover-icon .vdb-icon {
-    color: var(--color-primary, #0b5fff);
+    color: currentColor;
+}
+
+.header-user-popover-logout:hover .popover-icon .vdb-icon,
+.header-user-popover-logout:focus .popover-icon .vdb-icon {
+    color: currentColor;
 }
 
 div.header-bottom-user-login {
-    display: none;
+    display: flex;
     align-items: center;
     gap: var(--spacing-gap);
+}
+
+div.header-bottom-user-login .btn {
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.header-bottom-user-logout-form {
+    margin: 0;
 }
