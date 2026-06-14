@@ -80,30 +80,31 @@ return [
     new Route('POST', '/development/web-control/menu-items/edit', DevelopmentController::class, 'menuItemsEdit'),
     new Route('POST', '/development/web-control/menu-items/delete', DevelopmentController::class, 'menuItemsDelete'),
 
-    // Style Guide
-    new Route('GET', '/styleguide', StyleGuideController::class, 'index'),
+    
+    // Development WCL
+    new Route('GET', '/development/wcl', StyleGuideController::class, 'index'),
 
-    new Route('GET', '/styleguide/buttons', StyleGuideController::class, 'buttons'),
-    new Route('GET', '/styleguide/buttons/generator', StyleGuideController::class, 'buttonGenerator'),
+    new Route('GET', '/development/wcl/buttons', StyleGuideController::class, 'buttons'),
+    new Route('GET', '/development/wcl/buttons/generator', StyleGuideController::class, 'buttonGenerator'),
 
-    new Route('GET', '/styleguide/containers', StyleGuideController::class, 'containers'),
-    new Route('GET', '/styleguide/forms', StyleGuideController::class, 'forms'),
+    new Route('GET', '/development/wcl/containers', StyleGuideController::class, 'containers'),
+    new Route('GET', '/development/wcl/forms', StyleGuideController::class, 'forms'),
 
-    new Route('GET', '/styleguide/grids', StyleGuideController::class, 'grids'),
-    new Route('GET', '/styleguide/grids/generator', StyleGuideController::class, 'gridsGenerator'),
+    new Route('GET', '/development/wcl/grids', StyleGuideController::class, 'grids'),
+    new Route('GET', '/development/wcl/grids/generator', StyleGuideController::class, 'gridsGenerator'),
 
-    new Route('GET', '/styleguide/heros', StyleGuideController::class, 'heros'),
-    new Route('GET', '/styleguide/heros/generator', StyleGuideController::class, 'herosGenerator'),
+    new Route('GET', '/development/wcl/heros', StyleGuideController::class, 'heros'),
+    new Route('GET', '/development/wcl/heros/generator', StyleGuideController::class, 'herosGenerator'),
 
-    new Route('GET', '/styleguide/links', StyleGuideController::class, 'links'),
-    new Route('GET', '/styleguide/media', StyleGuideController::class, 'media'),
+    new Route('GET', '/development/wcl/links', StyleGuideController::class, 'links'),
+    new Route('GET', '/development/wcl/media', StyleGuideController::class, 'media'),
 
-    new Route('GET', '/styleguide/popovers', StyleGuideController::class, 'popovers'),
-    new Route('GET', '/styleguide/popovers/generator', StyleGuideController::class, 'popoversGenerator'),
+    new Route('GET', '/development/wcl/popovers', StyleGuideController::class, 'popovers'),
+    new Route('GET', '/development/wcl/popovers/generator', StyleGuideController::class, 'popoversGenerator'),
 
-    new Route('GET', '/styleguide/summaries', StyleGuideController::class, 'summaries'),
-    new Route('GET', '/styleguide/tables', StyleGuideController::class, 'tables'),
+    new Route('GET', '/development/wcl/summaries', StyleGuideController::class, 'summaries'),
+    new Route('GET', '/development/wcl/tables', StyleGuideController::class, 'tables'),
 
-    new Route('GET', '/styleguide/icons', StyleGuideController::class, 'icons'),
-    new Route('GET', '/styleguide/icons/generator', StyleGuideController::class, 'iconsGenerator'),
+    new Route('GET', '/development/wcl/icons', StyleGuideController::class, 'icons'),
+    new Route('GET', '/development/wcl/icons/generator', StyleGuideController::class, 'iconsGenerator'),
 ];
