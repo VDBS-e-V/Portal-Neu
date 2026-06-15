@@ -11,7 +11,7 @@ use App\Repository\AreaRepository;
 use App\Repository\UserRepository;
 use App\Security\SessionAuth;
 
-final class AuthController extends Controller
+final class AuthController extends PageController
 {
     public function __construct(
         Renderer $renderer,
@@ -38,13 +38,27 @@ final class AuthController extends Controller
         $csrfToken = (string) ($request->body['_csrf'] ?? '');
 
         if (!$this->auth->validateCsrfToken($csrfToken)) {
-            return $this->loginPage($request, ['Die Sitzung ist abgelaufen. Bitte erneut versuchen.'], $email, 419);
+            return $this->loginPage(
+                $request,
+                ['Die Sitzung ist abgelaufen. Bitte erneut versuchen.'],
+                $email,
+                419
+            );
         }
 
         $user = $email !== '' ? $this->users->findByEmail($email) : [];
 
-        if ($user === [] || !$this->userCanLogin($user) || !password_verify($password, (string) ($user['password_hash'] ?? ''))) {
-            return $this->loginPage($request, ['E-Mail oder Passwort ist falsch.'], $email, 422);
+        if (
+            $user === []
+            || !$this->userCanLogin($user)
+            || !password_verify($password, (string) ($user['password_hash'] ?? ''))
+        ) {
+            return $this->loginPage(
+                $request,
+                ['E-Mail oder Passwort ist falsch.'],
+                $email,
+                422
+            );
         }
 
         $this->auth->login((int) $user['id']);
@@ -67,11 +81,11 @@ final class AuthController extends Controller
             return $this->redirect('/login');
         }
 
-        return $this->page($request, 'pages/user/profile', [
+        return $this->renderPage($request, 'pages/user/profile', [
             'title' => 'Mein Konto',
             'areaName' => 'VDBS Portal',
             'pageTitle' => 'Mein Konto',
-            'areaRootLink' => '/',
+            'areaRootLink' => '/portal',
             'headerAreaKey' => 'portal',
             'areaNav' => $this->accountNav('profile'),
             'user' => $this->publicUser($user),
@@ -96,13 +110,16 @@ final class AuthController extends Controller
         ]);
     }
 
-    private function loginPage(Request $request, array $errors = [], string $email = '', int $status = 200): Response
-    {
-        return $this->page($request, 'pages/auth/login', [
+    private function loginPage(
+        Request $request,
+        array $errors = [],
+        string $email = '',
+        int $status = 200
+    ): Response {
+        return $this->renderPage($request, 'pages/auth/login', [
             'title' => 'Login',
             'areaName' => 'VDBS Portal',
             'pageTitle' => 'Login',
-            'areaRootLink' => '/',
             'headerAreaKey' => 'portal',
             'areaNav' => $this->accountNav('login'),
             'errors' => $errors,
@@ -150,21 +167,5 @@ final class AuthController extends Controller
                 'active' => $activeKey === 'profile',
             ],
         ];
-    }
-
-    private function bodyString(array $body, string $key, string $default = ''): string
-    {
-        return trim((string) ($body[$key] ?? $default));
-    }
-
-    private function page(Request $request, string $view, array $parameters = [], int $status = 200): Response
-    {
-        unset($request);
-
-        return new Response(
-            $status,
-            ['Content-Type' => 'text/html; charset=utf-8'],
-            $this->renderer->renderPage(str_replace('.', '/', $view), $parameters)
-        );
     }
 }

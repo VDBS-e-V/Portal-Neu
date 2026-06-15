@@ -11,7 +11,7 @@ final class HomeController extends PageController
 {
     public function index(Request $request): Response
     {
-        return $this->page($request, 'pages/home/index', [
+        return $this->renderPage($request, 'pages/home/index', [
             'title' => 'Startseite',
             'areaName' => 'VDBS Portal',
             'pageTitle' => 'Startseite',

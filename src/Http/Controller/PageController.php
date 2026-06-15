@@ -22,7 +22,7 @@ abstract class PageController extends Controller
         parent::__construct($renderer);
     }
 
-    protected function page(
+    protected function renderPage(
         Request $request,
         string $view,
         array $parameters = [],
@@ -99,7 +99,6 @@ abstract class PageController extends Controller
         $parameters['headerAreas'] = $headerAreas;
         $parameters['headerMenus'] = $headerMenus;
 
-        // Rückwärtskompatible Aliase für vorhandene Templates.
         $parameters['areas'] = $headerAreas;
         $parameters['headerNav'] = $headerMenus;
 
@@ -171,7 +170,7 @@ abstract class PageController extends Controller
             }
         }
 
-        $path = $this->normalizePath($request->path);
+        $path = $this->normalizePathForNavigation($request->path);
         $bestArea = [];
         $bestLength = -1;
 
@@ -180,7 +179,7 @@ abstract class PageController extends Controller
                 continue;
             }
 
-            $startPath = $this->normalizePath((string) ($area['start_path'] ?? '/'));
+            $startPath = $this->normalizePathForNavigation((string) ($area['start_path'] ?? '/'));
 
             if (!$this->pathStartsWith($path, $startPath)) {
                 continue;
@@ -410,8 +409,8 @@ abstract class PageController extends Controller
             return false;
         }
 
-        $path = $this->normalizePath($path);
-        $urlPath = $this->normalizePath($urlPath);
+        $path = $this->normalizePathForNavigation($path);
+        $urlPath = $this->normalizePathForNavigation($urlPath);
 
         if ($urlPath === '/') {
             return $path === '/';
@@ -422,8 +421,8 @@ abstract class PageController extends Controller
 
     private function pathStartsWith(string $path, string $prefix): bool
     {
-        $path = $this->normalizePath($path);
-        $prefix = $this->normalizePath($prefix);
+        $path = $this->normalizePathForNavigation($path);
+        $prefix = $this->normalizePathForNavigation($prefix);
 
         if ($prefix === '/') {
             return true;
@@ -432,7 +431,7 @@ abstract class PageController extends Controller
         return $path === $prefix || str_starts_with($path, rtrim($prefix, '/') . '/');
     }
 
-    private function normalizePath(string $path): string
+    private function normalizePathForNavigation(string $path): string
     {
         $path = parse_url($path, PHP_URL_PATH) ?: '/';
         $path = '/' . ltrim($path, '/');

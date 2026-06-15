@@ -36,7 +36,7 @@ final class UserAccountController extends PageController
 
         $userId = (int) $user['id'];
 
-        return $this->page($request, 'pages/user/profile', [
+        return $this->renderPage($request, 'pages/user/profile', [
             'title' => 'Mein Profil',
             'pageTitle' => 'Mein Profil',
             'areaName' => 'Konto',
@@ -122,7 +122,7 @@ final class UserAccountController extends PageController
             return $this->redirect('/login?redirect=/user/settings');
         }
 
-        return $this->page($request, 'pages/user/settings', [
+        return $this->renderPage($request, 'pages/user/settings', [
             'title' => 'Kontoeinstellungen',
             'pageTitle' => 'Kontoeinstellungen',
             'areaName' => 'Konto',
@@ -196,7 +196,7 @@ final class UserAccountController extends PageController
 
     private function settingsWithPasswordError(Request $request, array $user, string $error): Response
     {
-        return $this->page($request, 'pages/user/settings', [
+        return $this->renderPage($request, 'pages/user/settings', [
             'title' => 'Kontoeinstellungen',
             'pageTitle' => 'Kontoeinstellungen',
             'areaName' => 'Konto',

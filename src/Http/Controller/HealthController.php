@@ -16,6 +16,8 @@ final class HealthController extends ApiController
 
     public function apiHealth(Request $request): Response
     {
-        return $this->json(['status' => 'ok']);
+        return $this->success([
+            'status' => 'ok',
+        ]);
     }
 }

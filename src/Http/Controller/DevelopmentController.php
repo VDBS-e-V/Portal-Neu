@@ -61,11 +61,11 @@ final class DevelopmentController extends PageController
             $menuItemsByMenuId[$menuId][] = $menuItem;
         }
 
-        return $this->page($request, 'pages/development/web-control/index', [
+        return $this->renderPage($request, 'pages/development/web-control/index', [
             'title' => 'Web-Control',
-            'areaName' => 'Web-Control',
-            'pageTitle' => 'Dashboard',
-            'areaRootLink' => '/development/web-control',
+            'areaName' => 'Development',
+            'pageTitle' => 'Web-Control',
+            'areaRootLink' => '/development',
             'headerAreaKey' => 'development',
             'areaNav' => $this->webControlNav('dashboard'),
             'areas' => $areas,
@@ -85,11 +85,11 @@ final class DevelopmentController extends PageController
 
     public function areasIndex(Request $request): Response
     {
-        return $this->page($request, 'pages/development/areas/index', [
+        return $this->renderPage($request, 'pages/development/areas/index', [
             'title' => 'Bereiche',
-            'areaName' => 'Web-Control',
+            'areaName' => 'Development',
             'pageTitle' => 'Bereiche',
-            'areaRootLink' => '/development/web-control',
+            'areaRootLink' => '/development',
             'headerAreaKey' => 'development',
             'areaNav' => $this->webControlNav('areas'),
             'areas' => $this->areas->findAll(),
@@ -98,11 +98,11 @@ final class DevelopmentController extends PageController
 
     public function areasCreateForm(Request $request): Response
     {
-        return $this->page($request, 'pages/development/areas/form', [
+        return $this->renderPage($request, 'pages/development/areas/form', [
             'title' => 'Neuen Bereich',
-            'areaName' => 'Web-Control',
+            'areaName' => 'Development',
             'pageTitle' => 'Neuen Bereich erstellen',
-            'areaRootLink' => '/development/web-control',
+            'areaRootLink' => '/development',
             'headerAreaKey' => 'development',
             'areaNav' => $this->webControlNav('areas'),
             'area' => null,
@@ -312,11 +312,11 @@ final class DevelopmentController extends PageController
             $menuItemCounts[$menuId] = ($menuItemCounts[$menuId] ?? 0) + 1;
         }
 
-        return $this->page($request, 'pages/development/menus/index', [
+        return $this->renderPage($request, 'pages/development/menus/index', [
             'title' => 'Menüs',
-            'areaName' => 'Web-Control',
+            'areaName' => 'Development',
             'pageTitle' => 'Menüs',
-            'areaRootLink' => '/development/web-control',
+            'areaRootLink' => '/development',
             'headerAreaKey' => 'development',
             'areaNav' => $this->webControlNav('menus'),
             'menus' => $menus,
@@ -599,11 +599,11 @@ final class DevelopmentController extends PageController
     ): Response {
         $id = (int) ($area['id'] ?? 0);
 
-        return $this->page($request, 'pages/development/areas/form', [
+        return $this->renderPage($request, 'pages/development/areas/form', [
             'title' => $title,
-            'areaName' => 'Web-Control',
+            'areaName' => 'Development',
             'pageTitle' => $pageTitle,
-            'areaRootLink' => '/development/web-control',
+            'areaRootLink' => '/development',
             'headerAreaKey' => 'development',
             'areaNav' => $this->webControlNav('areas'),
             'area' => $area,
@@ -629,11 +629,11 @@ final class DevelopmentController extends PageController
     ): Response {
         $menuId = (int) ($menu['id'] ?? 0);
 
-        return $this->page($request, 'pages/development/menus/form', [
+        return $this->renderPage($request, 'pages/development/menus/form', [
             'title' => $title,
-            'areaName' => 'Web-Control',
+            'areaName' => 'Development',
             'pageTitle' => $pageTitle,
-            'areaRootLink' => '/development/web-control',
+            'areaRootLink' => '/development',
             'headerAreaKey' => 'development',
             'areaNav' => $this->webControlNav('menus'),
             'areas' => $areas,
@@ -750,101 +750,6 @@ final class DevelopmentController extends PageController
             'level' => $level,
             'is_active' => $this->bodyBool($body, 'is_active') ? 1 : 0,
         ];
-    }
-
-    private function routeOrQueryInt(Request $request, string $key, int $default = 0): int
-    {
-        $value = $this->routeInt($request, $key, $default);
-
-        if ($value !== $default) {
-            return $value;
-        }
-
-        return $this->queryInt($request, $key, $default);
-    }
-
-    private function routeOrBodyInt(
-        Request $request,
-        string $routeKey,
-        string $bodyKey,
-        int $default = 0
-    ): int {
-        $value = $this->routeInt($request, $routeKey, $default);
-
-        if ($value !== $default) {
-            return $value;
-        }
-
-        return $this->bodyInt($request->body, $bodyKey, $default);
-    }
-
-    private function routeInt(Request $request, string $key, int $default = 0): int
-    {
-        if (method_exists($request, 'routeInt')) {
-            return $request->routeInt($key, $default);
-        }
-
-        if (!property_exists($request, 'routeParams')) {
-            return $default;
-        }
-
-        $value = $request->routeParams[$key] ?? $default;
-
-        if ($value === '' || $value === null) {
-            return $default;
-        }
-
-        return (int) $value;
-    }
-
-    private function queryInt(Request $request, string $key, int $default = 0): int
-    {
-        $value = $request->query[$key] ?? $default;
-
-        if ($value === '' || $value === null) {
-            return $default;
-        }
-
-        return (int) $value;
-    }
-
-    private function bodyString(array $body, string $key, string $default = ''): string
-    {
-        return trim((string) ($body[$key] ?? $default));
-    }
-
-    private function bodyNullableString(array $body, string $key): ?string
-    {
-        $value = $this->bodyString($body, $key);
-
-        return $value === '' ? null : $value;
-    }
-
-    private function bodyInt(array $body, string $key, int $default = 0): int
-    {
-        $value = $body[$key] ?? $default;
-
-        if ($value === '' || $value === null) {
-            return $default;
-        }
-
-        return (int) $value;
-    }
-
-    private function bodyNullableInt(array $body, string $key): ?int
-    {
-        $value = $body[$key] ?? null;
-
-        if ($value === null || $value === '') {
-            return null;
-        }
-
-        return (int) $value;
-    }
-
-    private function bodyBool(array $body, string $key): bool
-    {
-        return isset($body[$key]) && (string) $body[$key] === '1';
     }
 
     private function redirectToMenuItems(int $menuId): Response

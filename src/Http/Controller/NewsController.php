@@ -24,28 +24,28 @@ final class NewsController extends PageController
 
     public function index(Request $request): Response
     {
-        return $this->page($request, 'pages/news/index', [
+        return $this->renderPage($request, 'pages/news/index', [
             'title' => 'News',
-            'areaName' => 'VDBS Portal',
+            'areaName' => 'Newsroom',
             'pageTitle' => 'News',
-            'areaRootLink' => '/',
+            'areaRootLink' => '/news',
             'headerAreaKey' => 'portal',
         ]);
     }
 
     public function show(Request $request): Response
     {
-        $id = $request->routeInt('id');
+        $id = $this->routeInt($request, 'id');
 
         if ($id <= 0) {
             return $this->redirect('/news');
         }
 
-        return $this->page($request, 'pages/news/show', [
+        return $this->renderPage($request, 'pages/news/show', [
             'title' => 'News',
-            'areaName' => 'VDBS Portal',
+            'areaName' => 'Newsroom',
             'pageTitle' => 'News',
-            'areaRootLink' => '/',
+            'areaRootLink' => '/news',
             'headerAreaKey' => 'portal',
             'id' => $id,
         ]);
