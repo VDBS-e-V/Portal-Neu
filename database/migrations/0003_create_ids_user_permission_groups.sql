@@ -1,9 +1,9 @@
 CREATE TABLE IF NOT EXISTS `ids_person_permission_groups` (
-  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `person_id` BIGINT UNSIGNED NOT NULL,
-  `permission_group_id` BIGINT UNSIGNED NOT NULL,
-  `assigned_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `assigned_by_person_id` BIGINT UNSIGNED NULL,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel der Zuordnung.',
+  `person_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf ids_persons.id; zugeordnete Person.',
+  `permission_group_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf ids_permission_groups.id; zugeordnete Berechtigungsgruppe.',
+  `assigned_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Zuweisung.',
+  `assigned_by_person_id` BIGINT UNSIGNED NULL COMMENT 'Verweist auf ids_persons.id; Person, die die Zuordnung vergeben hat, oder NULL.',
 
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_ids_person_permission_groups_person_group` (`person_id`, `permission_group_id`),
@@ -24,4 +24,5 @@ CREATE TABLE IF NOT EXISTS `ids_person_permission_groups` (
     FOREIGN KEY (`assigned_by_person_id`) REFERENCES `ids_persons` (`id`)
     ON DELETE SET NULL
     ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='Verknüpft Personen mit Berechtigungsgruppen.';

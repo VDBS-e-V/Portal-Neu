@@ -7,6 +7,28 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 
 use App\Bootstrap\Routes;
 
+/******************************************
+ * 
+ * Command Liste:
+ * * php bin/console routes
+ * * * php bin/console migrate
+ * * * php bin/console migrate:status
+ *  * * * php bin/console migrate:fresh [--seed]
+ * * * php bin/console seed [--reset]
+ *  * * * php bin/console db:hard-reset [--force]
+ *  * * Options:
+ *  * * * --reset: For seeds, delete existing data before seeding. For migrate:fresh, runs a hard reset before migrating.
+ *  * * * --seed: When used with migrate:fresh, runs seeds after migrating. When used alone, runs the seed command.
+ *  * * * --force: For db:hard-reset, skip confirmation prompt.
+ *  * * Examples:
+ *  * * * php bin/console migrate:fresh --seed
+ *  * * * php bin/console seed --reset
+ *  * * * php bin/console db:hard-reset --force
+ *  * * * php bin/console db:hard-reset --force --seed --admin-password=secret123
+ *  * * * Note: For commands that interact with the database, ensure that the DB_HOST, DB_PORT, DB_NAME, DB_USER, and DB_PASS environment variables are set, either in the shell environment or in a .env file at the project root.
+ *
+******************************************/
+
 // Load project .env for CLI (so getenv() picks up DB_* variables)
 $root = dirname(__DIR__);
 $envFile = $root . '/.env';

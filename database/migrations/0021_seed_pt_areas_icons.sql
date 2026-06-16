@@ -1,10 +1,6 @@
-UPDATE `pt_areas`
-SET `icon` = CASE `area_key`
-  WHEN 'portal' THEN 'icon-home'
-  WHEN 'identity' THEN 'icon-shield'
-  WHEN 'bibliocollect' THEN 'icon-library'
-  WHEN 'methodenmatrix' THEN 'icon-methods'
-  WHEN 'development' THEN 'icon-server'
-  WHEN 'styleguide' THEN 'icon-layout'
-  ELSE `icon`
-END;
+UPDATE `pt_areas` SET `icon` = 'house' WHERE `area_key` = 'portal';
+UPDATE `pt_areas` SET `icon` = 'wrench' WHERE `area_key` = 'development';
+UPDATE `pt_areas` SET `icon` = 'briefcase' WHERE `area_key` = 'verwaltung';
+UPDATE `pt_areas` SET `icon` = 'mortarboard' WHERE `area_key` = 'schule';
+UPDATE `pt_areas` SET `icon` = 'people' WHERE `area_key` = 'verein';
+UPDATE `pt_areas` SET `icon` = 'shield-check' WHERE `area_key` = 'vorstand';
