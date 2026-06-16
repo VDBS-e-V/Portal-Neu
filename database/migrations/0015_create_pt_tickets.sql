@@ -5,26 +5,51 @@ CREATE TABLE IF NOT EXISTS `pt_tickets` (
   `area_id` BIGINT UNSIGNED NULL,
   `school_id` BIGINT UNSIGNED NULL,
   `seminar_id` BIGINT UNSIGNED NULL,
-  `created_by_user_id` BIGINT UNSIGNED NOT NULL,
-  `assigned_to_user_id` BIGINT UNSIGNED NULL,
+  `created_by_person_id` BIGINT UNSIGNED NOT NULL,
+  `assigned_to_person_id` BIGINT UNSIGNED NULL,
   `subject` VARCHAR(191) NOT NULL,
   `description` MEDIUMTEXT NULL,
   `status` ENUM('open', 'in_progress', 'waiting', 'resolved', 'closed') NOT NULL DEFAULT 'open',
   `priority` ENUM('low', 'normal', 'high', 'urgent') NOT NULL DEFAULT 'normal',
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_pt_tickets_number` (`ticket_number`),
   KEY `idx_pt_tickets_type` (`ticket_type_id`),
   KEY `idx_pt_tickets_area` (`area_id`),
   KEY `idx_pt_tickets_school` (`school_id`),
   KEY `idx_pt_tickets_seminar` (`seminar_id`),
-  KEY `idx_pt_tickets_creator` (`created_by_user_id`),
-  KEY `idx_pt_tickets_assignee` (`assigned_to_user_id`),
-  CONSTRAINT `fk_pt_tickets_type` FOREIGN KEY (`ticket_type_id`) REFERENCES `pt_ticket_types` (`id`) ON DELETE RESTRICT,
-  CONSTRAINT `fk_pt_tickets_area` FOREIGN KEY (`area_id`) REFERENCES `pt_areas` (`id`) ON DELETE SET NULL,
-  CONSTRAINT `fk_pt_tickets_school` FOREIGN KEY (`school_id`) REFERENCES `cod_schools` (`id`) ON DELETE SET NULL,
-  CONSTRAINT `fk_pt_tickets_seminar` FOREIGN KEY (`seminar_id`) REFERENCES `cod_seminars` (`id`) ON DELETE SET NULL,
-  CONSTRAINT `fk_pt_tickets_created_by` FOREIGN KEY (`created_by_user_id`) REFERENCES `ids_users` (`id`) ON DELETE RESTRICT,
-  CONSTRAINT `fk_pt_tickets_assigned_to` FOREIGN KEY (`assigned_to_user_id`) REFERENCES `ids_users` (`id`) ON DELETE SET NULL
+  KEY `idx_pt_tickets_creator` (`created_by_person_id`),
+  KEY `idx_pt_tickets_assignee` (`assigned_to_person_id`),
+
+  CONSTRAINT `fk_pt_tickets_type`
+    FOREIGN KEY (`ticket_type_id`) REFERENCES `pt_ticket_types` (`id`)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+
+  CONSTRAINT `fk_pt_tickets_area`
+    FOREIGN KEY (`area_id`) REFERENCES `pt_areas` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE,
+
+  CONSTRAINT `fk_pt_tickets_school`
+    FOREIGN KEY (`school_id`) REFERENCES `cod_schools` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE,
+
+  CONSTRAINT `fk_pt_tickets_seminar`
+    FOREIGN KEY (`seminar_id`) REFERENCES `cod_seminars` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE,
+
+  CONSTRAINT `fk_pt_tickets_created_by`
+    FOREIGN KEY (`created_by_person_id`) REFERENCES `ids_persons` (`id`)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+
+  CONSTRAINT `fk_pt_tickets_assigned_to`
+    FOREIGN KEY (`assigned_to_person_id`) REFERENCES `ids_persons` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

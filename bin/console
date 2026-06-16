@@ -25,7 +25,7 @@ if ($command === 'routes') {
     exit(0);
 }
 
-if ($command === 'migrate' || $command === 'migrate:status' || $command === 'seed') {
+if (in_array($command, ['migrate', 'migrate:status', 'migrate:fresh', 'seed', 'db:hard-reset'], true)) {
     // Lazy-load functions and execute requested action
     if ($command === 'migrate') {
         runMigrate();
@@ -37,13 +37,29 @@ if ($command === 'migrate' || $command === 'migrate:status' || $command === 'see
         exit(0);
     }
 
+    if ($command === 'migrate:fresh') {
+        runHardReset($options);
+        runMigrate();
+
+        if (!empty($options['seed'])) {
+            runSeed($options);
+        }
+
+        exit(0);
+    }
+
     if ($command === 'seed') {
         runSeed($options);
         exit(0);
     }
+
+    if ($command === 'db:hard-reset') {
+        runHardReset($options);
+        exit(0);
+    }
 }
 
-fwrite(STDERR, "Usage: php bin/console routes|migrate|migrate:status|seed [--reset] [--admin-password=...] [--no-prompt]\n");
+fwrite(STDERR, "Usage: php bin/console routes|migrate|migrate:status|migrate:fresh|seed|db:hard-reset [--reset] [--seed] [--force] [--admin-password=...] [--no-prompt]\n");
 exit(1);
 
 function getPdo(): PDO
@@ -231,27 +247,150 @@ function runMigrateStatus(): void
     }
 }
 
-function resetSeedData(PDO $pdo): void
+function quoteIdentifier(string $identifier): string
 {
-    $tables = [];
+    return '`' . str_replace('`', '``', $identifier) . '`';
+}
+
+function listDatabaseObjects(PDO $pdo): array
+{
+    $objects = [];
+
     try {
-        $tables = $pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN) ?: [];
+        $rows = $pdo->query('SHOW FULL TABLES')->fetchAll(PDO::FETCH_NUM) ?: [];
     } catch (PDOException $e) {
+        return [];
+    }
+
+    foreach ($rows as $row) {
+        $name = (string) ($row[0] ?? '');
+        $type = strtoupper((string) ($row[1] ?? 'BASE TABLE'));
+
+        if ($name === '') {
+            continue;
+        }
+
+        $objects[] = [
+            'name' => $name,
+            'type' => $type === 'VIEW' ? 'view' : 'table',
+        ];
+    }
+
+    return $objects;
+}
+
+function listDatabaseTables(PDO $pdo): array
+{
+    return array_values(array_map(
+        static fn (array $object): string => $object['name'],
+        array_filter(
+            listDatabaseObjects($pdo),
+            static fn (array $object): bool => $object['type'] === 'table'
+        )
+    ));
+}
+
+function confirmHardReset(array $options): void
+{
+    if (!empty($options['force']) || !empty($options['no-prompt'])) {
         return;
     }
 
-    $tables = array_values(array_filter($tables, static fn ($table): bool => $table !== '__migrations'));
+    fwrite(STDOUT, "This will DROP all database tables and views, including __migrations. Type HARD RESET to continue: ");
+    $answer = trim((string) fgets(STDIN));
+
+    if ($answer !== 'HARD RESET') {
+        fwrite(STDERR, "Hard reset aborted. Use --force to run without confirmation.\n");
+        exit(1);
+    }
+}
+
+function runHardReset(array $options): void
+{
+    confirmHardReset($options);
+
+    $pdo = getPdo();
+    $objects = listDatabaseObjects($pdo);
+
+    if (empty($objects)) {
+        echo "No database tables or views found. Hard reset skipped.\n";
+        return;
+    }
+
+    echo "Running hard reset...\n";
+    $pdo->exec('SET FOREIGN_KEY_CHECKS=0');
+    $error = null;
+
+    try {
+        $remaining = $objects;
+        $passes = 0;
+
+        while (!empty($remaining) && $passes < 5) {
+            $passes++;
+            $droppedAny = false;
+
+            foreach (['view', 'table'] as $type) {
+                foreach ($remaining as $object) {
+                    if ($object['type'] !== $type) {
+                        continue;
+                    }
+
+                    $name = $object['name'];
+                    $identifier = quoteIdentifier($name);
+                    $sql = $type === 'view'
+                        ? "DROP VIEW IF EXISTS {$identifier}"
+                        : "DROP TABLE IF EXISTS {$identifier}";
+
+                    echo sprintf("Dropping %s: %s\n", $type, $name);
+                    $pdo->exec($sql);
+                    $droppedAny = true;
+                }
+            }
+
+            $remaining = listDatabaseObjects($pdo);
+
+            if (!$droppedAny) {
+                break;
+            }
+        }
+
+        if (!empty($remaining)) {
+            $names = array_map(static fn (array $object): string => $object['name'], $remaining);
+            throw new RuntimeException('Could not drop all database objects: ' . implode(', ', $names));
+        }
+    } catch (Throwable $e) {
+        $error = $e;
+    } finally {
+        $pdo->exec('SET FOREIGN_KEY_CHECKS=1');
+    }
+
+    if ($error !== null) {
+        fwrite(STDERR, "Hard reset failed: " . $error->getMessage() . "\n");
+        exit(1);
+    }
+
+    echo "Hard reset complete. All database tables and views were dropped.\n";
+}
+
+function resetSeedData(PDO $pdo): void
+{
+    $tables = array_values(array_filter(
+        listDatabaseTables($pdo),
+        static fn ($table): bool => $table !== '__migrations'
+    ));
 
     if (empty($tables)) {
         return;
     }
 
     $pdo->exec('SET FOREIGN_KEY_CHECKS=0');
-    foreach ($tables as $table) {
-        $tableName = str_replace('`', '``', (string) $table);
-        $pdo->exec("DELETE FROM `{$tableName}`");
+    try {
+        foreach ($tables as $table) {
+            $pdo->exec('DELETE FROM ' . quoteIdentifier((string) $table));
+        }
+    } finally {
+        $pdo->exec('SET FOREIGN_KEY_CHECKS=1');
     }
-    $pdo->exec('SET FOREIGN_KEY_CHECKS=1');
 }
 
 function resolveSeedPassword(array $options): string

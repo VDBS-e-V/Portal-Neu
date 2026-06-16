@@ -17,11 +17,17 @@ header {
 header::after {
     content: "";
     position: absolute;
-    left: -50%;
+    left: 0;
+    right: 0;
     top: -30%;
-    width: 200%;
+    width: auto;
     height: 30%;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0) 100%);
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
     transform: translateY(-120%);
     filter: blur(10px);
     animation: shimmer-down 2.5s linear infinite;

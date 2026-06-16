@@ -5,17 +5,32 @@ ALTER TABLE `__migrations`
   MODIFY COLUMN `batch` INT NOT NULL COMMENT 'Nummer des Migrationslaufs; positive ganze Zahl.',
   MODIFY COLUMN `ran_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Ausführung; wird automatisch gesetzt.';
 
+ALTER TABLE `ids_persons`
+  COMMENT = 'Fachliche Personenstammdaten; eine Person kann ohne Login existieren.',
+  MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel der Person.',
+  MODIFY COLUMN `person_uuid` BINARY(16) NOT NULL COMMENT 'Eindeutige UUID der Person als 16-Byte-Binärwert.',
+  MODIFY COLUMN `display_name` VARCHAR(191) NULL COMMENT 'Optionaler Anzeigename der Person.',
+  MODIFY COLUMN `status` ENUM('active', 'disabled', 'erasure_requested', 'erased') NOT NULL DEFAULT 'active' COMMENT 'Personenstatus: aktiv, deaktiviert, Löschung beantragt oder gelöscht/anonymisiert.',
+  MODIFY COLUMN `disabled_at` DATETIME NULL COMMENT 'Zeitpunkt der Deaktivierung; NULL wenn nicht deaktiviert.',
+  MODIFY COLUMN `erasure_requested_at` DATETIME NULL COMMENT 'Zeitpunkt eines DSGVO-Löschantrags; NULL wenn nicht beantragt.',
+  MODIFY COLUMN `erased_at` DATETIME NULL COMMENT 'Zeitpunkt der Löschung oder Anonymisierung; NULL wenn nicht durchgeführt.',
+  MODIFY COLUMN `erasure_reason` TEXT NULL COMMENT 'Optionale Begründung oder Referenz zum Löschvorgang.',
+  MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Anlage der Person.',
+  MODIFY COLUMN `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der letzten Änderung der Person.';
+
 ALTER TABLE `ids_users`
-  COMMENT = 'Benutzerkonten für das Identity-System.',
-  MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel des Benutzerkontos.',
-  MODIFY COLUMN `user_uuid` BINARY(16) NOT NULL COMMENT 'Eindeutige UUID des Benutzerkontos als 16-Byte-Binärwert.',
+  COMMENT = 'Optionale Login-Konten zu Personen; ein Login gehört genau zu einer Person.',
+  MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel des Login-Kontos.',
+  MODIFY COLUMN `person_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf ids_persons.id; fachliche Person dieses Login-Kontos.',
+  MODIFY COLUMN `user_uuid` BINARY(16) NOT NULL COMMENT 'Eindeutige UUID des Login-Kontos als 16-Byte-Binärwert.',
   MODIFY COLUMN `identity_subject` VARCHAR(191) NULL COMMENT 'Optionaler externer Identitäts-Subject; eindeutig, wenn gesetzt.',
-  MODIFY COLUMN `email` VARCHAR(191) NOT NULL COMMENT 'E-Mail-Adresse für Login und Kontakt; muss eindeutig sein.',
-  MODIFY COLUMN `display_name` VARCHAR(191) NULL COMMENT 'Anzeigename des Benutzers; optional.',
-  MODIFY COLUMN `password_hash` VARCHAR(255) NULL COMMENT 'Passwort-Hash des Benutzers; NULL für externe Konten ohne lokales Passwort.',
-  MODIFY COLUMN `status` ENUM('active', 'disabled') NOT NULL DEFAULT 'active' COMMENT 'Kontostatus; active = nutzbar, disabled = gesperrt.',
-  MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Anlage des Benutzerkontos.',
-  MODIFY COLUMN `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der letzten Änderung des Benutzerkontos.';
+  MODIFY COLUMN `email` VARCHAR(191) NOT NULL COMMENT 'E-Mail-Adresse für Login; Pflichtfeld nur für aktive oder eingeladene Login-Konten.',
+  MODIFY COLUMN `password_hash` VARCHAR(255) NULL COMMENT 'Optionaler lokaler Passwort-Hash.',
+  MODIFY COLUMN `status` ENUM('invited', 'active', 'disabled') NOT NULL DEFAULT 'active' COMMENT 'Login-Status: eingeladen, aktiv oder deaktiviert.',
+  MODIFY COLUMN `email_verified_at` DATETIME NULL COMMENT 'Zeitpunkt der E-Mail-Verifizierung.',
+  MODIFY COLUMN `last_login_at` DATETIME NULL COMMENT 'Zeitpunkt des letzten erfolgreichen Logins.',
+  MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Anlage des Login-Kontos.',
+  MODIFY COLUMN `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der letzten Änderung des Login-Kontos.';
 
 ALTER TABLE `ids_permission_groups`
   COMMENT = 'Technische Berechtigungsgruppen im Identity-System.',
@@ -23,197 +38,130 @@ ALTER TABLE `ids_permission_groups`
   MODIFY COLUMN `group_key` VARCHAR(191) NOT NULL COMMENT 'Eindeutiger technischer Schlüssel, meist im Format domain.rolle.',
   MODIFY COLUMN `name` VARCHAR(191) NOT NULL COMMENT 'Anzeigename der Berechtigungsgruppe.',
   MODIFY COLUMN `description` TEXT NULL COMMENT 'Optionale Beschreibung der Berechtigungsgruppe.',
-  MODIFY COLUMN `is_system` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Kennzeichnet systemverwaltete Gruppen; 0 = manuell, 1 = systemseitig.',
+  MODIFY COLUMN `is_system` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Kennzeichnet systemverwaltete Gruppen; Systemgruppen sind nicht löschbar.',
   MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Anlage der Berechtigungsgruppe.',
   MODIFY COLUMN `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der letzten Änderung der Berechtigungsgruppe.';
 
-ALTER TABLE `ids_user_permission_groups`
-  COMMENT = 'Verknüpft Benutzer mit Berechtigungsgruppen.',
+ALTER TABLE `ids_person_permission_groups`
+  COMMENT = 'Verknüpft Personen mit Berechtigungsgruppen.',
   MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel der Zuordnung.',
-  MODIFY COLUMN `user_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf ids_users.id; zugeordneter Benutzer.',
+  MODIFY COLUMN `person_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf ids_persons.id; zugeordnete Person.',
   MODIFY COLUMN `permission_group_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf ids_permission_groups.id; zugeordnete Berechtigungsgruppe.',
   MODIFY COLUMN `assigned_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Zuweisung.',
-  MODIFY COLUMN `assigned_by_user_id` BIGINT UNSIGNED NULL COMMENT 'Verweist auf ids_users.id; Benutzer, der die Zuordnung vergeben hat, oder NULL.';
+  MODIFY COLUMN `assigned_by_person_id` BIGINT UNSIGNED NULL COMMENT 'Verweist auf ids_persons.id; Person, die die Zuordnung vergeben hat, oder NULL.';
 
 ALTER TABLE `pt_areas`
-  COMMENT = 'Fachliche Bereiche des Portals; steuern Navigation und Zugriffe.',
+  COMMENT = 'Fachliche Bereiche des Portals; oberste Ebene von Navigation und Berechtigung.',
   MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel des Bereichs.',
-  MODIFY COLUMN `area_key` VARCHAR(191) NOT NULL COMMENT 'Eindeutiger technischer Bereichsschlüssel, z. B. portal oder development.',
-  MODIFY COLUMN `icon` VARCHAR(100) NULL COMMENT 'Optionales Icon aus dem Icon-Set, z. B. icon-home, icon-shield, icon-library, icon-methods, icon-server oder icon-layout.',
+  MODIFY COLUMN `area_key` VARCHAR(191) NOT NULL COMMENT 'Eindeutiger technischer Bereichsschlüssel, z. B. portal, verwaltung oder development.',
+  MODIFY COLUMN `icon` VARCHAR(100) NULL COMMENT 'Optionales Icon aus dem Icon-Set.',
   MODIFY COLUMN `name` VARCHAR(191) NOT NULL COMMENT 'Anzeigename des Bereichs.',
   MODIFY COLUMN `description` TEXT NULL COMMENT 'Optionale Kurzbeschreibung des Bereichs.',
-  MODIFY COLUMN `start_path` VARCHAR(255) NOT NULL DEFAULT '/' COMMENT 'Startpfad des Bereichs; muss mit / beginnen, z. B. /, /identity oder /development.',
-  MODIFY COLUMN `is_active` TINYINT(1) NOT NULL DEFAULT 1 COMMENT 'Aktivstatus des Bereichs; 0 = inaktiv, 1 = aktiv.',
-  MODIFY COLUMN `is_external` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Kennzeichnet externe Bereiche; 0 = intern, 1 = extern.',
-  MODIFY COLUMN `sort_order` INT NOT NULL DEFAULT 0 COMMENT 'Sortierreihenfolge; kleinere Werte werden zuerst angezeigt.',
+  MODIFY COLUMN `start_path` VARCHAR(255) NOT NULL DEFAULT '/' COMMENT 'Startpfad des Bereichs; muss mit / beginnen.',
+  MODIFY COLUMN `is_active` TINYINT(1) NOT NULL DEFAULT 1 COMMENT 'Aktivstatus des Bereichs.',
+  MODIFY COLUMN `is_external` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Kennzeichnet externe Bereiche.',
+  MODIFY COLUMN `sort_order` INT NOT NULL DEFAULT 0 COMMENT 'Sortierreihenfolge.',
   MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Anlage des Bereichs.',
   MODIFY COLUMN `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der letzten Änderung des Bereichs.';
 
 ALTER TABLE `pt_permission_group_area_access`
-  COMMENT = 'Zuordnung von Berechtigungsgruppen zu Bereichen.',
+  COMMENT = 'Grobe Zuordnung von Berechtigungsgruppen zu Portalbereichen.',
   MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel der Zuordnung.',
   MODIFY COLUMN `permission_group_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf ids_permission_groups.id; berechtigte Gruppe.',
   MODIFY COLUMN `area_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf pt_areas.id; freigegebener Bereich.',
   MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Vergabe des Bereichszugriffs.';
 
-ALTER TABLE `pt_ticket_types`
-  COMMENT = 'Katalog der Ticketarten.',
-  MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel der Ticketart.',
-  MODIFY COLUMN `type_key` VARCHAR(191) NOT NULL COMMENT 'Eindeutiger technischer Schlüssel der Ticketart, z. B. general oder technical.',
-  MODIFY COLUMN `name` VARCHAR(191) NOT NULL COMMENT 'Anzeigename der Ticketart.',
-  MODIFY COLUMN `description` TEXT NULL COMMENT 'Optionale Beschreibung der Ticketart.',
-  MODIFY COLUMN `is_active` TINYINT(1) NOT NULL DEFAULT 1 COMMENT 'Aktivstatus; 0 = inaktiv, 1 = aktiv.',
-  MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Anlage der Ticketart.',
-  MODIFY COLUMN `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der letzten Änderung der Ticketart.';
+ALTER TABLE `pt_page_groups`
+  COMMENT = 'Feingranulare Seitengruppen innerhalb eines Portalbereichs, z. B. Verwaltung.Personen.',
+  MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel der Seitengruppe.',
+  MODIFY COLUMN `area_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf pt_areas.id; übergeordneter Bereich.',
+  MODIFY COLUMN `page_group_key` VARCHAR(191) NOT NULL COMMENT 'Technischer Schlüssel der Seitengruppe innerhalb der Area, z. B. personen.',
+  MODIFY COLUMN `name` VARCHAR(191) NOT NULL COMMENT 'Anzeigename der Seitengruppe.',
+  MODIFY COLUMN `description` TEXT NULL COMMENT 'Optionale Beschreibung der Seitengruppe.',
+  MODIFY COLUMN `start_path` VARCHAR(255) NOT NULL COMMENT 'Startpfad der Seitengruppe.',
+  MODIFY COLUMN `sort_order` INT NOT NULL DEFAULT 0 COMMENT 'Sortierreihenfolge innerhalb der Area.',
+  MODIFY COLUMN `is_active` TINYINT(1) NOT NULL DEFAULT 1 COMMENT 'Aktivstatus der Seitengruppe.',
+  MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Anlage der Seitengruppe.',
+  MODIFY COLUMN `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der letzten Änderung der Seitengruppe.';
 
-ALTER TABLE `cod_schools`
-  COMMENT = 'Schulen und Schulstammdaten.',
-  MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel der Schule.',
-  MODIFY COLUMN `school_key` VARCHAR(191) NOT NULL COMMENT 'Eindeutiger technischer Schlüssel der Schule, z. B. school_demo.',
-  MODIFY COLUMN `name` VARCHAR(191) NOT NULL COMMENT 'Anzeigename der Schule.',
-  MODIFY COLUMN `school_code` VARCHAR(64) NULL COMMENT 'Optionaler externer Schulcode; eindeutig, wenn gesetzt.',
-  MODIFY COLUMN `street` VARCHAR(191) NULL COMMENT 'Straße der Schule; optional.',
-  MODIFY COLUMN `house_number` VARCHAR(32) NULL COMMENT 'Hausnummer der Schule; optional.',
-  MODIFY COLUMN `postal_code` VARCHAR(16) NULL COMMENT 'Postleitzahl der Schule; optional.',
-  MODIFY COLUMN `city` VARCHAR(191) NULL COMMENT 'Ort der Schule; optional.',
-  MODIFY COLUMN `country` VARCHAR(2) NOT NULL DEFAULT 'DE' COMMENT 'ISO-3166-1-Alpha-2-Ländercode; standardmäßig DE.',
-  MODIFY COLUMN `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active' COMMENT 'Status der Schule; active = aktiv, inactive = deaktiviert.',
-  MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Anlage der Schule.',
-  MODIFY COLUMN `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der letzten Änderung der Schule.';
-
-ALTER TABLE `cod_school_sites`
-  COMMENT = 'Standorte einer Schule.',
-  MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel des Standorts.',
-  MODIFY COLUMN `school_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf cod_schools.id; zugehörige Schule.',
-  MODIFY COLUMN `site_key` VARCHAR(191) NOT NULL COMMENT 'Eindeutiger technischer Schlüssel des Standorts innerhalb der Schule.',
-  MODIFY COLUMN `name` VARCHAR(191) NOT NULL COMMENT 'Anzeigename des Standorts.',
-  MODIFY COLUMN `street` VARCHAR(191) NULL COMMENT 'Straße des Standorts; optional.',
-  MODIFY COLUMN `house_number` VARCHAR(32) NULL COMMENT 'Hausnummer des Standorts; optional.',
-  MODIFY COLUMN `postal_code` VARCHAR(16) NULL COMMENT 'Postleitzahl des Standorts; optional.',
-  MODIFY COLUMN `city` VARCHAR(191) NULL COMMENT 'Ort des Standorts; optional.',
-  MODIFY COLUMN `country` VARCHAR(2) NOT NULL DEFAULT 'DE' COMMENT 'ISO-3166-1-Alpha-2-Ländercode des Standorts; standardmäßig DE.',
-  MODIFY COLUMN `is_primary` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Kennzeichnet den Hauptstandort der Schule; 0 = nein, 1 = ja.',
-  MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Anlage des Standorts.',
-  MODIFY COLUMN `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der letzten Änderung des Standorts.';
+ALTER TABLE `pt_permission_group_page_group_access`
+  COMMENT = 'Feingranulare Zuordnung von Berechtigungsgruppen zu Seitengruppen.',
+  MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel der Zuordnung.',
+  MODIFY COLUMN `permission_group_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf ids_permission_groups.id; berechtigte Gruppe.',
+  MODIFY COLUMN `page_group_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf pt_page_groups.id; freigegebene Seitengruppe.',
+  MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Vergabe des Seitengruppenzugriffs.';
 
 ALTER TABLE `cod_school_memberships`
-  COMMENT = 'Mitgliedschaften von Benutzern an Schulen.',
+  COMMENT = 'Mitgliedschaften von Personen an Schulen.',
   MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel der Mitgliedschaft.',
   MODIFY COLUMN `school_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf cod_schools.id; zugehörige Schule.',
-  MODIFY COLUMN `user_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf ids_users.id; zugeordneter Benutzer.',
-  MODIFY COLUMN `role_key` VARCHAR(191) NOT NULL COMMENT 'Technischer Rollenbezeichner innerhalb der Schule; frei wählbarer Schlüssel wie z. B. teacher oder admin.',
-  MODIFY COLUMN `starts_at` DATE NULL COMMENT 'Startdatum der Mitgliedschaft; NULL bedeutet ohne festes Startdatum.',
-  MODIFY COLUMN `ends_at` DATE NULL COMMENT 'Enddatum der Mitgliedschaft; NULL bedeutet unbefristet.',
-  MODIFY COLUMN `is_primary` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Kennzeichnet die Hauptzuordnung; 0 = nein, 1 = ja.',
+  MODIFY COLUMN `person_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf ids_persons.id; zugeordnete Person.',
+  MODIFY COLUMN `role_key` VARCHAR(191) NOT NULL COMMENT 'Technischer Rollenbezeichner innerhalb der Schule.',
+  MODIFY COLUMN `starts_at` DATE NULL COMMENT 'Startdatum der Mitgliedschaft.',
+  MODIFY COLUMN `ends_at` DATE NULL COMMENT 'Enddatum der Mitgliedschaft.',
+  MODIFY COLUMN `is_primary` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Kennzeichnet die Hauptzuordnung.',
   MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Anlage der Mitgliedschaft.',
   MODIFY COLUMN `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der letzten Änderung der Mitgliedschaft.';
 
-ALTER TABLE `cod_seminar_templates`
-  COMMENT = 'Vorlagen für Seminare.',
-  MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel der Seminarvorlage.',
-  MODIFY COLUMN `template_key` VARCHAR(191) NOT NULL COMMENT 'Eindeutiger technischer Schlüssel der Vorlage, z. B. template_intro.',
-  MODIFY COLUMN `title` VARCHAR(191) NOT NULL COMMENT 'Titel der Vorlage.',
-  MODIFY COLUMN `description` TEXT NULL COMMENT 'Optionale Beschreibung der Vorlage.',
-  MODIFY COLUMN `default_duration_minutes` INT UNSIGNED NULL COMMENT 'Standarddauer in Minuten; positive ganze Zahl oder NULL.',
-  MODIFY COLUMN `is_active` TINYINT(1) NOT NULL DEFAULT 1 COMMENT 'Aktivstatus; 0 = inaktiv, 1 = aktiv.',
-  MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Anlage der Seminarvorlage.',
-  MODIFY COLUMN `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der letzten Änderung der Seminarvorlage.';
-
-ALTER TABLE `cod_seminars`
-  COMMENT = 'Einzelne Seminartermine.',
-  MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel des Seminars.',
-  MODIFY COLUMN `seminar_key` VARCHAR(191) NOT NULL COMMENT 'Eindeutiger technischer Schlüssel des Seminars.',
-  MODIFY COLUMN `template_id` BIGINT UNSIGNED NULL COMMENT 'Verweist auf cod_seminar_templates.id; optionale Seminarvorlage.',
-  MODIFY COLUMN `school_id` BIGINT UNSIGNED NULL COMMENT 'Verweist auf cod_schools.id; optionale zugeordnete Schule.',
-  MODIFY COLUMN `title` VARCHAR(191) NOT NULL COMMENT 'Titel des Seminars.',
-  MODIFY COLUMN `status` ENUM('draft', 'planned', 'running', 'completed', 'cancelled') NOT NULL DEFAULT 'draft' COMMENT 'Status des Seminars; draft, planned, running, completed oder cancelled.',
-  MODIFY COLUMN `starts_on` DATE NULL COMMENT 'Startdatum des Seminars; NULL wenn noch nicht geplant.',
-  MODIFY COLUMN `ends_on` DATE NULL COMMENT 'Enddatum des Seminars; NULL wenn noch nicht geplant.',
-  MODIFY COLUMN `notes` TEXT NULL COMMENT 'Freie Notizen zum Seminar.',
-  MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Anlage des Seminars.',
-  MODIFY COLUMN `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der letzten Änderung des Seminars.';
-
-ALTER TABLE `cod_seminar_sessions`
-  COMMENT = 'Terminabschnitte eines Seminars.',
-  MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel der Session.',
-  MODIFY COLUMN `seminar_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf cod_seminars.id; zugehöriges Seminar.',
-  MODIFY COLUMN `session_number` INT UNSIGNED NOT NULL COMMENT 'Laufende Nummer der Session innerhalb des Seminars; beginnt bei 1.',
-  MODIFY COLUMN `starts_at` DATETIME NOT NULL COMMENT 'Startzeitpunkt der Session.',
-  MODIFY COLUMN `ends_at` DATETIME NULL COMMENT 'Endzeitpunkt der Session; NULL wenn offen.',
-  MODIFY COLUMN `location` VARCHAR(191) NULL COMMENT 'Ort der Session; optional.',
-  MODIFY COLUMN `notes` TEXT NULL COMMENT 'Freie Notizen zur Session.',
-  MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Anlage der Session.',
-  MODIFY COLUMN `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der letzten Änderung der Session.';
-
 ALTER TABLE `cod_seminar_staff`
-  COMMENT = 'Personalzuordnung zu Seminaren.',
-  MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel der Personalzuordnung.',
+  COMMENT = 'Personen, die einem Seminar in einer internen Rolle zugeordnet sind.',
+  MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel der Zuordnung.',
   MODIFY COLUMN `seminar_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf cod_seminars.id; zugehöriges Seminar.',
-  MODIFY COLUMN `user_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf ids_users.id; zugeordneter Benutzer.',
-  MODIFY COLUMN `role_key` VARCHAR(191) NOT NULL COMMENT 'Technischer Rollenbezeichner im Seminar; frei wählbarer Schlüssel wie z. B. lead oder assistant.',
-  MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Anlage der Personalzuordnung.';
+  MODIFY COLUMN `person_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf ids_persons.id; zugeordnete Person.',
+  MODIFY COLUMN `role_key` VARCHAR(191) NOT NULL COMMENT 'Technischer Rollenbezeichner im Seminar.',
+  MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Anlage der Zuordnung.';
 
 ALTER TABLE `cod_seminar_participants`
-  COMMENT = 'Teilnehmende an Seminaren.',
-  MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel der Teilnahme.',
+  COMMENT = 'Teilnehmende eines Seminars; optional mit Personenstammdatensatz verknüpft.',
+  MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel des Teilnehmenden.',
   MODIFY COLUMN `seminar_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf cod_seminars.id; zugehöriges Seminar.',
-  MODIFY COLUMN `participant_name` VARCHAR(191) NOT NULL COMMENT 'Name der teilnehmenden Person.',
-  MODIFY COLUMN `participant_email` VARCHAR(191) NULL COMMENT 'E-Mail-Adresse der teilnehmenden Person; optional.',
-  MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Anlage der Teilnahmedaten.';
+  MODIFY COLUMN `person_id` BIGINT UNSIGNED NULL COMMENT 'Optionaler Verweis auf ids_persons.id.',
+  MODIFY COLUMN `participant_name` VARCHAR(191) NOT NULL COMMENT 'Name des Teilnehmenden als Snapshot oder Freitext.',
+  MODIFY COLUMN `participant_email` VARCHAR(191) NULL COMMENT 'Optionale E-Mail-Adresse des Teilnehmenden als Snapshot oder Freitext.',
+  MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Anlage des Teilnehmenden.';
 
 ALTER TABLE `pt_tickets`
-  COMMENT = 'Support- und Fachtickets.',
+  COMMENT = 'Tickets im Portal.',
   MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel des Tickets.',
-  MODIFY COLUMN `ticket_number` VARCHAR(32) NOT NULL COMMENT 'Eindeutige Ticketnummer für externe Referenz und Suche.',
-  MODIFY COLUMN `ticket_type_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf pt_ticket_types.id; Art des Tickets.',
-  MODIFY COLUMN `area_id` BIGINT UNSIGNED NULL COMMENT 'Verweist auf pt_areas.id; fachlich zugeordneter Bereich oder NULL.',
-  MODIFY COLUMN `school_id` BIGINT UNSIGNED NULL COMMENT 'Verweist auf cod_schools.id; optionale betroffene Schule.',
-  MODIFY COLUMN `seminar_id` BIGINT UNSIGNED NULL COMMENT 'Verweist auf cod_seminars.id; optional betroffener Seminartermin.',
-  MODIFY COLUMN `created_by_user_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf ids_users.id; Benutzer, der das Ticket angelegt hat.',
-  MODIFY COLUMN `assigned_to_user_id` BIGINT UNSIGNED NULL COMMENT 'Verweist auf ids_users.id; aktuell zuständiger Bearbeiter oder NULL.',
-  MODIFY COLUMN `subject` VARCHAR(191) NOT NULL COMMENT 'Kurzer Betreff des Tickets.',
-  MODIFY COLUMN `description` MEDIUMTEXT NULL COMMENT 'Ausführliche Beschreibung des Anliegens.',
-  MODIFY COLUMN `status` ENUM('open', 'in_progress', 'waiting', 'resolved', 'closed') NOT NULL DEFAULT 'open' COMMENT 'Bearbeitungsstatus; open, in_progress, waiting, resolved oder closed.',
-  MODIFY COLUMN `priority` ENUM('low', 'normal', 'high', 'urgent') NOT NULL DEFAULT 'normal' COMMENT 'Priorität des Tickets; low, normal, high oder urgent.',
+  MODIFY COLUMN `ticket_number` VARCHAR(32) NOT NULL COMMENT 'Eindeutige Ticketnummer.',
+  MODIFY COLUMN `ticket_type_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf pt_ticket_types.id; Ticketart.',
+  MODIFY COLUMN `area_id` BIGINT UNSIGNED NULL COMMENT 'Optionaler Portalbereich des Tickets.',
+  MODIFY COLUMN `school_id` BIGINT UNSIGNED NULL COMMENT 'Optionale Schule des Tickets.',
+  MODIFY COLUMN `seminar_id` BIGINT UNSIGNED NULL COMMENT 'Optionales Seminar des Tickets.',
+  MODIFY COLUMN `created_by_person_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf ids_persons.id; erstellende Person.',
+  MODIFY COLUMN `assigned_to_person_id` BIGINT UNSIGNED NULL COMMENT 'Verweist auf ids_persons.id; zugewiesene Person.',
+  MODIFY COLUMN `subject` VARCHAR(191) NOT NULL COMMENT 'Betreff des Tickets.',
+  MODIFY COLUMN `description` MEDIUMTEXT NULL COMMENT 'Beschreibung des Tickets.',
+  MODIFY COLUMN `status` ENUM('open', 'in_progress', 'waiting', 'resolved', 'closed') NOT NULL DEFAULT 'open' COMMENT 'Bearbeitungsstatus des Tickets.',
+  MODIFY COLUMN `priority` ENUM('low', 'normal', 'high', 'urgent') NOT NULL DEFAULT 'normal' COMMENT 'Priorität des Tickets.',
   MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Anlage des Tickets.',
   MODIFY COLUMN `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der letzten Änderung des Tickets.';
 
 ALTER TABLE `pt_ticket_comments`
-  COMMENT = 'Kommentare und Verlaufseinträge zu Tickets.',
+  COMMENT = 'Kommentare zu Tickets.',
   MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel des Kommentars.',
   MODIFY COLUMN `ticket_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf pt_tickets.id; zugehöriges Ticket.',
-  MODIFY COLUMN `author_user_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf ids_users.id; Verfasser des Kommentars.',
-  MODIFY COLUMN `comment_body` MEDIUMTEXT NOT NULL COMMENT 'Inhalt des Kommentars; freier Text.',
-  MODIFY COLUMN `is_internal` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Kennzeichnet interne Notizen; 0 = sichtbar für externe Sicht, 1 = intern.',
-  MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Erstellung des Kommentars.';
-
-ALTER TABLE `pt_menus`
-  COMMENT = 'Navigationseinträge pro Area.',
-  MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel des Menüs.',
-  MODIFY COLUMN `area_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf pt_areas.id; jede Area hat genau ein Menü.',
-  MODIFY COLUMN `name` VARCHAR(191) NOT NULL COMMENT 'Anzeigename des Menüs.',
-  MODIFY COLUMN `slug` VARCHAR(191) NOT NULL COMMENT 'Eindeutiger technischer Schlüssel des Menüs, z. B. portal.main.',
-  MODIFY COLUMN `is_default` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Kennzeichnet das Standardmenü der Area; 0 = nein, 1 = ja.',
-  MODIFY COLUMN `settings` JSON DEFAULT NULL COMMENT 'Freies JSON für Menüeinstellungen; NULL oder gültiges JSON-Objekt/Array.',
-  MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Anlage des Menüs.',
-  MODIFY COLUMN `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der letzten Änderung des Menüs.',
-  MODIFY COLUMN `deleted_at` DATETIME NULL DEFAULT NULL COMMENT 'Zeitpunkt der Soft-Deletion; NULL = aktiv.';
+  MODIFY COLUMN `author_person_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf ids_persons.id; Autor des Kommentars.',
+  MODIFY COLUMN `comment_body` MEDIUMTEXT NOT NULL COMMENT 'Kommentartext.',
+  MODIFY COLUMN `is_internal` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Kennzeichnet interne Kommentare.',
+  MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Anlage des Kommentars.';
 
 ALTER TABLE `pt_menu_items`
-  COMMENT = 'Einträge eines Menüs.',
+  COMMENT = 'Navigationspunkte innerhalb eines Menüs.',
   MODIFY COLUMN `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Technischer Primärschlüssel des Menüeintrags.',
   MODIFY COLUMN `menu_id` BIGINT UNSIGNED NOT NULL COMMENT 'Verweist auf pt_menus.id; zugehöriges Menü.',
-  MODIFY COLUMN `parent_id` BIGINT UNSIGNED DEFAULT NULL COMMENT 'Verweist auf pt_menu_items.id; übergeordneter Menüpunkt oder NULL.',
-  MODIFY COLUMN `title` VARCHAR(191) NOT NULL COMMENT 'Anzeigename des Menüeintrags.',
-  MODIFY COLUMN `slug` VARCHAR(191) DEFAULT NULL COMMENT 'Optionale technische Kurzkennung des Menüeintrags.',
-  MODIFY COLUMN `url` VARCHAR(255) DEFAULT NULL COMMENT 'Ziel-URL des Menüeintrags; NULL, wenn die Route genutzt wird.',
-  MODIFY COLUMN `route_name` VARCHAR(191) DEFAULT NULL COMMENT 'Optionaler Routenname für die Zielauflösung.',
-  MODIFY COLUMN `icon` VARCHAR(100) DEFAULT NULL COMMENT 'Derzeit unbenutztes Icon-Feld für Menüeinträge; muss NULL bleiben.',
-  MODIFY COLUMN `target` VARCHAR(20) DEFAULT NULL COMMENT 'Linkziel; NULL oder Werte wie _self, _blank, _parent oder _top.',
-  MODIFY COLUMN `order_index` INT DEFAULT NULL COMMENT 'Sortierreihenfolge innerhalb des Menüs; kleinere Werte zuerst.',
-  MODIFY COLUMN `level` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Verschachtelungsebene des Menüeintrags; erlaubt sind Werte von 1 bis 3.',
-  MODIFY COLUMN `is_active` TINYINT(1) DEFAULT 1 COMMENT 'Aktivstatus des Menüeintrags; 0 = inaktiv, 1 = aktiv.',
-  MODIFY COLUMN `settings` JSON DEFAULT NULL COMMENT 'Freies JSON für Eintragsoptionen; NULL oder gültiges JSON-Objekt/Array.',
+  MODIFY COLUMN `page_group_id` BIGINT UNSIGNED NULL COMMENT 'Optionaler Verweis auf pt_page_groups.id; steuert Sichtbarkeit über Area.PageGroup.',
+  MODIFY COLUMN `parent_id` BIGINT UNSIGNED DEFAULT NULL COMMENT 'Optionaler übergeordneter Menüeintrag.',
+  MODIFY COLUMN `title` VARCHAR(191) NOT NULL COMMENT 'Anzeigetitel des Menüeintrags.',
+  MODIFY COLUMN `slug` VARCHAR(191) DEFAULT NULL COMMENT 'Optionaler technischer Slug.',
+  MODIFY COLUMN `url` VARCHAR(255) DEFAULT NULL COMMENT 'Optionaler Zielpfad.',
+  MODIFY COLUMN `route_name` VARCHAR(191) DEFAULT NULL COMMENT 'Optionaler Routenname.',
+  MODIFY COLUMN `icon` VARCHAR(100) DEFAULT NULL COMMENT 'Optionales Icon.',
+  MODIFY COLUMN `target` VARCHAR(20) DEFAULT NULL COMMENT 'Optionales Link-Ziel.',
+  MODIFY COLUMN `order_index` INT DEFAULT NULL COMMENT 'Sortierreihenfolge.',
+  MODIFY COLUMN `level` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Navigationsebene; aktuell 1 bis 3.',
+  MODIFY COLUMN `is_active` TINYINT(1) DEFAULT 1 COMMENT 'Aktivstatus des Menüeintrags.',
+  MODIFY COLUMN `settings` JSON DEFAULT NULL COMMENT 'Optionale JSON-Einstellungen.',
   MODIFY COLUMN `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der Anlage des Menüeintrags.',
   MODIFY COLUMN `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Zeitpunkt der letzten Änderung des Menüeintrags.',
-  MODIFY COLUMN `deleted_at` DATETIME NULL DEFAULT NULL COMMENT 'Zeitpunkt der Soft-Deletion; NULL = aktiv.';
+  MODIFY COLUMN `deleted_at` DATETIME NULL DEFAULT NULL COMMENT 'Zeitpunkt einer weichen Löschung.';
