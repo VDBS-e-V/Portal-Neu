@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Navigation;
 
 use App\Security\AuthorizationService;
+use Throwable;
 
 final class VerwaltungNavigation
 {
@@ -13,6 +14,10 @@ final class VerwaltungNavigation
     }
 
     /**
+     * Kleine Seiten-Navigation innerhalb von Verwaltungsseiten.
+     *
+     * Die mehrstufigen Aufklappmenüs im Header kommen aus pt_menu_items.parent_id.
+     *
      * @return array<int, array<string, mixed>>
      */
     public function items(string $activeKey = ''): array
@@ -35,22 +40,6 @@ final class VerwaltungNavigation
                 'active' => $activeKey === 'personen',
             ],
             [
-                'key' => 'einladungen',
-                'label' => 'Einladungen',
-                'href' => '/verwaltung/einladungen',
-                'area' => 'verwaltung',
-                'page_group' => 'einladungen',
-                'active' => $activeKey === 'einladungen',
-            ],
-            [
-                'key' => 'datenschutz',
-                'label' => 'DSGVO',
-                'href' => '/verwaltung/datenschutz',
-                'area' => 'verwaltung',
-                'page_group' => 'datenschutz',
-                'active' => $activeKey === 'datenschutz',
-            ],
-            [
                 'key' => 'gruppen',
                 'label' => 'Gruppen',
                 'href' => '/verwaltung/gruppen',
@@ -59,12 +48,28 @@ final class VerwaltungNavigation
                 'active' => $activeKey === 'gruppen',
             ],
             [
+                'key' => 'einladungen',
+                'label' => 'Einladungen',
+                'href' => '/verwaltung/einladungen',
+                'area' => 'verwaltung',
+                'page_group' => 'einladungen',
+                'active' => $activeKey === 'einladungen',
+            ],
+            [
                 'key' => 'berechtigungen',
                 'label' => 'Berechtigungen',
                 'href' => '/verwaltung/berechtigungen',
                 'area' => 'verwaltung',
                 'page_group' => 'berechtigungen',
                 'active' => $activeKey === 'berechtigungen',
+            ],
+            [
+                'key' => 'datenschutz',
+                'label' => 'DSGVO',
+                'href' => '/verwaltung/datenschutz',
+                'area' => 'verwaltung',
+                'page_group' => 'datenschutz',
+                'active' => $activeKey === 'datenschutz',
             ],
             [
                 'key' => 'audit',
@@ -80,6 +85,14 @@ final class VerwaltungNavigation
             $items,
             fn (array $item): bool => $this->canSee($item)
         ));
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function flatItems(string $activeKey = ''): array
+    {
+        return $this->items($activeKey);
     }
 
     /**
@@ -154,6 +167,16 @@ final class VerwaltungNavigation
             return true;
         }
 
-        return $this->authorization->currentUserCanAccessPageGroup($areaKey, $pageGroupKey);
+        if (method_exists($this->authorization, 'currentUserCanAccessPageGroup')) {
+            return (bool) $this->authorization->currentUserCanAccessPageGroup($areaKey, $pageGroupKey);
+        }
+
+        try {
+            $this->authorization->requirePageGroupAccess($areaKey, $pageGroupKey);
+
+            return true;
+        } catch (Throwable) {
+            return false;
+        }
     }
 }

@@ -17,14 +17,20 @@ final class HeaderDataProvider
         private readonly MenuRepository $menus,
         private readonly MenuItemRepository $menuItems,
         private readonly UserRepository $users,
-        private readonly SessionAuth $auth,
+        private readonly SessionAuth $auth
     ) {
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     *
+     * @return array<string, mixed>
+     */
     public function build(array $parameters): array
     {
         $headerAreas = $this->areas->findAll();
         $selectedAreaId = $this->resolveAreaId($parameters, $headerAreas);
+        $path = $this->normalizePath((string) ($parameters['path'] ?? ($_SERVER['REQUEST_URI'] ?? '/')));
 
         $headerMenus = [];
 
@@ -32,19 +38,115 @@ final class HeaderDataProvider
             $areaMenu = $this->menus->findForArea($selectedAreaId);
 
             if (!empty($areaMenu) && isset($areaMenu['id'])) {
-                $headerMenus = $this->menuItems->findByMenuIdAndParent((int) $areaMenu['id'], null);
+                /*
+                 * Der Header ist bereits auf parent_id/children vorbereitet.
+                 *
+                 * Deshalb müssen hier alle aktiven Menüeinträge geladen werden,
+                 * nicht nur parent_id IS NULL.
+                 *
+                 * resources/views/parts/header.php baut daraus den Baum und
+                 * rendert:
+                 *
+                 * - header-bottom-nav-list-item has-submenu
+                 * - header-bottom-submenu
+                 * - header-bottom-submenu--nested
+                 */
+                $headerMenus = $this->menuItems->findByMenuId((int) $areaMenu['id'], true);
+                $headerMenus = $this->applyActiveState($headerMenus, $path);
             }
         }
 
         $currentUser = $this->currentUser();
 
         return [
-            'headerAreas' => $headerAreas,
+            'headerAreas' => $this->applyAreaActiveState($headerAreas, $selectedAreaId),
             'headerMenus' => $headerMenus,
             'isLoggedIn' => $currentUser !== [],
             'currentUser' => $currentUser,
             'csrfToken' => $this->csrfToken(),
         ];
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $items
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function applyActiveState(array $items, string $path): array
+    {
+        $itemsById = [];
+        $indexById = [];
+        $activeIds = [];
+
+        foreach ($items as $index => $item) {
+            if (!is_array($item) || !isset($item['id'])) {
+                continue;
+            }
+
+            $id = (int) $item['id'];
+            $itemsById[$id] = $item;
+            $indexById[$id] = $index;
+
+            $url = $this->normalizePath((string) ($item['url'] ?? ''));
+
+            if ($url !== '' && $this->pathMatches($path, $url)) {
+                $activeIds[$id] = true;
+            }
+        }
+
+        foreach (array_keys($activeIds) as $activeId) {
+            $currentId = (int) $activeId;
+
+            while (isset($itemsById[$currentId])) {
+                $activeIds[$currentId] = true;
+
+                $parentId = (int) ($itemsById[$currentId]['parent_id'] ?? 0);
+
+                if ($parentId <= 0 || $parentId === $currentId) {
+                    break;
+                }
+
+                $currentId = $parentId;
+            }
+        }
+
+        foreach ($activeIds as $id => $_) {
+            if (!isset($indexById[$id])) {
+                continue;
+            }
+
+            $items[$indexById[$id]]['active'] = true;
+            $items[$indexById[$id]]['current'] = true;
+            $items[$indexById[$id]]['is_current'] = true;
+        }
+
+        return $items;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $areas
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function applyAreaActiveState(array $areas, ?int $selectedAreaId): array
+    {
+        if ($selectedAreaId === null || $selectedAreaId <= 0) {
+            return $areas;
+        }
+
+        foreach ($areas as $index => $area) {
+            if (!is_array($area) || !isset($area['id'])) {
+                continue;
+            }
+
+            if ((int) $area['id'] === $selectedAreaId) {
+                $areas[$index]['active'] = true;
+                $areas[$index]['current'] = true;
+                $areas[$index]['is_current'] = true;
+            }
+        }
+
+        return $areas;
     }
 
     private function currentUser(): array
@@ -94,6 +196,40 @@ final class HeaderDataProvider
         return '';
     }
 
+    private function normalizePath(string $path): string
+    {
+        $path = trim($path);
+
+        if ($path === '') {
+            return '/';
+        }
+
+        $questionMarkPosition = strpos($path, '?');
+
+        if ($questionMarkPosition !== false) {
+            $path = substr($path, 0, $questionMarkPosition);
+        }
+
+        $path = '/' . ltrim($path, '/');
+        $path = rtrim($path, '/');
+
+        return $path === '' ? '/' : $path;
+    }
+
+    private function pathMatches(string $currentPath, string $itemPath): bool
+    {
+        if ($itemPath === '/') {
+            return $currentPath === '/';
+        }
+
+        return $currentPath === $itemPath
+            || str_starts_with($currentPath, $itemPath . '/');
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     * @param array<int, array<string, mixed>> $headerAreas
+     */
     private function resolveAreaId(array $parameters, array $headerAreas): ?int
     {
         if (isset($parameters['area']) && is_array($parameters['area']) && isset($parameters['area']['id'])) {
@@ -108,7 +244,8 @@ final class HeaderDataProvider
             return (int) $parameters['areaId'];
         }
 
-        $path = (string) ($parameters['path'] ?? '/');
+        $path = $this->normalizePath((string) ($parameters['path'] ?? ($_SERVER['REQUEST_URI'] ?? '/')));
+
         $bestMatch = null;
         $bestLength = -1;
 
@@ -117,11 +254,7 @@ final class HeaderDataProvider
                 continue;
             }
 
-            $startPath = trim((string) ($area['start_path'] ?? '/'));
-
-            if ($startPath === '') {
-                $startPath = '/';
-            }
+            $startPath = $this->normalizePath((string) ($area['start_path'] ?? '/'));
 
             $matches = $startPath === '/'
                 ? true

@@ -1,80 +1,113 @@
 <?php
 $e = static fn (mixed $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 
-$group = $group ?? [];
-$errors = $errors ?? [];
-$mode = (string) ($mode ?? 'create');
-$action = (string) ($action ?? '/verwaltung/gruppen/create');
-$isSystem = !empty($group['is_system']);
+$statusBadge = static function (mixed $status): string {
+    $status = strtolower(trim((string) $status));
 
-$value = static function (array $group, string $key, string $default = ''): string {
-    return (string) ($group[$key] ?? $default);
+    return match ($status) {
+        'active', 'accepted', 'completed', 'used', 'success' => 'table-badge table-badge--success',
+        'disabled', 'revoked', 'cancelled', 'rejected', 'expired', 'error' => 'table-badge table-badge--danger',
+        'invited', 'pending', 'requested', 'approved', 'warning' => 'table-badge table-badge--warning',
+        default => 'table-badge table-badge--neutral',
+    };
+};
+
+$messageText = static function (string $message): string {
+    return match ($message) {
+        'created' => 'Der Datensatz wurde angelegt.',
+        'updated' => 'Die Änderungen wurden gespeichert.',
+        'deleted' => 'Der Datensatz wurde gelöscht.',
+        'status' => 'Der Status wurde geändert.',
+        'revoked' => 'Die Einladung wurde widerrufen.',
+        'requested' => 'Der Vorgang wurde beantragt.',
+        'approved' => 'Der Vorgang wurde freigegeben.',
+        'rejected' => 'Der Vorgang wurde abgelehnt.',
+        'cancelled' => 'Der Vorgang wurde storniert.',
+        'completed' => 'Der Vorgang wurde abgeschlossen.',
+        default => $message,
+    };
 };
 ?>
+<?php
+$group = $group ?? [];
+$errors = $errors ?? [];
+$action = (string) ($action ?? '/verwaltung/gruppen/create');
+$mode = (string) ($mode ?? 'create');
+?>
 
-<section class="content-section">
-    <header class="content-header">
-        <div>
-            <h1><?= $mode === 'edit' ? 'Gruppe bearbeiten' : 'Gruppe anlegen' ?></h1>
-            <p>Gruppenschlüssel, Name und Beschreibung pflegen.</p>
+<section class="section--page-title section--page-title-compact">
+    <div class="page-title page-title--card page-title--split page-title--compact">
+        <div class="page-title__main">
+            <p class="page-title__kicker">Gruppenverwaltung</p>
+            <h1 class="page-title__title"><?= $e($pageTitle ?? ($mode === 'edit' ? 'Gruppe bearbeiten' : 'Gruppe anlegen')) ?></h1>
+            <p class="page-title__lead">Gruppenschlüssel, Name und Systemstatus pflegen.</p>
         </div>
-
-        <p>
-            <a class="button" href="/verwaltung/gruppen">Zurück</a>
-        </p>
-    </header>
-
-    <?php if ($errors !== []): ?>
-        <div class="notice notice-error">
-            <ul>
-                <?php foreach ($errors as $error): ?>
-                    <li><?= $e($error) ?></li>
-                <?php endforeach; ?>
-            </ul>
+        <div class="page-title__side">
+            <div class="page-title__actions btn-group">
+                <a class="btn btn--outline" href="/verwaltung/gruppen">Zur Gruppenliste</a>
+            </div>
         </div>
-    <?php endif; ?>
+    </div>
+</section>
 
-    <?php if ($isSystem): ?>
-        <div class="notice notice-info">
-            Diese Gruppe ist eine Systemgruppe. Der technische Schlüssel und der Systemstatus sind geschützt.
-        </div>
-    <?php endif; ?>
+<section class="no-padding">
+    <?php
+    $navFile = __DIR__ . '/../../../partials/verwaltung_nav.php';
+    if (is_file($navFile)) {
+        require $navFile;
+    }
+    ?>
+</section>
 
-    <form method="post" action="<?= $e($action) ?>" class="stack-form">
-        <section class="card">
-            <h2>Basis</h2>
+<section>
+    
+<?php if (trim((string) ($message ?? '')) !== ''): ?>
+    <div class="form__notice form__notice--success">
+        <?= $e($messageText((string) $message)) ?>
+    </div>
+<?php endif; ?>
 
-            <label>
-                Gruppenschlüssel
-                <input
-                    type="text"
-                    name="group_key"
-                    value="<?= $e($value($group, 'group_key')) ?>"
-                    <?= $isSystem ? 'readonly' : '' ?>
-                    required
-                >
-            </label>
+<?php if (($errors ?? []) !== []): ?>
+    <div class="form__notice form__notice--error">
+        <strong>Bitte prüfen:</strong>
+        <ul>
+            <?php foreach ($errors as $error): ?>
+                <li><?= $e($error) ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+<?php endif; ?>
 
-            <label>
-                Name
-                <input type="text" name="name" value="<?= $e($value($group, 'name')) ?>" required>
-            </label>
+    <form class="form form--card" method="post" action="<?= $e($action) ?>">
+        <div class="form__grid form__grid--2">
+            <div class="form__field">
+                <label class="form__label" for="group_key">Gruppenschlüssel <span class="form__required">*</span></label>
+                <input class="form__control" id="group_key" name="group_key" value="<?= $e($group['group_key'] ?? '') ?>" required>
+                <p class="form__hint">Beispiel: verwaltung.administrator</p>
+            </div>
 
-            <label>
-                Beschreibung
-                <textarea name="description" rows="5"><?= $e($value($group, 'description')) ?></textarea>
-            </label>
+            <div class="form__field">
+                <label class="form__label" for="name">Name <span class="form__required">*</span></label>
+                <input class="form__control" id="name" name="name" value="<?= $e($group['name'] ?? '') ?>" required>
+            </div>
 
-            <?php if (!$isSystem): ?>
-                <label>
-                    <input type="checkbox" name="is_system" value="1" <?= !empty($group['is_system']) ? 'checked' : '' ?>>
+            <div class="form__field form__field--span-full">
+                <label class="form__label" for="description">Beschreibung</label>
+                <textarea class="form__control" id="description" name="description"><?= $e($group['description'] ?? '') ?></textarea>
+            </div>
+
+            <label class="form__check form__field--span-full">
+                <input class="form__check-input" type="checkbox" name="is_system" value="1" <?= !empty($group['is_system']) ? 'checked' : '' ?>>
+                <span class="form__check-label">
                     Systemgruppe
-                </label>
-            <?php endif; ?>
-        </section>
+                    <small>Systemgruppen sind besonders geschützt und nicht normal löschbar.</small>
+                </span>
+            </label>
 
-        <p>
-            <button type="submit"><?= $mode === 'edit' ? 'Änderungen speichern' : 'Gruppe anlegen' ?></button>
-        </p>
+            <div class="form__actions">
+                <button class="btn btn--primary" type="submit">Speichern</button>
+                <a class="btn btn--outline" href="/verwaltung/gruppen">Abbrechen</a>
+            </div>
+        </div>
     </form>
 </section>

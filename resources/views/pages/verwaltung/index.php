@@ -1,188 +1,161 @@
 <?php
 $e = static fn (mixed $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 
+$statusBadge = static function (mixed $status): string {
+    $status = strtolower(trim((string) $status));
+
+    return match ($status) {
+        'active', 'accepted', 'completed', 'used', 'success' => 'table-badge table-badge--success',
+        'disabled', 'revoked', 'cancelled', 'rejected', 'expired', 'error' => 'table-badge table-badge--danger',
+        'invited', 'pending', 'requested', 'approved', 'warning' => 'table-badge table-badge--warning',
+        default => 'table-badge table-badge--neutral',
+    };
+};
+
+$messageText = static function (string $message): string {
+    return match ($message) {
+        'created' => 'Der Datensatz wurde angelegt.',
+        'updated' => 'Die Änderungen wurden gespeichert.',
+        'deleted' => 'Der Datensatz wurde gelöscht.',
+        'status' => 'Der Status wurde geändert.',
+        'revoked' => 'Die Einladung wurde widerrufen.',
+        'requested' => 'Der Vorgang wurde beantragt.',
+        'approved' => 'Der Vorgang wurde freigegeben.',
+        'rejected' => 'Der Vorgang wurde abgelehnt.',
+        'cancelled' => 'Der Vorgang wurde storniert.',
+        'completed' => 'Der Vorgang wurde abgeschlossen.',
+        default => $message,
+    };
+};
+?>
+<?php
 $stats = $stats ?? [];
 $quickLinks = $quickLinks ?? [];
 $latestPersons = $latestPersons ?? [];
 $latestAuditEntries = $latestAuditEntries ?? [];
 $openTasks = $openTasks ?? [];
-
 $number = static fn (mixed $value): string => number_format((int) $value, 0, ',', '.');
 ?>
 
-<section class="content-section">
-    <header class="content-header">
-        <div>
-            <h1>Verwaltung</h1>
-            <p>Übersicht über Personen, Logins, Gruppen, Berechtigungen und offene Aufgaben.</p>
+<section class="section--page-title section--page-title-compact">
+    <div class="page-title page-title--card page-title--split page-title--compact">
+        <div class="page-title__main">
+            <p class="page-title__kicker">Verwaltung</p>
+            <h1 class="page-title__title">Verwaltung</h1>
+            <p class="page-title__lead">Übersicht über Personen, Logins, Gruppen, Berechtigungen und offene Aufgaben.</p>
         </div>
-    </header>
+        
+    </div>
+</section>
 
-    <section class="dashboard-grid">
-        <article class="card metric-card">
-            <h2>Personen</h2>
-            <p class="metric"><?= $number($stats['persons_total'] ?? 0) ?></p>
-            <p>
-                Aktiv: <?= $number($stats['persons_active'] ?? 0) ?> ·
-                Deaktiviert: <?= $number($stats['persons_disabled'] ?? 0) ?>
-            </p>
-            <?php if ((int) ($stats['persons_erasure_requested'] ?? 0) > 0): ?>
-                <p>DSGVO beantragt: <?= $number($stats['persons_erasure_requested']) ?></p>
-            <?php endif; ?>
-        </article>
+<section class="no-padding">
+    <?php
+    $navFile = __DIR__ . '/../../partials/verwaltung_nav.php';
+    if (is_file($navFile)) {
+        require $navFile;
+    }
+    ?>
+</section>
 
-        <article class="card metric-card">
-            <h2>Logins</h2>
-            <p class="metric"><?= $number($stats['logins_total'] ?? 0) ?></p>
-            <p>
-                Aktiv: <?= $number($stats['logins_active'] ?? 0) ?> ·
-                Eingeladen: <?= $number($stats['logins_invited'] ?? 0) ?>
-            </p>
-        </article>
+<section>
+    <div class="grid">
+        <?php foreach ([
+            ['Personen', $stats['persons_total'] ?? 0, 'Aktiv: ' . $number($stats['persons_active'] ?? 0) . ' · Deaktiviert: ' . $number($stats['persons_disabled'] ?? 0), 'primary'],
+            ['Logins', $stats['logins_total'] ?? 0, 'Aktiv: ' . $number($stats['logins_active'] ?? 0) . ' · Eingeladen: ' . $number($stats['logins_invited'] ?? 0), 'secondary-cta'],
+            ['Gruppen', $stats['groups_total'] ?? 0, 'Systemgruppen: ' . $number($stats['groups_system'] ?? 0), 'info'],
+            ['PageGroups', $stats['page_groups_total'] ?? 0, 'Aktiv: ' . $number($stats['page_groups_active'] ?? 0), 'success'],
+            ['Einladungen', $stats['pending_invitations'] ?? 0, 'offen', 'warning'],
+            ['DSGVO', $stats['open_erasure_requests'] ?? 0, 'offene Vorgänge', 'danger'],
+        ] as $card): ?>
+            <article class="summary-card summary-card--<?= $e($card[3]) ?>">
+                <p class="summary-card__kicker"><?= $e($card[0]) ?></p>
+                <h2 class="summary-card__title"><?= $number($card[1]) ?></h2>
+                <p class="summary-card__text"><?= $e($card[2]) ?></p>
+            </article>
+        <?php endforeach; ?>
+    </div>
+</section>
 
-        <article class="card metric-card">
-            <h2>Gruppen</h2>
-            <p class="metric"><?= $number($stats['groups_total'] ?? 0) ?></p>
-            <p>Systemgruppen: <?= $number($stats['groups_system'] ?? 0) ?></p>
-        </article>
-
-        <article class="card metric-card">
-            <h2>PageGroups</h2>
-            <p class="metric"><?= $number($stats['page_groups_total'] ?? 0) ?></p>
-            <p>Aktiv: <?= $number($stats['page_groups_active'] ?? 0) ?></p>
-        </article>
-
-        <article class="card metric-card">
-            <h2>Einladungen</h2>
-            <p class="metric"><?= $number($stats['pending_invitations'] ?? 0) ?></p>
-            <p>offen</p>
-        </article>
-
-        <article class="card metric-card">
-            <h2>DSGVO</h2>
-            <p class="metric"><?= $number($stats['open_erasure_requests'] ?? 0) ?></p>
-            <p>
-                Beantragt: <?= $number($stats['requested_erasure_requests'] ?? 0) ?> ·
-                Freigegeben: <?= $number($stats['approved_erasure_requests'] ?? 0) ?>
-            </p>
-        </article>
-    </section>
-
-    <section class="content-grid">
-        <article class="card">
-            <h2>Schnellzugriffe</h2>
-
-            <div class="quick-link-grid">
-                <?php foreach ($quickLinks as $link): ?>
-                    <a class="quick-link-card" href="<?= $e($link['href'] ?? '#') ?>">
-                        <strong><?= $e($link['label'] ?? '') ?></strong>
-                        <span><?= $e($link['description'] ?? '') ?></span>
-                    </a>
-                <?php endforeach; ?>
+<section>
+    <div class="grid">
+        <div class="summary-group summary-group--card">
+            <div class="summary-group__header">
+                <p class="summary-group__kicker">Schnellzugriffe</p>
+                <h2 class="summary-group__title">Direkt starten</h2>
             </div>
-        </article>
+            <?php foreach ($quickLinks as $link): ?>
+                <article class="summary-card summary-card--primary">
+                    <h3 class="summary-card__title"><?= $e($link['label'] ?? '') ?></h3>
+                    <p class="summary-card__text"><?= $e($link['description'] ?? '') ?></p>
+                    <div class="summary-card__actions">
+                        <a class="btn btn--sm btn--outline" href="<?= $e($link['href'] ?? '#') ?>">Öffnen</a>
+                    </div>
+                </article>
+            <?php endforeach; ?>
+        </div>
 
-        <article class="card">
-            <h2>Offene Aufgaben</h2>
-
+        <div class="summary-group summary-group--card">
+            <div class="summary-group__header">
+                <p class="summary-group__kicker">Aufgaben</p>
+                <h2 class="summary-group__title">Offene Aufgaben</h2>
+            </div>
             <?php if ($openTasks === []): ?>
                 <p>Keine offenen Aufgaben.</p>
-            <?php else: ?>
-                <ul class="task-list">
-                    <?php foreach ($openTasks as $task): ?>
-                        <li>
-                            <a href="<?= $e($task['href'] ?? '#') ?>">
-                                <strong><?= $e($task['label'] ?? '') ?></strong>
-                                <span><?= $e($task['title'] ?? '') ?></span>
-                                <small><?= $e($task['subtitle'] ?? '') ?></small>
-                            </a>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
             <?php endif; ?>
-        </article>
-    </section>
+            <?php foreach ($openTasks as $task): ?>
+                <details class="summary summary--warning">
+                    <summary><span class="summary__main"><span class="summary__title"><?= $e($task['label'] ?? '') ?></span><span class="summary__subtitle"><?= $e($task['title'] ?? '') ?></span></span></summary>
+                    <div class="summary__content">
+                        <p><?= $e($task['subtitle'] ?? '') ?></p>
+                        <div class="summary__actions"><a class="btn btn--sm btn--outline" href="<?= $e($task['href'] ?? '#') ?>">Öffnen</a></div>
+                    </div>
+                </details>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
 
-    <section class="content-grid">
-        <article class="card">
-            <h2>Neue Personen</h2>
+<section>
+    <div class="grid">
+        <div class="table-block table-block--card">
+            <div class="table-block__header"><h2 class="table-block__title">Neue Personen</h2></div>
+            <div class="table-wrapper table-wrapper--bordered">
+                <table class="table table--striped table--compact table--stack">
+                    <thead><tr><th>ID</th><th>Name</th><th>Login</th><th>Status</th></tr></thead>
+                    <tbody>
+                    <?php if ($latestPersons === []): ?><tr><td colspan="4">Keine Personen vorhanden.</td></tr><?php endif; ?>
+                    <?php foreach ($latestPersons as $person): ?>
+                        <?php $personId = (int) ($person['id'] ?? 0); ?>
+                        <tr>
+                            <td data-label="ID">#<?= $personId ?></td>
+                            <td data-label="Name"><a href="/verwaltung/personen/<?= $personId ?>"><?= $e($person['display_name'] ?? 'Person #' . $personId) ?></a></td>
+                            <td data-label="Login"><?= $e($person['login_email'] ?? '') ?></td>
+                            <td data-label="Status"><span class="<?= $statusBadge($person['status'] ?? '') ?>"><?= $e($person['status'] ?? '') ?></span></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-            <table class="data-table">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Login</th>
-                    <th>Status</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php if ($latestPersons === []): ?>
-                    <tr>
-                        <td colspan="4">Keine Personen vorhanden.</td>
-                    </tr>
-                <?php endif; ?>
-
-                <?php foreach ($latestPersons as $person): ?>
-                    <?php
-                    $personId = (int) ($person['id'] ?? 0);
-                    $label = trim((string) ($person['display_name'] ?? ''));
-
-                    if ($label === '') {
-                        $label = trim((string) ($person['login_email'] ?? 'Person #' . $personId));
-                    }
-                    ?>
-                    <tr>
-                        <td><?= $personId ?></td>
-                        <td><a href="/verwaltung/personen/<?= $personId ?>"><?= $e($label) ?></a></td>
-                        <td><?= $e($person['login_email'] ?? '') ?></td>
-                        <td><?= $e($person['status'] ?? '') ?></td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        </article>
-
-        <article class="card">
-            <h2>Letzte Audit-Einträge</h2>
-
-            <table class="data-table">
-                <thead>
-                <tr>
-                    <th>Zeitpunkt</th>
-                    <th>Aktion</th>
-                    <th>Entität</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php if ($latestAuditEntries === []): ?>
-                    <tr>
-                        <td colspan="3">Keine Audit-Einträge vorhanden.</td>
-                    </tr>
-                <?php endif; ?>
-
-                <?php foreach ($latestAuditEntries as $entry): ?>
-                    <?php $entryId = (int) ($entry['id'] ?? 0); ?>
-                    <tr>
-                        <td><?= $e($entry['occurred_at'] ?? '') ?></td>
-                        <td>
-                            <a href="/verwaltung/audit/<?= $entryId ?>">
-                                <code><?= $e($entry['action'] ?? '') ?></code>
-                            </a>
-                        </td>
-                        <td>
-                            <?= $e($entry['entity_type'] ?? '') ?>
-                            <?php if (!empty($entry['entity_id'])): ?>
-                                #<?= (int) $entry['entity_id'] ?>
-                            <?php endif; ?>
-                            <?php if (!empty($entry['entity_label'])): ?>
-                                <br><?= $e($entry['entity_label']) ?>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        </article>
-    </section>
+        <div class="table-block table-block--card">
+            <div class="table-block__header"><h2 class="table-block__title">Letzte Audit-Einträge</h2></div>
+            <div class="table-wrapper table-wrapper--bordered">
+                <table class="table table--striped table--compact table--stack">
+                    <thead><tr><th>Zeitpunkt</th><th>Aktion</th><th>Entität</th></tr></thead>
+                    <tbody>
+                    <?php if ($latestAuditEntries === []): ?><tr><td colspan="3">Keine Audit-Einträge vorhanden.</td></tr><?php endif; ?>
+                    <?php foreach ($latestAuditEntries as $entry): ?>
+                        <?php $entryId = (int) ($entry['id'] ?? 0); ?>
+                        <tr>
+                            <td data-label="Zeitpunkt"><?= $e($entry['occurred_at'] ?? '') ?></td>
+                            <td data-label="Aktion"><a href="/verwaltung/audit/<?= $entryId ?>"><code><?= $e($entry['action'] ?? '') ?></code></a></td>
+                            <td data-label="Entität"><?= $e($entry['entity_type'] ?? '') ?><?php if (!empty($entry['entity_id'])): ?> #<?= (int) $entry['entity_id'] ?><?php endif; ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </section>

@@ -8,15 +8,16 @@ $renderMenu = static function (array $items) use (&$renderMenu, $e): void {
         return;
     }
     ?>
-    <ul class="main-menu-list">
+    <ul>
         <?php foreach ($items as $item): ?>
             <?php
             $href = (string) ($item['url'] ?? '#');
             $target = trim((string) ($item['target'] ?? ''));
             $children = $item['children'] ?? [];
             ?>
-            <li class="main-menu-item">
+            <li>
                 <a
+                    class="btn btn--sm btn--ghost"
                     href="<?= $e($href) ?>"
                     <?= $target !== '' ? 'target="' . $e($target) . '"' : '' ?>
                 >
@@ -33,6 +34,6 @@ $renderMenu = static function (array $items) use (&$renderMenu, $e): void {
 };
 ?>
 
-<nav class="main-menu" aria-label="Hauptmenü">
+<nav class="summary-group summary-group--compact" aria-label="Hauptmenü">
     <?php $renderMenu($mainMenuItems); ?>
 </nav>

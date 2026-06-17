@@ -452,3 +452,105 @@ div.header-bottom-user-login .btn {
 .header-bottom-user-logout-form {
     margin: 0;
 }
+
+/* --------------------------------------------------------------------------
+   Mehrstufige Header-Aufklappmenüs
+   --------------------------------------------------------------------------
+   Ergänzt die bereits vorhandenen Klassen:
+
+   - .header-bottom-nav-list-item.has-submenu
+   - .header-bottom-submenu
+   - .header-bottom-submenu-item
+   - .header-bottom-submenu-link
+   - .header-bottom-submenu--nested
+
+   Ziel:
+   Level 1 öffnet nach unten.
+   Level 2 öffnet Level 3 seitlich nach rechts.
+-------------------------------------------------------------------------- */
+
+.header-bottom-submenu-item.has-submenu {
+    position: relative;
+}
+
+.header-bottom-submenu .header-bottom-submenu--nested,
+ul.header-bottom-submenu .header-bottom-submenu--nested {
+    top: -0.75rem;
+    left: calc(100% + 8px);
+    min-width: var(--header-submenu-min-width);
+    display: none;
+}
+
+.header-bottom-submenu-item.has-submenu::after,
+.header-bottom-submenu-item:has(> .header-bottom-submenu--nested)::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 100%;
+    width: 12px;
+    height: 100%;
+    background: transparent;
+    display: none;
+    z-index: 1000;
+}
+
+.header-bottom-submenu-item.has-submenu:hover::after,
+.header-bottom-submenu-item.has-submenu:focus-within::after,
+.header-bottom-submenu-item:hover:has(> .header-bottom-submenu--nested)::after,
+.header-bottom-submenu-item:focus-within:has(> .header-bottom-submenu--nested)::after {
+    display: block;
+}
+
+.header-bottom-submenu-item.has-submenu:hover > .header-bottom-submenu--nested,
+.header-bottom-submenu-item.has-submenu:focus-within > .header-bottom-submenu--nested,
+.header-bottom-submenu-item:hover:has(> .header-bottom-submenu--nested) > .header-bottom-submenu--nested,
+.header-bottom-submenu-item:focus-within:has(> .header-bottom-submenu--nested) > .header-bottom-submenu--nested {
+    display: block;
+}
+
+div.header-bottom-nav .header-bottom-submenu-item.has-submenu > .header-bottom-submenu-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+div.header-bottom-nav .header-bottom-submenu-item.has-submenu > .header-bottom-submenu-link::after {
+    content: "›";
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25em;
+    line-height: 1;
+    color: color-mix(var(--color-ink) 55%, transparent);
+}
+
+.header-bottom-submenu-item.has-submenu:hover > .header-bottom-submenu-link::after,
+.header-bottom-submenu-item.has-submenu:focus-within > .header-bottom-submenu-link::after {
+    color: var(--color-ink);
+}
+
+.header-bottom-submenu--nested {
+    border-radius: 0;
+}
+
+@media (max-width: 900px) {
+    .header-bottom-submenu .header-bottom-submenu--nested,
+    ul.header-bottom-submenu .header-bottom-submenu--nested {
+        position: static;
+        display: block;
+        box-shadow: none;
+        border: 0;
+        border-top: 1px solid color-mix(var(--color-ink) 6%, transparent);
+        margin: 0;
+        padding: 0.25rem 0 0.25rem 1rem;
+        background: color-mix(var(--color-ink) 3%, transparent);
+    }
+
+    .header-bottom-submenu-item.has-submenu::after,
+    .header-bottom-submenu-item:has(> .header-bottom-submenu--nested)::after,
+    div.header-bottom-nav .header-bottom-submenu-item.has-submenu > .header-bottom-submenu-link::after {
+        display: none;
+    }
+}
+

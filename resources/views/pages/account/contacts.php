@@ -1,108 +1,140 @@
 <?php
 $e = static fn (mixed $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 
+$statusBadge = static function (mixed $status): string {
+    $status = strtolower(trim((string) $status));
+
+    return match ($status) {
+        'active', 'accepted', 'completed', 'used', 'success' => 'table-badge table-badge--success',
+        'disabled', 'revoked', 'cancelled', 'rejected', 'expired', 'error' => 'table-badge table-badge--danger',
+        'invited', 'pending', 'requested', 'approved', 'warning' => 'table-badge table-badge--warning',
+        default => 'table-badge table-badge--neutral',
+    };
+};
+
+$messageText = static function (string $message): string {
+    return match ($message) {
+        'created' => 'Der Datensatz wurde angelegt.',
+        'updated' => 'Die Änderungen wurden gespeichert.',
+        'deleted' => 'Der Datensatz wurde gelöscht.',
+        'status' => 'Der Status wurde geändert.',
+        'revoked' => 'Die Einladung wurde widerrufen.',
+        'requested' => 'Der Vorgang wurde beantragt.',
+        'approved' => 'Der Vorgang wurde freigegeben.',
+        'rejected' => 'Der Vorgang wurde abgelehnt.',
+        'cancelled' => 'Der Vorgang wurde storniert.',
+        'completed' => 'Der Vorgang wurde abgeschlossen.',
+        default => $message,
+    };
+};
+?>
+<?php
 $contacts = $contacts ?? [];
 $errors = $errors ?? [];
 $message = (string) ($message ?? '');
 $csrfToken = (string) ($csrfToken ?? '');
 $deleteTokens = $deleteTokens ?? [];
+$personId = 0;
+$label = 'Meine Kontakte';
 ?>
 
-<section class="content-section">
-    <header class="content-header">
-        <div>
-            <h1>Meine Kontakte</h1>
-            <p>Eigene Kontaktmöglichkeiten pflegen.</p>
+<section class="section--page-title section--page-title-compact">
+    <div class="page-title page-title--card page-title--split page-title--compact">
+        <div class="page-title__main">
+            <p class="page-title__kicker">Konto</p>
+            <h1 class="page-title__title">Meine Kontakte</h1>
+            <p class="page-title__lead">Eigene Kontaktmöglichkeiten verwalten.</p>
         </div>
+        <div class="page-title__side">
+            <div class="page-title__actions btn-group">
+                <a class="btn btn--outline" href="/konto/profil">Zur Person</a>
+            </div>
+        </div>
+    </div>
+</section>
 
-        <p>
-            <a class="button" href="/konto/profil">Zurück zum Profil</a>
-        </p>
-    </header>
+<section>
+    
+<?php if (trim((string) ($message ?? '')) !== ''): ?>
+    <div class="form__notice form__notice--success">
+        <?= $e($messageText((string) $message)) ?>
+    </div>
+<?php endif; ?>
 
-    <nav class="tabs">
-        <a href="/konto/profil">Profil</a>
-        <a href="/konto/kontakte">Kontakte</a>
-        <a href="/konto/adressen">Adressen</a>
-        <a href="/konto/passwort">Passwort</a>
-        <a href="/konto/sicherheit">Sicherheit</a>
-    </nav>
+<?php if (($errors ?? []) !== []): ?>
+    <div class="form__notice form__notice--error">
+        <strong>Bitte prüfen:</strong>
+        <ul>
+            <?php foreach ($errors as $error): ?>
+                <li><?= $e($error) ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+<?php endif; ?>
 
-    <?php if ($message !== ''): ?>
-        <div class="notice notice-success"><?= $e($message) ?></div>
-    <?php endif; ?>
-
-    <?php if ($errors !== []): ?>
-        <div class="notice notice-error">
-            <ul>
-                <?php foreach ($errors as $error): ?>
-                    <li><?= $e($error) ?></li>
+    <div class="table-block table-block--card">
+        <div class="table-block__header">
+            <h2 class="table-block__title">Kontakte</h2>
+        </div>
+        <div class="table-wrapper table-wrapper--bordered">
+            <table class="table table--striped table--hover table--compact table--stack">
+                <thead>
+                <tr><th>Typ</th><th>Wert</th><th>Bevorzugt</th><th>Aktion</th></tr>
+                </thead>
+                <tbody>
+                <?php if ($contacts === []): ?>
+                    <tr><td colspan="4">Keine Kontakte vorhanden.</td></tr>
+                <?php endif; ?>
+                <?php foreach ($contacts as $contact): ?>
+                    <?php $contactId = (int) ($contact['id'] ?? 0); ?>
+                    <tr>
+                        <td data-label="Typ"><?= $e($contact['label'] ?? $contact['type'] ?? '') ?></td>
+                        <td data-label="Wert"><?= $e($contact['value'] ?? '') ?></td>
+                        <td data-label="Bevorzugt"><?= !empty($contact['is_primary']) ? 'Ja' : 'Nein' ?></td>
+                        <td data-label="Aktion" class="table__cell--actions">
+                            <form method="post" action="/konto/kontakte/<?= $contactId ?>/delete">
+                                <button class="btn btn--xs btn--danger" type="submit">Löschen</button>
+                            </form>
+                        </td>
+                    </tr>
                 <?php endforeach; ?>
-            </ul>
+                </tbody>
+            </table>
         </div>
-    <?php endif; ?>
+    </div>
+</section>
 
-    <section class="card">
-        <h2>Kontakt hinzufügen</h2>
+<section>
+    <form class="form form--card" method="post" action="/konto/kontakte">
+        <div class="form__grid form__grid--4">
+            <div class="form__title">
+                <h2>Kontakt hinzufügen</h2>
+            </div>
 
-        <form method="post" action="/konto/kontakte" class="stack-form">
-            <input type="hidden" name="_csrf_token" value="<?= $e($csrfToken) ?>">
-
-            <label>
-                Typ
-                <select name="contact_type">
+            <div class="form__field">
+                <label class="form__label" for="type">Typ</label>
+                <select class="form__control" id="type" name="type">
                     <option value="email">E-Mail</option>
                     <option value="phone">Telefon</option>
                     <option value="mobile">Mobil</option>
                     <option value="website">Website</option>
                     <option value="other">Sonstiges</option>
                 </select>
+            </div>
+
+            <div class="form__field form__field--span-2">
+                <label class="form__label" for="value">Wert</label>
+                <input class="form__control" id="value" name="value" required>
+            </div>
+
+            <label class="form__check">
+                <input class="form__check-input" type="checkbox" name="is_primary" value="1">
+                <span class="form__check-label">Bevorzugt</span>
             </label>
 
-            <label>Label <input type="text" name="label" placeholder="privat, dienstlich ..."></label>
-            <label>Wert <input type="text" name="value" required></label>
-            <label><input type="checkbox" name="is_primary" value="1"> Primär</label>
-
-            <button type="submit">Kontakt speichern</button>
-        </form>
-    </section>
-
-    <section class="card">
-        <h2>Kontakte</h2>
-
-        <table class="data-table">
-            <thead>
-            <tr>
-                <th>Typ</th>
-                <th>Label</th>
-                <th>Wert</th>
-                <th>Primär</th>
-                <th>Verifiziert</th>
-                <th>Aktion</th>
-            </tr>
-            </thead>
-            <tbody>
-            <?php if ($contacts === []): ?>
-                <tr><td colspan="6">Keine Kontakte vorhanden.</td></tr>
-            <?php endif; ?>
-
-            <?php foreach ($contacts as $contact): ?>
-                <?php $contactId = (int) ($contact['id'] ?? 0); ?>
-                <tr>
-                    <td><?= $e($contact['contact_type'] ?? '') ?></td>
-                    <td><?= $e($contact['label'] ?? '') ?></td>
-                    <td><?= $e($contact['value'] ?? '') ?></td>
-                    <td><?= !empty($contact['is_primary']) ? 'ja' : 'nein' ?></td>
-                    <td><?= !empty($contact['is_verified']) ? 'ja' : 'nein' ?></td>
-                    <td>
-                        <form method="post" action="/konto/kontakte/<?= $contactId ?>/delete">
-                            <input type="hidden" name="_csrf_token" value="<?= $e($deleteTokens[$contactId] ?? '') ?>">
-                            <button type="submit">Löschen</button>
-                        </form>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
-    </section>
+            <div class="form__actions">
+                <button class="btn btn--primary" type="submit">Kontakt speichern</button>
+            </div>
+        </div>
+    </form>
 </section>

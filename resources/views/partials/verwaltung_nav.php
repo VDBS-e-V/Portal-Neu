@@ -5,11 +5,13 @@ $areaNav = $areaNav ?? [];
 ?>
 
 <?php if ($areaNav !== []): ?>
-    <nav class="area-nav">
+    <nav class="btn-group btn-group--horizontal btn-group--gap-sm" aria-label="Verwaltungsnavigation">
         <?php foreach ($areaNav as $item): ?>
+            <?php $isActive = !empty($item['active']); ?>
             <a
+                class="btn btn--sm <?= $isActive ? 'btn--primary' : 'btn--outline' ?>"
                 href="<?= $e($item['href'] ?? '#') ?>"
-                class="<?= !empty($item['active']) ? 'is-active' : '' ?>"
+                <?= $isActive ? 'aria-current="page"' : '' ?>
             >
                 <?= $e($item['label'] ?? '') ?>
             </a>

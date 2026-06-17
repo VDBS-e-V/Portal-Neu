@@ -1,57 +1,34 @@
-SET @column_exists := (
-  SELECT COUNT(*)
-  FROM information_schema.COLUMNS
-  WHERE TABLE_SCHEMA = DATABASE()
-    AND TABLE_NAME = 'pt_menu_items'
-    AND COLUMN_NAME = 'page_group_id'
-);
+-- database/migrations/0028_add_page_group_id_to_pt_menu_items.sql
+--
+-- No-Op-Migration.
+--
+-- Im aktuellen Branch reset/base-skeleton wird pt_menu_items.page_group_id
+-- bereits in folgender Migration angelegt:
+--
+-- database/migrations/0018_create_pt_menu_items.sql
+--
+-- Dort sind bereits vorhanden:
+--
+-- - pt_menu_items.page_group_id
+-- - Index auf page_group_id
+-- - Foreign Key auf pt_page_groups
+--
+-- Diese Migration bleibt nur bestehen, damit die Migrationsnummer 0028
+-- in der Historie erhalten bleibt.
+--
+-- Wichtig:
+--
+-- Keine PREPARE/EXECUTE/DEALLOCATE PREPARE Statements verwenden.
+-- Keine SELECT Statements verwenden.
+--
+-- Grund:
+--
+-- Der aktuelle Migration-Runner verarbeitet keine offenen Resultsets aus
+-- dynamischem SQL. Dadurch entsteht sonst:
+--
+-- SQLSTATE[HY000]: General error: 2014
+-- Cannot execute queries while other unbuffered queries are active.
+--
+-- Dieses SET ist ein sicheres No-Op Statement ohne Resultset.
 
-SET @sql := IF(
-  @column_exists = 0,
-  'ALTER TABLE `pt_menu_items`
-     ADD COLUMN `page_group_id` BIGINT UNSIGNED NULL COMMENT ''Optionale PageGroup-Berechtigung für sichtbarkeitsgesteuerte Menüeinträge.''',
-  'SELECT 1'
-);
-
-PREPARE stmt FROM @sql;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
-
-SET @index_exists := (
-  SELECT COUNT(*)
-  FROM information_schema.STATISTICS
-  WHERE TABLE_SCHEMA = DATABASE()
-    AND TABLE_NAME = 'pt_menu_items'
-    AND INDEX_NAME = 'idx_pt_menu_items_page_group'
-);
-
-SET @sql := IF(
-  @index_exists = 0,
-  'ALTER TABLE `pt_menu_items`
-     ADD INDEX `idx_pt_menu_items_page_group` (`page_group_id`)',
-  'SELECT 1'
-);
-
-PREPARE stmt FROM @sql;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
-
-SET @fk_exists := (
-  SELECT COUNT(*)
-  FROM information_schema.REFERENTIAL_CONSTRAINTS
-  WHERE CONSTRAINT_SCHEMA = DATABASE()
-    AND CONSTRAINT_NAME = 'fk_pt_menu_items_page_group'
-);
-
-SET @sql := IF(
-  @fk_exists = 0,
-  'ALTER TABLE `pt_menu_items`
-     ADD CONSTRAINT `fk_pt_menu_items_page_group`
-       FOREIGN KEY (`page_group_id`) REFERENCES `pt_page_groups` (`id`)
-       ON DELETE SET NULL',
-  'SELECT 1'
-);
-
-PREPARE stmt FROM @sql;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
+SET @portal_migration_0028_noop = 1;
