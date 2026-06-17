@@ -9,6 +9,18 @@ use App\Http\Controller\NewsController;
 use App\Http\Controller\StyleGuideController;
 use App\Http\Controller\HealthController;
 use App\Http\Controller\UserAccountController;
+use App\Http\Controller\Verwaltung\VerwaltungController;
+use App\Http\Controller\Verwaltung\PersonenController;
+use App\Http\Controller\Verwaltung\GruppenController;
+use App\Http\Controller\Verwaltung\BerechtigungenController;
+use App\Http\Controller\Verwaltung\AuditLogController;
+use App\Http\Controller\InvitationController;
+use App\Http\Controller\Verwaltung\EinladungenController;
+use App\Http\Controller\Verwaltung\DatenschutzController;
+use App\Http\Controller\Verwaltung\EntityAuditController;
+use App\Http\Controller\AccountController;
+use App\Http\Controller\PasswordResetController;
+use App\Http\Controller\ProfileController;
 use App\Http\Routing\Route;
 
 return [
@@ -107,4 +119,127 @@ return [
 
     new Route('GET', '/development/wcl/icons', StyleGuideController::class, 'icons'),
     new Route('GET', '/development/wcl/icons/generator', StyleGuideController::class, 'iconsGenerator'),
+    
+
+    // Verwaltung: Dashboard
+
+    new Route('GET', '/verwaltung', VerwaltungController::class, 'index'),
+    
+
+    // Verwaltung: Personen
+
+    new Route('GET', '/verwaltung/personen', PersonenController::class, 'index'),
+
+    new Route('GET', '/verwaltung/personen/create', PersonenController::class, 'createForm'),
+    new Route('POST', '/verwaltung/personen/create', PersonenController::class, 'create'),
+
+    new Route('GET', '/verwaltung/personen/{id}', PersonenController::class, 'show'),
+
+    new Route('GET', '/verwaltung/personen/{id}/edit', PersonenController::class, 'editForm'),
+    new Route('POST', '/verwaltung/personen/{id}/edit', PersonenController::class, 'edit'),
+
+    new Route('POST', '/verwaltung/personen/{id}/status', PersonenController::class, 'updateStatus'),
+
+    new Route('GET', '/verwaltung/personen/{id}/gruppen', PersonenController::class, 'groups'),
+    new Route('POST', '/verwaltung/personen/{id}/gruppen', PersonenController::class, 'updateGroups'),
+
+    new Route('GET', '/verwaltung/personen/{id}/kontakte', PersonenController::class, 'contacts'),
+    new Route('POST', '/verwaltung/personen/{id}/kontakte', PersonenController::class, 'createContact'),
+    new Route('POST', '/verwaltung/personen/{id}/kontakte/{contactId}/delete', PersonenController::class, 'deleteContact'),
+
+    new Route('GET', '/verwaltung/personen/{id}/adressen', PersonenController::class, 'addresses'),
+    new Route('POST', '/verwaltung/personen/{id}/adressen', PersonenController::class, 'createAddress'),
+    new Route('POST', '/verwaltung/personen/{id}/adressen/{addressId}/delete', PersonenController::class, 'deleteAddress'),
+
+
+    // Verwaltung: Gruppen
+
+    new Route('GET', '/verwaltung/gruppen', GruppenController::class, 'index'),
+
+    new Route('GET', '/verwaltung/gruppen/create', GruppenController::class, 'createForm'),
+    new Route('POST', '/verwaltung/gruppen/create', GruppenController::class, 'create'),
+
+    new Route('GET', '/verwaltung/gruppen/{id}', GruppenController::class, 'show'),
+
+    new Route('GET', '/verwaltung/gruppen/{id}/edit', GruppenController::class, 'editForm'),
+    new Route('POST', '/verwaltung/gruppen/{id}/edit', GruppenController::class, 'edit'),
+
+    new Route('GET', '/verwaltung/gruppen/{id}/mitglieder', GruppenController::class, 'members'),
+
+    new Route('POST', '/verwaltung/gruppen/{id}/delete', GruppenController::class, 'delete'),
+
+
+    // Verwaltung: Berechtigungen
+
+    new Route('GET', '/verwaltung/berechtigungen', BerechtigungenController::class, 'index'),
+
+    new Route('GET', '/verwaltung/berechtigungen/page-groups', BerechtigungenController::class, 'pageGroups'),
+
+    new Route('GET', '/verwaltung/berechtigungen/gruppen/{id}', BerechtigungenController::class, 'group'),
+    new Route('POST', '/verwaltung/berechtigungen/gruppen/{id}', BerechtigungenController::class, 'updateGroup'),
+
+
+    // Verwaltung: Audit
+
+    new Route('GET', '/verwaltung/audit', AuditLogController::class, 'index'),
+    new Route('GET', '/verwaltung/audit/{id}', AuditLogController::class, 'show'),
+
+
+    // Verwaltung: Einladungen
+
+    new Route('GET', '/einladung/{token}', InvitationController::class, 'acceptForm'),
+    new Route('POST', '/einladung/{token}', InvitationController::class, 'accept'),
+
+    new Route('GET', '/verwaltung/einladungen', EinladungenController::class, 'index'),
+    new Route('POST', '/verwaltung/personen/{id}/einladung', EinladungenController::class, 'createForPerson'),
+    new Route('POST', '/verwaltung/einladungen/{id}/revoke', EinladungenController::class, 'revoke'),
+
+
+    // Verwaltung: Datenschutz
+
+    new Route('GET', '/verwaltung/datenschutz', DatenschutzController::class, 'index'),
+
+    new Route('GET', '/verwaltung/personen/{id}/datenschutz/loeschung', DatenschutzController::class, 'createForm'),
+    new Route('POST', '/verwaltung/personen/{id}/datenschutz/loeschung', DatenschutzController::class, 'create'),
+
+    new Route('GET', '/verwaltung/datenschutz/{id}', DatenschutzController::class, 'show'),
+
+    new Route('POST', '/verwaltung/datenschutz/{id}/approve', DatenschutzController::class, 'approve'),
+    new Route('POST', '/verwaltung/datenschutz/{id}/reject', DatenschutzController::class, 'reject'),
+    new Route('POST', '/verwaltung/datenschutz/{id}/cancel', DatenschutzController::class, 'cancel'),
+    new Route('POST', '/verwaltung/datenschutz/{id}/complete', DatenschutzController::class, 'complete'),
+
+    new Route('GET', '/verwaltung/personen/{id}/audit', EntityAuditController::class, 'person'),
+    new Route('GET', '/verwaltung/gruppen/{id}/audit', EntityAuditController::class, 'group'),
+    new Route('GET', '/verwaltung/datenschutz/{id}/audit', EntityAuditController::class, 'erasure'),
+
+
+
+    // Konto
+
+    new Route('GET', '/konto', AccountController::class, 'index'),
+
+    new Route('GET', '/konto/passwort', AccountController::class, 'passwordForm'),
+    new Route('POST', '/konto/passwort', AccountController::class, 'changePassword'),
+
+    new Route('GET', '/passwort/vergessen', PasswordResetController::class, 'requestForm'),
+    new Route('POST', '/passwort/vergessen', PasswordResetController::class, 'request'),
+
+    new Route('GET', '/passwort/zuruecksetzen/{token}', PasswordResetController::class, 'resetForm'),
+    new Route('POST', '/passwort/zuruecksetzen/{token}', PasswordResetController::class, 'reset'),
+    
+    new Route('GET', '/konto/profil', ProfileController::class, 'profile'),
+
+    new Route('GET', '/konto/profil/bearbeiten', ProfileController::class, 'editForm'),
+    new Route('POST', '/konto/profil/bearbeiten', ProfileController::class, 'edit'),
+
+    new Route('GET', '/konto/kontakte', ProfileController::class, 'contacts'),
+    new Route('POST', '/konto/kontakte', ProfileController::class, 'createContact'),
+    new Route('POST', '/konto/kontakte/{contactId}/delete', ProfileController::class, 'deleteContact'),
+
+    new Route('GET', '/konto/adressen', ProfileController::class, 'addresses'),
+    new Route('POST', '/konto/adressen', ProfileController::class, 'createAddress'),
+    new Route('POST', '/konto/adressen/{addressId}/delete', ProfileController::class, 'deleteAddress'),
+
+    new Route('GET', '/konto/sicherheit', ProfileController::class, 'security'),
 ];

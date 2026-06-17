@@ -1,0 +1,29 @@
+OPTIONALE NAVIGATION-AKTUALISIERUNG
+
+Mini-Projekt 9 führt ein:
+
+src/Navigation/VerwaltungNavigation.php
+
+Damit kann die bisher in mehreren Controllern duplizierte Methode verwaltungNav() später ersetzt werden.
+
+Beispiel für zukünftige Controller-Konstruktoren:
+
+use App\Navigation\VerwaltungNavigation;
+
+public function __construct(
+    Renderer $renderer,
+    AreaRepository $areas,
+    MenuRepository $menus,
+    MenuItemRepository $menuItems,
+    private readonly VerwaltungNavigation $navigation,
+    ...
+) {
+    parent::__construct($renderer, $areas, $menus, $menuItems);
+}
+
+Dann in pageParams():
+
+'areaNav' => $this->navigation->items($activeKey),
+
+Die bestehenden Controller müssen dafür nicht sofort angepasst werden.
+Mini-Projekt 9 funktioniert auch ohne diese optionale Bereinigung.
