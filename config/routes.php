@@ -31,13 +31,6 @@ return [
     new Route('POST', '/login', AuthController::class, 'login'),
     new Route('POST', '/logout', AuthController::class, 'logout'),
 
-    // User account
-    new Route('GET', '/user', UserAccountController::class, 'profile'),
-    new Route('POST', '/user/profile', UserAccountController::class, 'updateProfile'),
-    new Route('GET', '/user/settings', UserAccountController::class, 'settings'),
-    new Route('POST', '/user/settings', UserAccountController::class, 'updateSettings'),
-    new Route('POST', '/user/password', UserAccountController::class, 'updatePassword'),
-
     new Route('GET', '/api/user/me', AuthController::class, 'apiMe'),
 
     new Route('GET', '/health', HealthController::class, 'health'),
