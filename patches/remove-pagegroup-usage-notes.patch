@@ -1,0 +1,9 @@
+*** Begin Patch
+*** Update File: src/Security/AuthorizationService.php
+@@
+-// Entferne alle alten requirePageGroupAccess/currentUserCanAccessPageGroup-Methoden.
+-// Mini-Projekt 1 liefert bereits den neuen AuthorizationService mit can() und requirePermission().
++// Kein Codepfad darf noch requirePageGroupAccess(...) oder currentUserCanAccessPageGroup(...)
++// verwenden. RoutePermissionGuard und AuthorizedMenuRepository prüfen ausschließlich
++// neue Permission-Keys.
+*** End Patch

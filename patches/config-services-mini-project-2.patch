@@ -1,0 +1,38 @@
+*** Begin Patch
+*** Update File: config/services.php
+@@
+ use App\Http\Routing\Router;
++use App\Security\RoutePermissionGuard;
++use App\Security\RoutePermissionMap;
+@@
+- Router::class => static function (Container $container): Router {
+-  return new Router($container);
+- },
++ Router::class => static function (Container $container): Router {
++  return new Router(
++   $container,
++   $container->get(RoutePermissionGuard::class)
++  );
++ },
+@@
+  AuthorizationService::class => static function (Container $container): AuthorizationService {
+   return new AuthorizationService(
+    $container->get(SessionAuth::class),
+    $container->get(UserRepository::class),
+-   $container->get(PersonPermissionGroupRepository::class),
+-   $container->get(PageGroupAccessRepository::class)
++   $container->get(IdentityAuthorizationRepository::class)
+   );
+  },
++
++ RoutePermissionMap::class => static function (): RoutePermissionMap {
++  return new RoutePermissionMap();
++ },
++
++ RoutePermissionGuard::class => static function (Container $container): RoutePermissionGuard {
++  return new RoutePermissionGuard(
++   $container->get(AuthorizationService::class),
++   $container->get(RoutePermissionMap::class)
++  );
++ },
+*** End Patch
