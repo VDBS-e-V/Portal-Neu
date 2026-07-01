@@ -5,7 +5,9 @@
    --initial-admin-email oder INITIAL_ADMIN_EMAIL ersetzt.
 -------------------------------------------------------------------------- */
 
-SET @initial_admin_email = '<INITIAL_ADMIN_EMAIL>';
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
+SET @initial_admin_email = CONVERT('<INITIAL_ADMIN_EMAIL>' USING utf8mb4) COLLATE utf8mb4_unicode_ci;
+SET @initial_admin_password_hash = '<BCRYPT_HASH>';
 
 INSERT INTO `ids_systems` (`key_name`, `name`, `description`, `is_active`, `is_external`, `sorting`)
 VALUES
@@ -194,15 +196,81 @@ WHERE s.`key_name` = 'methodenmatrix'
   AND g.`key_name` IN ('teamende', 'verwaltung')
   AND p.`key_name` IN ('methodenmatrix.material.create', 'methodenmatrix.material.edit');
 
-/* Für bestehende Personen Subjects erzeugen. Als Start-UUID wird die Personen-UUID verwendet. */
+/* Bootstrap-Admin sicherstellen. Falls das konfigurierte Konto noch nicht existiert, wird es angelegt. */
+SET @initial_admin_person_id = (
+    SELECT u.`person_id`
+    FROM `ids_users` u
+    WHERE CONVERT(u.`email` USING utf8mb4) COLLATE utf8mb4_unicode_ci = @initial_admin_email COLLATE utf8mb4_unicode_ci
+    LIMIT 1
+);
+
+INSERT INTO `ids_persons` (`person_uuid`, `display_name`, `status`)
+SELECT UNHEX(REPLACE(UUID(), '-', '')), @initial_admin_email, 'active'
+WHERE @initial_admin_person_id IS NULL;
+
+SET @created_initial_admin_person_id = LAST_INSERT_ID();
+
+SET @initial_admin_person_id = IF(
+    @initial_admin_person_id IS NULL,
+    @created_initial_admin_person_id,
+    @initial_admin_person_id
+);
+
+INSERT INTO `ids_users` (`person_id`, `user_uuid`, `identity_subject`, `email`, `password_hash`, `status`, `email_verified_at`)
+SELECT
+    @initial_admin_person_id,
+    UNHEX(REPLACE(UUID(), '-', '')),
+    NULL,
+    @initial_admin_email,
+    @initial_admin_password_hash,
+    'active',
+    CURRENT_TIMESTAMP
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM `ids_users` u
+    WHERE CONVERT(u.`email` USING utf8mb4) COLLATE utf8mb4_unicode_ci = @initial_admin_email COLLATE utf8mb4_unicode_ci
+);
+
+UPDATE `ids_persons`
+SET `status` = 'active',
+    `display_name` = COALESCE(NULLIF(`display_name`, ''), @initial_admin_email)
+WHERE `id` = @initial_admin_person_id;
+
+UPDATE `ids_users`
+SET `status` = 'active',
+    `password_hash` = @initial_admin_password_hash,
+    `email_verified_at` = COALESCE(`email_verified_at`, CURRENT_TIMESTAMP)
+WHERE CONVERT(`email` USING utf8mb4) COLLATE utf8mb4_unicode_ci = @initial_admin_email COLLATE utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO `ids_person_contact_details` (`person_id`, `contact_type`, `label`, `value`, `is_primary`, `is_verified`)
+SELECT @initial_admin_person_id, 'email', 'Login', @initial_admin_email, 1, 1
+WHERE EXISTS (
+    SELECT 1
+    FROM information_schema.TABLES
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'ids_person_contact_details'
+);
+
+INSERT IGNORE INTO `ids_user_account_settings` (`user_id`, `language`, `timezone`, `email_notifications`, `profile_visibility`)
+SELECT u.`id`, 'de', 'Europe/Berlin', 1, 'private'
+FROM `ids_users` u
+WHERE CONVERT(u.`email` USING utf8mb4) COLLATE utf8mb4_unicode_ci = @initial_admin_email COLLATE utf8mb4_unicode_ci
+  AND EXISTS (
+      SELECT 1
+      FROM information_schema.TABLES
+      WHERE TABLE_SCHEMA = DATABASE()
+        AND TABLE_NAME = 'ids_user_account_settings'
+  );
+
+/* Für alle Personen Subjects erzeugen. Als Start-UUID wird die Personen-UUID verwendet. */
 INSERT IGNORE INTO `ids_subjects` (`uuid`, `status`)
-SELECT LOWER(CONCAT(
+SELECT (LOWER(CONCAT(
     SUBSTRING(HEX(p.`person_uuid`), 1, 8), '-',
     SUBSTRING(HEX(p.`person_uuid`), 9, 4), '-',
     SUBSTRING(HEX(p.`person_uuid`), 13, 4), '-',
     SUBSTRING(HEX(p.`person_uuid`), 17, 4), '-',
     SUBSTRING(HEX(p.`person_uuid`), 21, 12)
-)),
+)) COLLATE utf8mb4_unicode_ci),
 CASE
     WHEN p.`status` = 'disabled' THEN 'disabled'
     WHEN p.`status` IN ('erased', 'erasure_requested') THEN 'deleted'
@@ -212,15 +280,23 @@ FROM `ids_persons` p
 WHERE p.`subject_id` IS NULL;
 
 UPDATE `ids_persons` p
-JOIN `ids_subjects` s ON s.`uuid` = LOWER(CONCAT(
+JOIN `ids_subjects` s ON s.`uuid` = (LOWER(CONCAT(
     SUBSTRING(HEX(p.`person_uuid`), 1, 8), '-',
     SUBSTRING(HEX(p.`person_uuid`), 9, 4), '-',
     SUBSTRING(HEX(p.`person_uuid`), 13, 4), '-',
     SUBSTRING(HEX(p.`person_uuid`), 17, 4), '-',
     SUBSTRING(HEX(p.`person_uuid`), 21, 12)
-))
+)) COLLATE utf8mb4_unicode_ci)
 SET p.`subject_id` = s.`id`
 WHERE p.`subject_id` IS NULL;
+
+SET @initial_admin_subject_id = (
+    SELECT p.`subject_id`
+    FROM `ids_users` u
+    JOIN `ids_persons` p ON p.`id` = u.`person_id`
+    WHERE CONVERT(u.`email` USING utf8mb4) COLLATE utf8mb4_unicode_ci = @initial_admin_email COLLATE utf8mb4_unicode_ci
+    LIMIT 1
+);
 
 /* Default-Gruppen zuweisen. */
 INSERT IGNORE INTO `ids_subject_groups` (`subject_id`, `group_id`, `assigned_at`, `note`)
@@ -231,23 +307,6 @@ JOIN `ids_subjects` s ON s.`id` = p.`subject_id` AND s.`status` = 'active'
 WHERE p.`subject_id` IS NOT NULL;
 
 /* Initialer Admin: identity.administrator + portal.administrator. */
-SET @initial_admin_subject_id = (
-    SELECT p.`subject_id`
-    FROM `ids_users` u
-    JOIN `ids_persons` p ON p.`id` = u.`person_id`
-    WHERE u.`email` = @initial_admin_email
-    LIMIT 1
-);
-
-/* Falls das konfigurierte Admin-Konto nicht existiert, bricht der Seed absichtlich über NOT NULL ab. */
-INSERT INTO `ids_subject_groups` (`subject_id`, `group_id`, `assigned_at`, `note`)
-SELECT NULL, g.`id`, CURRENT_TIMESTAMP, CONCAT('Initiales Admin-Konto nicht gefunden: ', @initial_admin_email)
-FROM `ids_groups` g
-JOIN `ids_systems` s ON s.`id` = g.`system_id`
-WHERE @initial_admin_subject_id IS NULL
-  AND s.`key_name` = 'identity'
-  AND g.`key_name` = 'administrator';
-
 INSERT IGNORE INTO `ids_subject_groups` (`subject_id`, `group_id`, `assigned_at`, `note`)
 SELECT @initial_admin_subject_id, g.`id`, CURRENT_TIMESTAMP, CONCAT('Initialer Admin-Seed für ', @initial_admin_email)
 FROM `ids_groups` g
