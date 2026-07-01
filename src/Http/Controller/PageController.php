@@ -92,13 +92,11 @@ abstract class PageController extends Controller
     {
         $areas = $this->allAreas();
         $currentArea = $this->currentArea($request, $areas, $parameters);
-
         $headerAreas = $this->headerAreas($areas, $currentArea);
         $headerMenus = $this->headerMenus($request, $currentArea);
 
         $parameters['headerAreas'] = $headerAreas;
         $parameters['headerMenus'] = $headerMenus;
-
         $parameters['areas'] = $headerAreas;
         $parameters['headerNav'] = $headerMenus;
 
@@ -130,7 +128,6 @@ abstract class PageController extends Controller
 
             $areaId = (string) ($area['id'] ?? '');
             $startPath = (string) ($area['start_path'] ?? '/');
-
             if ($startPath === '') {
                 $startPath = '/';
             }
@@ -151,7 +148,6 @@ abstract class PageController extends Controller
     private function currentArea(Request $request, array $areas, array $parameters): array
     {
         $headerAreaKey = trim((string) ($parameters['headerAreaKey'] ?? ''));
-
         if ($headerAreaKey !== '') {
             foreach ($areas as $area) {
                 if ((string) ($area['area_key'] ?? '') === $headerAreaKey) {
@@ -161,7 +157,6 @@ abstract class PageController extends Controller
         }
 
         $areaRootLink = trim((string) ($parameters['areaRootLink'] ?? ''));
-
         if ($areaRootLink !== '') {
             foreach ($areas as $area) {
                 if ((string) ($area['start_path'] ?? '') === $areaRootLink) {
@@ -180,13 +175,11 @@ abstract class PageController extends Controller
             }
 
             $startPath = $this->normalizePathForNavigation((string) ($area['start_path'] ?? '/'));
-
             if (!$this->pathStartsWith($path, $startPath)) {
                 continue;
             }
 
             $length = strlen($startPath);
-
             if ($startPath === '/') {
                 $length = 0;
             }
@@ -221,13 +214,11 @@ abstract class PageController extends Controller
         }
 
         $menu = $this->menuForArea($currentArea);
-
         if ($menu === []) {
             return [];
         }
 
         $menuId = (int) ($menu['id'] ?? 0);
-
         if ($menuId <= 0) {
             return [];
         }
@@ -240,7 +231,6 @@ abstract class PageController extends Controller
     private function menuForArea(array $area): array
     {
         $areaId = (int) ($area['id'] ?? 0);
-
         if ($areaId <= 0 || $this->headerMenuRepository === null) {
             return [];
         }
@@ -313,9 +303,7 @@ abstract class PageController extends Controller
         return array_replace($item, [
             'id' => (int) ($item['id'] ?? 0),
             'menu_id' => (int) ($item['menu_id'] ?? 0),
-            'parent_id' => $item['parent_id'] === null || $item['parent_id'] === ''
-                ? null
-                : (int) $item['parent_id'],
+            'parent_id' => $item['parent_id'] === null || $item['parent_id'] === '' ? null : (int) $item['parent_id'],
             'title' => $title,
             'label' => $title,
             'url' => $url,
@@ -331,10 +319,8 @@ abstract class PageController extends Controller
     private function buildMenuTree(array $items): array
     {
         $ids = [];
-
         foreach ($items as $item) {
             $id = (int) ($item['id'] ?? 0);
-
             if ($id > 0) {
                 $ids[$id] = true;
             }
@@ -344,13 +330,11 @@ abstract class PageController extends Controller
 
         foreach ($items as $item) {
             $id = (int) ($item['id'] ?? 0);
-
             if ($id <= 0) {
                 continue;
             }
 
             $parentId = $item['parent_id'] ?? null;
-
             if ($parentId === null || !isset($ids[(int) $parentId])) {
                 $parentKey = 'root';
             } else {
@@ -404,7 +388,6 @@ abstract class PageController extends Controller
         }
 
         $urlPath = parse_url($url, PHP_URL_PATH);
-
         if (!is_string($urlPath) || $urlPath === '') {
             return false;
         }

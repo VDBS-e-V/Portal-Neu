@@ -16,8 +16,8 @@ final class AuthController extends PageController
     public function __construct(
         Renderer $renderer,
         AreaRepository $areas,
-        private UserRepository $users,
-        private SessionAuth $auth
+        private readonly UserRepository $users,
+        private readonly SessionAuth $auth
     ) {
         parent::__construct($renderer, $areas);
     }
@@ -25,7 +25,7 @@ final class AuthController extends PageController
     public function loginForm(Request $request): Response
     {
         if ($this->auth->isLoggedIn()) {
-            return $this->redirect('/user');
+            return $this->redirect('/konto');
         }
 
         return $this->loginPage($request);
@@ -63,7 +63,7 @@ final class AuthController extends PageController
 
         $this->auth->login((int) $user['id']);
 
-        return $this->redirect('/user');
+        return $this->redirect('/konto');
     }
 
     public function logout(Request $request): Response
@@ -163,7 +163,7 @@ final class AuthController extends PageController
             ],
             [
                 'label' => 'Mein Konto',
-                'href' => '/user',
+                'href' => '/konto',
                 'active' => $activeKey === 'profile',
             ],
         ];
