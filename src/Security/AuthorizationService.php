@@ -4,18 +4,26 @@ declare(strict_types=1);
 
 namespace App\Security;
 
-use App\Repository\PageGroupAccessRepository;
-use App\Repository\PersonPermissionGroupRepository;
+use App\Repository\IdentityAuthorizationRepository;
 use App\Repository\UserRepository;
 
 final class AuthorizationService
 {
+    private SessionAuth $auth;
+    private UserRepository $users;
+    private IdentityAuthorizationRepository $identity;
+
+    /** @var array<int,array<string,mixed>> */
+    private array $currentUserCache = [];
+
     public function __construct(
-        private readonly SessionAuth $auth,
-        private readonly UserRepository $users,
-        private readonly PersonPermissionGroupRepository $personGroups,
-        private readonly PageGroupAccessRepository $pageGroupAccess
+        SessionAuth $auth,
+        UserRepository $users,
+        IdentityAuthorizationRepository $identity
     ) {
+        $this->auth = $auth;
+        $this->users = $users;
+        $this->identity = $identity;
     }
 
     public function currentUserId(): ?int
@@ -23,155 +31,177 @@ final class AuthorizationService
         return $this->auth->id();
     }
 
-    /** @return array<string, mixed> */
+    /** @return array<string,mixed> */
     public function currentUser(): array
     {
         $userId = $this->currentUserId();
-
         if ($userId === null) {
             return [];
         }
 
-        $user = $this->users->find($userId);
+        if (isset($this->currentUserCache[$userId])) {
+            return $this->currentUserCache[$userId];
+        }
 
+        $user = $this->users->find($userId);
         if ($user === [] || !$this->isActiveUser($user)) {
             return [];
         }
 
+        $this->currentUserCache[$userId] = $user;
         return $user;
     }
 
-    public function currentPersonId(): ?int
+    public function currentSubjectId(): ?int
     {
         $userId = $this->currentUserId();
-
         if ($userId === null) {
             return null;
         }
 
-        return $this->personGroups->personIdForUserId($userId);
+        return $this->identity->subjectIdForUserId($userId);
     }
 
     public function isLoggedIn(): bool
     {
-        return $this->currentUser() !== [];
+        return $this->currentUser() !== [] && $this->currentSubjectId() !== null;
     }
 
-    /** @return array<string, mixed> */
+    /** @return array<string,mixed> */
     public function requireLogin(): array
     {
         $user = $this->currentUser();
-
-        if ($user === []) {
+        if ($user === [] || $this->currentSubjectId() === null) {
             throw new AuthorizationException('Bitte zuerst anmelden.', 401);
         }
 
         return $user;
     }
 
-    public function userHasGroup(int $userId, string $groupKey): bool
+    public function can(string $permissionKey): bool
     {
-        return $this->personGroups->userHasGroup($userId, $groupKey);
-    }
-
-    /** @param array<int, string> $groupKeys */
-    public function userHasAnyGroup(int $userId, array $groupKeys): bool
-    {
-        return $this->personGroups->userHasAnyGroup($userId, $groupKeys);
-    }
-
-    public function currentUserHasGroup(string $groupKey): bool
-    {
-        $user = $this->currentUser();
-
-        if ($user === []) {
+        $subjectId = $this->currentSubjectId();
+        if ($subjectId === null) {
             return false;
         }
 
-        return $this->userHasGroup((int) $user['id'], $groupKey);
+        return $this->identity->canSubject($subjectId, $permissionKey);
     }
 
-    /** @param array<int, string> $groupKeys */
-    public function currentUserHasAnyGroup(array $groupKeys): bool
+    /** @param string[] $permissionKeys */
+    public function hasAny(array $permissionKeys): bool
     {
-        $user = $this->currentUser();
-
-        if ($user === []) {
-            return false;
+        foreach ($permissionKeys as $permissionKey) {
+            if ($this->can((string) $permissionKey)) {
+                return true;
+            }
         }
 
-        return $this->userHasAnyGroup((int) $user['id'], $groupKeys);
+        return false;
     }
 
-    public function canAccessPageGroup(int $userId, string $areaKey, string $pageGroupKey): bool
+    /** @param string[] $permissionKeys */
+    public function hasAll(array $permissionKeys): bool
     {
-        return $this->pageGroupAccess->userHasPageGroupAccess($userId, $areaKey, $pageGroupKey);
-    }
-
-    public function currentUserCanAccessPageGroup(string $areaKey, string $pageGroupKey): bool
-    {
-        $user = $this->currentUser();
-
-        if ($user === []) {
-            return false;
+        foreach ($permissionKeys as $permissionKey) {
+            if (!$this->can((string) $permissionKey)) {
+                return false;
+            }
         }
 
-        return $this->canAccessPageGroup((int) $user['id'], $areaKey, $pageGroupKey);
+        return true;
     }
 
-    /** @return array<string, mixed> */
-    public function requireGroup(string $groupKey): array
+    /** @return array<string,mixed> */
+    public function requirePermission(string $permissionKey): array
     {
         $user = $this->requireLogin();
 
-        if (!$this->userHasGroup((int) $user['id'], $groupKey)) {
-            throw new AuthorizationException('Diese Aktion erfordert die Gruppe: ' . $groupKey, 403);
+        if (!$this->can($permissionKey)) {
+            throw new AuthorizationException('Kein Zugriff: ' . $permissionKey, 403);
         }
 
         return $user;
     }
 
     /**
-     * @param array<int, string> $groupKeys
-     * @return array<string, mixed>
+     * @param string[] $permissionKeys
+     * @return array<string,mixed>
      */
-    public function requireAnyGroup(array $groupKeys): array
+    public function requireAny(array $permissionKeys): array
     {
         $user = $this->requireLogin();
 
-        if (!$this->userHasAnyGroup((int) $user['id'], $groupKeys)) {
-            throw new AuthorizationException('Diese Aktion erfordert eine passende Berechtigungsgruppe.', 403);
+        if (!$this->hasAny($permissionKeys)) {
+            throw new AuthorizationException('Kein Zugriff: passende Permission fehlt.', 403);
         }
 
         return $user;
     }
 
-    /** @return array<string, mixed> */
-    public function requirePageGroupAccess(string $areaKey, string $pageGroupKey): array
+    /**
+     * @param string[] $permissionKeys
+     * @return array<string,mixed>
+     */
+    public function requireAll(array $permissionKeys): array
     {
         $user = $this->requireLogin();
 
-        if (!$this->canAccessPageGroup((int) $user['id'], $areaKey, $pageGroupKey)) {
-            throw new AuthorizationException(
-                sprintf('Kein Zugriff auf %s.%s.', $areaKey, $pageGroupKey),
-                403
-            );
+        if (!$this->hasAll($permissionKeys)) {
+            throw new AuthorizationException('Kein Zugriff: erforderliche Permissions fehlen.', 403);
         }
 
         return $user;
     }
 
-    /** @return array<string, mixed> */
-    public function requireVerwaltungAdmin(): array
+    /** @return string[] */
+    public function permissionsForCurrentSubject(): array
     {
-        return $this->requireGroup(VerwaltungAccess::ADMIN_GROUP);
+        $subjectId = $this->currentSubjectId();
+        if ($subjectId === null) {
+            return [];
+        }
+
+        return $this->identity->permissionsForSubject($subjectId);
     }
 
-    /** @param array<string, mixed> $user */
+    /** @return string[] */
+    public function permissionsForSystem(string $systemKey): array
+    {
+        $subjectId = $this->currentSubjectId();
+        if ($subjectId === null) {
+            return [];
+        }
+
+        return $this->identity->permissionsForSubjectAndSystem($subjectId, $systemKey);
+    }
+
+    /** @return array<string,string[]> */
+    public function groupsForCurrentSubject(): array
+    {
+        $subjectId = $this->currentSubjectId();
+        if ($subjectId === null) {
+            return [];
+        }
+
+        return $this->identity->groupsForSubject($subjectId);
+    }
+
+    /** @return string[] */
+    public function groupsForSystem(string $systemKey): array
+    {
+        $subjectId = $this->currentSubjectId();
+        if ($subjectId === null) {
+            return [];
+        }
+
+        return $this->identity->groupsForSubjectAndSystem($subjectId, $systemKey);
+    }
+
+    /** @param array<string,mixed> $user */
     private function isActiveUser(array $user): bool
     {
         $status = (string) ($user['status'] ?? '');
-
         return $status === 'active' || $status === '1' || $status === '';
     }
 }
