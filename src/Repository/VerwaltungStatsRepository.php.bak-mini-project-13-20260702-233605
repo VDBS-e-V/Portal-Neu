@@ -29,8 +29,8 @@ final class VerwaltungStatsRepository
             'logins_disabled' => $this->countWhere('ids_users', 'status = :status', ['status' => 'disabled']),
             'logins_invited' => $this->countWhere('ids_users', 'status = :status', ['status' => 'invited']),
 
-            'groups_total' => $this->countTable('ids_groups'),
-            'groups_system' => $this->countWhere('ids_groups', 'is_active = 1'),
+            'groups_total' => $this->countTable('ids_permission_groups'),
+            'groups_system' => $this->countWhere('ids_permission_groups', 'is_system = 1'),
 
             'permissions_total' => $this->countTable('ids_permissions'),
             'permissions_active' => $this->countActivePermissions(),

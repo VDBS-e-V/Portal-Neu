@@ -1,0 +1,40 @@
+<?php
+
+declare(strict_types=1);
+
+$root = dirname(__DIR__, 2);
+$errors = [];
+
+$seed = $root . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'seeds' . DIRECTORY_SEPARATOR . 'seed_mini_project_13_deprecate_legacy_identity_permission_groups.sql';
+if (!is_file($seed)) {
+    $errors[] = 'Seed fehlt: database/seeds/seed_mini_project_13_deprecate_legacy_identity_permission_groups.sql';
+} else {
+    $content = (string) file_get_contents($seed);
+    $nonCommentLines = implode(PHP_EOL, array_filter(preg_split('/\R/', $content) ?: [], static function (string $line): bool {
+        $trim = trim($line);
+        return $trim !== '' && !str_starts_with($trim, '--');
+    }));
+    if (preg_match('/\bnote\b/i', $nonCommentLines)) {
+        $errors[] = 'Seed enthält noch einen ausführbaren Verweis auf die entfernte Spalte.';
+    }
+}
+
+$entityAudit = $root . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Repository' . DIRECTORY_SEPARATOR . 'EntityAuditRepository.php';
+if (is_file($entityAudit) && stripos((string) file_get_contents($entityAudit), 'ids_person_permission_groups') !== false) {
+    $errors[] = 'EntityAuditRepository enthält noch ids_person_permission_groups.';
+}
+
+$personErasure = $root . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Repository' . DIRECTORY_SEPARATOR . 'PersonErasureRepository.php';
+if (is_file($personErasure) && stripos((string) file_get_contents($personErasure), 'ids_person_permission_groups') !== false) {
+    $errors[] = 'PersonErasureRepository enthält noch ids_person_permission_groups.';
+}
+
+if ($errors !== []) {
+    echo "Mini-Projekt-13.1-Tail-Cleanup fehlgeschlagen:\n";
+    foreach ($errors as $error) {
+        echo ' - ' . $error . "\n";
+    }
+    exit(1);
+}
+
+echo "OK: Mini-Projekt-13.1-Tail-Cleanup ist vollständig.\n";

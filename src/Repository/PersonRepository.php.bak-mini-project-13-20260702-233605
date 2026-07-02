@@ -318,21 +318,12 @@ final class PersonRepository
             'LEFT JOIN ids_person_names n ON n.person_id = p.id',
             'LEFT JOIN ids_users u ON u.person_id = p.id',
         ];
+
         $where = [];
         $params = [];
 
-        $hasIdentityGroups = $this->tableExists('ids_subject_groups')
-            && $this->tableExists('ids_groups')
-            && $this->columnExists('ids_persons', 'subject_id');
-
-        $groupSelect = 'NULL AS group_keys';
-        if ($hasIdentityGroups) {
-            $joins[] = 'LEFT JOIN ids_subject_groups sg ON sg.subject_id = p.subject_id AND (sg.expires_at IS NULL OR sg.expires_at > CURRENT_TIMESTAMP)';
-            $joins[] = 'LEFT JOIN ids_groups g ON g.id = sg.group_id';
-            $groupSelect = 'GROUP_CONCAT(DISTINCT g.group_key ORDER BY g.group_key SEPARATOR ", ") AS group_keys';
-        }
-
         $q = trim((string) ($filters['q'] ?? ''));
+
         if ($q !== '') {
             $where[] = '(
                 p.display_name LIKE :q
@@ -345,39 +336,60 @@ final class PersonRepository
         }
 
         $status = trim((string) ($filters['status'] ?? ''));
+
         if ($status !== '') {
             $where[] = 'p.status = :status';
             $params['status'] = $status;
         }
 
         $groupId = (int) ($filters['group_id'] ?? 0);
-        if ($groupId > 0 && $hasIdentityGroups) {
-            $where[] = 'sg.group_id = :group_id';
+
+        if ($groupId > 0 && $this->tableExists('ids_person_permission_groups')) {
+            $joins[] = 'INNER JOIN ids_person_permission_groups ppg_filter ON ppg_filter.person_id = p.id';
+            $where[] = 'ppg_filter.permission_group_id = :group_id';
             $params['group_id'] = $groupId;
         }
 
         $limit = max(1, min(250, (int) ($filters['limit'] ?? 100)));
         $offset = max(0, (int) ($filters['offset'] ?? 0));
 
-        $sql = 'SELECT p.*, HEX(p.person_uuid) AS person_uuid_hex,
-                n.first_name, n.last_name, n.preferred_name,
-                u.id AS user_id, u.email AS login_email, u.status AS login_status,
-                ' . $groupSelect . '
-            FROM ids_persons p '
-            . implode("\n", $joins);
+        $sql = 'SELECT
+                    p.*,
+                    HEX(p.person_uuid) AS person_uuid_hex,
+                    n.first_name,
+                    n.last_name,
+                    n.preferred_name,
+                    u.id AS user_id,
+                    u.email AS login_email,
+                    u.status AS login_status,
+                    GROUP_CONCAT(DISTINCT pg.group_key ORDER BY pg.group_key SEPARATOR ", ") AS group_keys
+                FROM ids_persons p
+                ' . implode("\n", $joins) . '
+                LEFT JOIN ids_person_permission_groups ppg ON ppg.person_id = p.id
+                LEFT JOIN ids_permission_groups pg ON pg.id = ppg.permission_group_id';
 
         if ($where !== []) {
-            $sql .= "\nWHERE " . implode("\n AND ", $where);
+            $sql .= "\nWHERE " . implode("\n  AND ", $where);
         }
 
-        $sql .= ' GROUP BY p.id, n.id, u.id
-            ORDER BY p.display_name ASC, n.last_name ASC, n.first_name ASC, p.id ASC
-            LIMIT :limit OFFSET :offset';
+        $sql .= '
+                GROUP BY
+                    p.id,
+                    n.id,
+                    u.id
+                ORDER BY
+                    p.display_name ASC,
+                    n.last_name ASC,
+                    n.first_name ASC,
+                    p.id ASC
+                LIMIT :limit OFFSET :offset';
 
         $stmt = $this->pdo->prepare($sql);
+
         foreach ($params as $key => $value) {
             $stmt->bindValue($key, $value);
         }
+
         $stmt->bindValue('limit', $limit, PDO::PARAM_INT);
         $stmt->bindValue('offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
@@ -395,6 +407,7 @@ final class PersonRepository
         $params = [];
 
         $q = trim((string) ($filters['q'] ?? ''));
+
         if ($q !== '') {
             $where[] = '(
                 u.display_name LIKE :q
@@ -407,6 +420,7 @@ final class PersonRepository
         }
 
         $status = trim((string) ($filters['status'] ?? ''));
+
         if ($status !== '') {
             $where[] = 'u.status = :status';
             $params['status'] = $status;
@@ -415,25 +429,44 @@ final class PersonRepository
         $limit = max(1, min(250, (int) ($filters['limit'] ?? 100)));
         $offset = max(0, (int) ($filters['offset'] ?? 0));
 
-        $sql = 'SELECT u.id, u.id AS user_id, u.display_name, u.email AS login_email,
-                u.status, u.status AS login_status, u.created_at, u.updated_at,
-                n.first_name, n.last_name, n.preferred_name,
-                NULL AS group_keys
-            FROM ids_users u
-            LEFT JOIN ids_user_names n ON n.user_id = u.id';
+        $sql = 'SELECT
+                    u.id,
+                    u.id AS user_id,
+                    u.display_name,
+                    u.email AS login_email,
+                    u.status,
+                    u.status AS login_status,
+                    u.created_at,
+                    u.updated_at,
+                    n.first_name,
+                    n.last_name,
+                    n.preferred_name,
+                    GROUP_CONCAT(DISTINCT pg.group_key ORDER BY pg.group_key SEPARATOR ", ") AS group_keys
+                FROM ids_users u
+                LEFT JOIN ids_user_names n ON n.user_id = u.id
+                LEFT JOIN ids_user_permission_groups upg ON upg.user_id = u.id
+                LEFT JOIN ids_permission_groups pg ON pg.id = upg.permission_group_id';
 
         if ($where !== []) {
-            $sql .= "\nWHERE " . implode("\n AND ", $where);
+            $sql .= "\nWHERE " . implode("\n  AND ", $where);
         }
 
-        $sql .= ' GROUP BY u.id, n.id
-            ORDER BY u.display_name ASC, u.email ASC, u.id ASC
-            LIMIT :limit OFFSET :offset';
+        $sql .= '
+                GROUP BY
+                    u.id,
+                    n.id
+                ORDER BY
+                    u.display_name ASC,
+                    u.email ASC,
+                    u.id ASC
+                LIMIT :limit OFFSET :offset';
 
         $stmt = $this->pdo->prepare($sql);
+
         foreach ($params as $key => $value) {
             $stmt->bindValue($key, $value);
         }
+
         $stmt->bindValue('limit', $limit, PDO::PARAM_INT);
         $stmt->bindValue('offset', $offset, PDO::PARAM_INT);
         $stmt->execute();

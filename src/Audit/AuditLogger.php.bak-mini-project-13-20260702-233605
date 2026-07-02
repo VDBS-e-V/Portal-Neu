@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Audit;
 
 use App\Repository\AuditLogRepository;
+use App\Repository\PersonPermissionGroupRepository;
 use App\Security\SessionAuth;
 use JsonException;
 use Throwable;
@@ -27,6 +28,7 @@ final class AuditLogger
     public function __construct(
         private readonly AuditLogRepository $auditLogs,
         private readonly SessionAuth $auth,
+        private readonly PersonPermissionGroupRepository $personGroups
     ) {
     }
 

@@ -32,9 +32,11 @@ use App\Repository\LoginEventRepository;
 use App\Repository\MenuItemRepository;
 use App\Repository\MenuRepository;
 use App\Repository\PasswordResetRepository;
+use App\Repository\PermissionGroupRepository;
 use App\Repository\PersonAddressRepository;
 use App\Repository\PersonContactRepository;
 use App\Repository\PersonErasureRepository;
+use App\Repository\PersonPermissionGroupRepository;
 use App\Repository\PersonRepository;
 use App\Repository\UserInvitationRepository;
 use App\Repository\UserPasswordRepository;
@@ -162,6 +164,14 @@ return [
         return new PersonAddressRepository($container->get(PDO::class));
     },
 
+    PermissionGroupRepository::class => static function (Container $container): PermissionGroupRepository {
+        return new PermissionGroupRepository($container->get(PDO::class));
+    },
+
+    PersonPermissionGroupRepository::class => static function (Container $container): PersonPermissionGroupRepository {
+        return new PersonPermissionGroupRepository($container->get(PDO::class));
+    },
+
 AuditLogRepository::class => static function (Container $container): AuditLogRepository {
         return new AuditLogRepository($container->get(PDO::class));
     },
@@ -261,6 +271,7 @@ CsrfTokenManager::class => static function (): CsrfTokenManager {
         return new AuditLogger(
             $container->get(AuditLogRepository::class),
             $container->get(SessionAuth::class),
+            $container->get(PersonPermissionGroupRepository::class)
         );
     },
 

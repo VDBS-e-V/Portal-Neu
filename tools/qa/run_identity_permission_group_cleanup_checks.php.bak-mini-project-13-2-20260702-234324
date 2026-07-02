@@ -1,0 +1,38 @@
+<?php
+
+declare(strict_types=1);
+
+$root = dirname(__DIR__, 2);
+$php = PHP_BINARY;
+
+$commands = [
+    [$php, '-l', $root . '/config/services.php'],
+    [$php, '-l', $root . '/src/Repository/PersonRepository.php'],
+    [$php, '-l', $root . '/src/Repository/VerwaltungStatsRepository.php'],
+    [$php, '-l', $root . '/src/Repository/EntityAuditRepository.php'],
+    [$php, '-l', $root . '/src/Repository/PersonErasureRepository.php'],
+    [$php, '-l', $root . '/src/Http/Controller/Verwaltung/PersonenController.php'],
+    [$php, '-l', $root . '/src/Http/Controller/Verwaltung/EntityAuditController.php'],
+    [$php, $root . '/tools/qa/run_identity_integrity_checks.php'],
+    [$php, $root . '/tools/qa/check_identity_permission_group_repositories_archived.php'],
+    [$php, $root . '/tools/qa/check_mini_project_13_1_tail_cleanup.php'],
+    [$php, $root . '/tools/qa/check_no_productive_legacy_identity_permission_group_usage.php'],
+];
+
+$failed = false;
+foreach ($commands as $command) {
+    $escaped = array_map(static fn (string $part): string => '"' . str_replace('"', '\\"', $part) . '"', $command);
+    echo 'Running: ' . implode(' ', $escaped) . PHP_EOL;
+    passthru(implode(' ', $escaped), $exitCode);
+    if ($exitCode !== 0) {
+        echo 'FAILED: ' . implode(' ', $escaped) . PHP_EOL;
+        $failed = true;
+    }
+}
+
+if ($failed) {
+    echo "Mini-Projekt-13-Identity-PermissionGroup-Cleanup-Checks haben Fehler gefunden.\n";
+    exit(1);
+}
+
+echo "OK: Mini-Projekt-13-Identity-PermissionGroup-Cleanup-Checks bestanden.\n";
