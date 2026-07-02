@@ -346,11 +346,4 @@ CsrfTokenManager::class => static function (): CsrfTokenManager {
         return new IdentityMeRepository($container->get(PDO::class));
     },
 
-
-    IdentityAdminSafetyService::class => static function (Container $container): IdentityAdminSafetyService {
-        return new IdentityAdminSafetyService(
-            $container->get(IdentityAdministrationRepository::class),
-            $container->get(PDO::class)
-        );
-    },
 ];

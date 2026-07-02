@@ -49,6 +49,7 @@ use App\Security\IdentityAdminSafetyService;
 use App\Security\RoutePermissionGuard;
 use App\Security\RoutePermissionMap;
 use App\Security\SessionAuth;
+use PDO;
 
 return [
     Renderer::class => static function (Container $container): Renderer {
