@@ -15,23 +15,19 @@ $commands = [
 ];
 
 $failed = false;
-
-foreach ($commands as $command) {
-    $escaped = array_map(static fn (string $part): string => escapeshellarg($part), $command);
-    $cmd = implode(' ', $escaped);
-
-    echo 'Running: ' . $cmd . PHP_EOL;
-    passthru($cmd, $exitCode);
-
-    if ($exitCode !== 0) {
-        echo 'FAILED: ' . $cmd . PHP_EOL;
+foreach ($commands as $cmd) {
+    $line = implode(' ', array_map(static fn (string $part): string => escapeshellarg($part), $cmd));
+    echo "Running: {$line}\n";
+    passthru($line, $code);
+    if ($code !== 0) {
+        echo "FAILED: {$line}\n";
         $failed = true;
     }
 }
 
 if ($failed) {
-    echo 'Mini-Projekt-6-Runtime-Checks haben Fehler gefunden.' . PHP_EOL;
+    echo "Mini-Projekt-6-Runtime-Checks haben Fehler gefunden.\n";
     exit(1);
 }
 
-echo 'OK: Mini-Projekt-6-Runtime-Checks bestanden.' . PHP_EOL;
+echo "OK: Mini-Projekt-6-Runtime-Checks bestanden.\n";

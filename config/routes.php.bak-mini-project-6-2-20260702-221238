@@ -191,8 +191,8 @@ new Route('GET', '/', HomeController::class, 'index'),
 
     new Route('POST', '/verwaltung/personen/{id}/status', PersonenController::class, 'updateStatus'),
 
-// [mini-project-6-2 disabled duplicate route: first at line 80]     new Route('GET', '/verwaltung/personen/{id}/gruppen', AdminPersonenGruppenController::class, 'groups'),
-// [mini-project-6-2 disabled duplicate route: first at line 81]     new Route('POST', '/verwaltung/personen/{id}/gruppen', AdminPersonenGruppenController::class, 'updateGroups'),
+    new Route('GET', '/verwaltung/personen/{id}/gruppen', AdminPersonenGruppenController::class, 'groups'),
+    new Route('POST', '/verwaltung/personen/{id}/gruppen', AdminPersonenGruppenController::class, 'updateGroups'),
 
     new Route('GET', '/verwaltung/personen/{id}/kontakte', PersonenController::class, 'contacts'),
     new Route('POST', '/verwaltung/personen/{id}/kontakte', PersonenController::class, 'createContact'),
@@ -240,7 +240,7 @@ new Route('GET', '/', HomeController::class, 'index'),
     new Route('POST', '/verwaltung/datenschutz/{id}/complete', DatenschutzController::class, 'complete'),
 
     new Route('GET', '/verwaltung/personen/{id}/audit', EntityAuditController::class, 'person'),
-    new Route('GET', '/verwaltung/gruppen/{id}/audit', EntityAuditController::class, 'group'),
+    new Route('GET', '/verwaltung/gruppen/{id}/audit', AdminGruppenController::class, 'group'),
     new Route('GET', '/verwaltung/datenschutz/{id}/audit', EntityAuditController::class, 'erasure'),
 
 
