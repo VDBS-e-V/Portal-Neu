@@ -26,7 +26,7 @@ final class IdentityMeController extends Controller
     public function index(Request $request): Response
     {
         if (!$this->authorization->isLoggedIn()) {
-            return $this->json([
+            return $this->jsonResponse([
                 'status' => 'error',
                 'message' => 'Bitte zuerst anmelden.',
             ], 401);
@@ -34,7 +34,7 @@ final class IdentityMeController extends Controller
 
         $userId = $this->authorization->currentUserId();
         if ($userId === null) {
-            return $this->json([
+            return $this->jsonResponse([
                 'status' => 'error',
                 'message' => 'Bitte zuerst anmelden.',
             ], 401);
@@ -46,26 +46,26 @@ final class IdentityMeController extends Controller
         try {
             $data = $this->identityMe->meForUserId($userId, $system);
         } catch (InvalidArgumentException $exception) {
-            return $this->json([
+            return $this->jsonResponse([
                 'status' => 'error',
                 'message' => $exception->getMessage(),
             ], 404);
         }
 
         if ($data === []) {
-            return $this->json([
+            return $this->jsonResponse([
                 'status' => 'error',
                 'message' => 'Aktive Identität nicht gefunden.',
             ], 401);
         }
 
-        return $this->json($data, 200, (int) ($data['cache_ttl_seconds'] ?? 300));
+        return $this->jsonResponse($data, 200, (int) ($data['cache_ttl_seconds'] ?? 300));
     }
 
     /**
      * @param array<string,mixed> $payload
      */
-    private function json(array $payload, int $status = 200, int $cacheTtlSeconds = 0): Response
+    private function jsonResponse(array $payload, int $status = 200, int $cacheTtlSeconds = 0): Response
     {
         $headers = [
             'Content-Type' => 'application/json; charset=utf-8',
