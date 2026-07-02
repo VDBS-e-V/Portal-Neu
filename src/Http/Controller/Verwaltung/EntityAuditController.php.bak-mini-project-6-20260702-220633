@@ -38,7 +38,7 @@ final class EntityAuditController extends PageController
 
     public function person(Request $request): Response
     {
-        $this->authorization->requirePermission('portal.verwaltung.entity-audit.view');
+        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
 
         $personId = $this->routeInt($request, 'id');
         $person = $this->persons->find($personId);
@@ -63,7 +63,7 @@ final class EntityAuditController extends PageController
 
     public function group(Request $request): Response
     {
-        $this->authorization->requirePermission('portal.verwaltung.entity-audit.view');
+        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::GRUPPEN);
 
         $groupId = $this->routeInt($request, 'id');
         $group = $this->groups->find($groupId);
@@ -88,7 +88,7 @@ final class EntityAuditController extends PageController
 
     public function erasure(Request $request): Response
     {
-        $this->authorization->requirePermission('portal.verwaltung.entity-audit.view');
+        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
 
         $requestId = $this->routeInt($request, 'id');
         $erasure = $this->erasures->find($requestId);

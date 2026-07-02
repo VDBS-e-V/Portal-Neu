@@ -39,7 +39,7 @@ final class SchulverzeichnisController extends PageController
 
     public function index(Request $request): Response
     {
-        $this->authorization->requirePermission('portal.verwaltung.schulverzeichnis.view');
+        $this->authorization->requirePageGroupAccess(self::AREA, self::PAGE_GROUP);
 
         $page = max(1, $this->queryInt($request, 'page', 1));
         $perPage = 50;
@@ -72,7 +72,7 @@ final class SchulverzeichnisController extends PageController
 
     public function show(Request $request): Response
     {
-        $this->authorization->requirePermission('portal.verwaltung.schulverzeichnis.view');
+        $this->authorization->requirePageGroupAccess(self::AREA, self::PAGE_GROUP);
 
         $schoolId = $this->routeInt($request, 'schoolId');
         $detail = $this->readService->detail($schoolId);
@@ -94,7 +94,7 @@ final class SchulverzeichnisController extends PageController
 
     public function edit(Request $request): Response
     {
-        $this->authorization->requirePermission('portal.verwaltung.schulverzeichnis.view');
+        $this->authorization->requirePageGroupAccess(self::AREA, self::PAGE_GROUP);
 
         $schoolId = $this->routeInt($request, 'schoolId');
         $detail = $this->readService->detail($schoolId);
@@ -108,7 +108,7 @@ final class SchulverzeichnisController extends PageController
 
     public function update(Request $request): Response
     {
-        $this->authorization->requirePermission('portal.verwaltung.schulverzeichnis.view');
+        $this->authorization->requirePageGroupAccess(self::AREA, self::PAGE_GROUP);
 
         $schoolId = $this->routeInt($request, 'schoolId');
         $detail = $this->readService->detail($schoolId);
@@ -132,7 +132,7 @@ final class SchulverzeichnisController extends PageController
 
     public function verify(Request $request): Response
     {
-        $this->authorization->requirePermission('portal.verwaltung.schulverzeichnis.view');
+        $this->authorization->requirePageGroupAccess(self::AREA, self::PAGE_GROUP);
 
         $schoolId = $this->routeInt($request, 'schoolId');
         if ($schoolId > 0) {

@@ -6,9 +6,6 @@ namespace App\Security;
 
 /**
  * Zentrale Abbildung von HTTP-Routen auf feine Permissions.
- *
- * Konto-Seiten brauchen nur einen eingeloggten User und keine Vereins-/Admin-Permission.
- * Die Login-Prüfung passiert im UserAccountController.
  */
 final class RoutePermissionMap
 {
@@ -49,73 +46,23 @@ final class RoutePermissionMap
             $this->post('/administration/personen/{id}/gruppen/{groupId}/remove', 'identity.subjects.groups.remove'),
             $this->get('/administration/subjects/{id}', 'identity.subjects.view'),
 
-            // Legacy-Verwaltung-Aliase, die auf neue Administration-Controller zeigen.
-            $this->get('/verwaltung/gruppen', 'identity.gruppen.view'),
-            $this->get('/verwaltung/gruppen/create', 'identity.gruppen.create'),
-            $this->post('/verwaltung/gruppen/create', 'identity.gruppen.create'),
-            $this->get('/verwaltung/gruppen/{id}', 'identity.gruppen.view'),
-            $this->get('/verwaltung/gruppen/{id}/edit', 'identity.gruppen.edit'),
-            $this->post('/verwaltung/gruppen/{id}/edit', 'identity.gruppen.edit'),
-            $this->get('/verwaltung/gruppen/{id}/permissions', 'identity.gruppen.permissions.manage'),
-            $this->post('/verwaltung/gruppen/{id}/permissions', 'identity.gruppen.permissions.manage'),
-            $this->post('/verwaltung/gruppen/{id}/delete', 'identity.gruppen.delete'),
-
-            $this->get('/verwaltung/berechtigungen', 'identity.permissions.view'),
-            $this->get('/verwaltung/permissions', 'identity.permissions.view'),
-            $this->get('/verwaltung/permissions/create', 'identity.permissions.create'),
-            $this->post('/verwaltung/permissions/create', 'identity.permissions.create'),
-            $this->get('/verwaltung/permissions/{id}', 'identity.permissions.view'),
-            $this->get('/verwaltung/permissions/{id}/edit', 'identity.permissions.edit'),
-            $this->post('/verwaltung/permissions/{id}/edit', 'identity.permissions.edit'),
-            $this->post('/verwaltung/permissions/{id}/deactivate', 'identity.permissions.delete'),
-
-            $this->get('/verwaltung/personen-gruppen', 'identity.subjects.groups.view'),
-            $this->get('/verwaltung/personen/{id}/gruppen', 'identity.subjects.groups.view'),
-            $this->post('/verwaltung/personen/{id}/gruppen', 'identity.subjects.groups.assign'),
-            $this->post('/verwaltung/personen/{id}/gruppen/{groupId}/remove', 'identity.subjects.groups.remove'),
-            $this->get('/verwaltung/systeme', 'identity.systeme.view'),
-
             // Bestehende Portal-/Verwaltungsrouten als Kompatibilitätsnetz.
             $this->get('/verwaltung', 'portal.verwaltung.dashboard.view'),
             $this->get('/verwaltung/personen', 'portal.verwaltung.personen.view'),
             $this->get('/verwaltung/personen/create', 'portal.verwaltung.personen.create'),
-            $this->post('/verwaltung/personen/create', 'portal.verwaltung.personen.create'),
             $this->get('/verwaltung/personen/{id}', 'portal.verwaltung.personen.view'),
             $this->get('/verwaltung/personen/{id}/edit', 'portal.verwaltung.personen.edit'),
-            $this->post('/verwaltung/personen/{id}/edit', 'portal.verwaltung.personen.edit'),
-            $this->post('/verwaltung/personen/{id}/status', 'portal.verwaltung.personen.edit'),
+            $this->post('/verwaltung/personen', 'portal.verwaltung.personen.create'),
+            $this->post('/verwaltung/personen/{id}', 'portal.verwaltung.personen.edit'),
+            $this->post('/verwaltung/personen/{id}/delete', 'portal.verwaltung.personen.delete'),
             $this->get('/verwaltung/personen/export', 'portal.verwaltung.personen.export'),
-
-            $this->get('/verwaltung/personen/{id}/kontakte', 'portal.verwaltung.personen.view'),
-            $this->post('/verwaltung/personen/{id}/kontakte', 'portal.verwaltung.personen.edit'),
-            $this->post('/verwaltung/personen/{id}/kontakte/{contactId}/delete', 'portal.verwaltung.personen.edit'),
-            $this->get('/verwaltung/personen/{id}/adressen', 'portal.verwaltung.personen.view'),
-            $this->post('/verwaltung/personen/{id}/adressen', 'portal.verwaltung.personen.edit'),
-            $this->post('/verwaltung/personen/{id}/adressen/{addressId}/delete', 'portal.verwaltung.personen.edit'),
-
+            $this->get('/verwaltung/gruppen', 'identity.gruppen.view'),
+            $this->get('/verwaltung/berechtigungen', 'identity.permissions.view'),
             $this->get('/verwaltung/audit', 'portal.verwaltung.audit.view'),
-            $this->get('/verwaltung/audit/{id}', 'portal.verwaltung.audit.view'),
-            $this->get('/verwaltung/personen/{id}/audit', 'portal.verwaltung.audit.view'),
-            $this->get('/verwaltung/gruppen/{id}/audit', 'portal.verwaltung.audit.view'),
-
-            $this->get('/verwaltung/einladungen', 'portal.verwaltung.einladungen.view'),
-            $this->post('/verwaltung/personen/{id}/einladung', 'portal.verwaltung.einladungen.create'),
-            $this->post('/verwaltung/einladungen/{id}/revoke', 'portal.verwaltung.einladungen.revoke'),
-
+            $this->get('/verwaltung/entity-audit', 'portal.verwaltung.entity-audit.view'),
             $this->get('/verwaltung/datenschutz', 'portal.verwaltung.datenschutz.view'),
-            $this->get('/verwaltung/personen/{id}/datenschutz/loeschung', 'portal.verwaltung.datenschutz.create'),
-            $this->post('/verwaltung/personen/{id}/datenschutz/loeschung', 'portal.verwaltung.datenschutz.create'),
-            $this->get('/verwaltung/datenschutz/{id}', 'portal.verwaltung.datenschutz.view'),
-            $this->post('/verwaltung/datenschutz/{id}/approve', 'portal.verwaltung.datenschutz.approve'),
-            $this->post('/verwaltung/datenschutz/{id}/reject', 'portal.verwaltung.datenschutz.edit'),
-            $this->post('/verwaltung/datenschutz/{id}/cancel', 'portal.verwaltung.datenschutz.edit'),
-            $this->post('/verwaltung/datenschutz/{id}/complete', 'portal.verwaltung.datenschutz.edit'),
-            $this->get('/verwaltung/datenschutz/{id}/audit', 'portal.verwaltung.audit.view'),
-
+            $this->get('/verwaltung/einladungen', 'portal.verwaltung.einladungen.view'),
             $this->get('/verwaltung/schulverzeichnis', 'portal.verwaltung.schulverzeichnis.view'),
-            $this->get('/verwaltung/schulverzeichnis/{id}', 'portal.verwaltung.schulverzeichnis.view'),
-            $this->post('/verwaltung/schulverzeichnis', 'portal.verwaltung.schulverzeichnis.edit'),
-            $this->post('/verwaltung/schulverzeichnis/{id}', 'portal.verwaltung.schulverzeichnis.edit'),
         ];
     }
 
@@ -123,17 +70,18 @@ final class RoutePermissionMap
     {
         $method = strtoupper(trim($method));
         $path = $this->normalizePath($path);
-
-        if ($this->isAccountRoute($path)) {
+        // MINI PROJECT 5.1 KONTO PUBLIC ACCOUNT ROUTES START
+        // Accountseiten brauchen einen eingeloggten User, aber keine Vereins-/Admin-Permission.
+        // Die Login-Prüfung passiert im UserAccountController.
+        if ($path === '/konto' || str_starts_with($path, '/konto/')) {
             return null;
         }
-
+        // MINI PROJECT 5.1 KONTO PUBLIC ACCOUNT ROUTES END
         foreach ($this->entries() as $entry) {
             if (in_array($method, $entry['methods'], true) && $this->matches($entry['pattern'], $path)) {
                 return $entry['permission'];
             }
         }
-
         return null;
     }
 
@@ -159,19 +107,11 @@ final class RoutePermissionMap
         ];
     }
 
-    private function isAccountRoute(string $path): bool
-    {
-        return $path === '/konto'
-            || $path === '/konto/einstellungen'
-            || $path === '/konto/passwort';
-    }
-
     private function matches(string $pattern, string $path): bool
     {
         if ($pattern === $path) {
             return true;
         }
-
         $segments = explode('/', trim($pattern, '/'));
         $regexSegments = [];
         foreach ($segments as $segment) {
@@ -179,7 +119,6 @@ final class RoutePermissionMap
                 ? '[^/]+'
                 : preg_quote($segment, '#');
         }
-
         return preg_match('#^/' . implode('/', $regexSegments) . '$#', $path) === 1;
     }
 

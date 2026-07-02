@@ -37,7 +37,7 @@ final class GruppenController extends PageController
 
     public function index(Request $request): Response
     {
-        $this->authorization->requirePermission('identity.gruppen.view');
+        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::GRUPPEN);
 
         return $this->renderPage($request, 'pages/verwaltung/gruppen/index', $this->pageParams([
             'title' => 'Gruppen',
@@ -50,7 +50,7 @@ final class GruppenController extends PageController
 
     public function show(Request $request): Response
     {
-        $this->authorization->requirePermission('identity.gruppen.view');
+        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::GRUPPEN);
 
         $groupId = $this->routeInt($request, 'id');
         $group = $this->groups->find($groupId);
@@ -71,7 +71,7 @@ final class GruppenController extends PageController
 
     public function createForm(Request $request): Response
     {
-        $this->authorization->requirePermission('identity.gruppen.view');
+        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::GRUPPEN);
 
         return $this->renderPage($request, 'pages/verwaltung/gruppen/form', $this->pageParams([
             'title' => 'Gruppe anlegen',
@@ -86,7 +86,7 @@ final class GruppenController extends PageController
 
     public function create(Request $request): Response
     {
-        $actor = $this->authorization->requirePermission('identity.gruppen.view');
+        $actor = $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::GRUPPEN);
 
         try {
             $data = $this->groupDataFromRequest($request);
@@ -114,7 +114,7 @@ final class GruppenController extends PageController
 
     public function editForm(Request $request): Response
     {
-        $this->authorization->requirePermission('identity.gruppen.view');
+        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::GRUPPEN);
 
         $groupId = $this->routeInt($request, 'id');
         $group = $this->groups->find($groupId);
@@ -136,7 +136,7 @@ final class GruppenController extends PageController
 
     public function edit(Request $request): Response
     {
-        $actor = $this->authorization->requirePermission('identity.gruppen.view');
+        $actor = $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::GRUPPEN);
 
         $groupId = $this->routeInt($request, 'id');
         $oldGroup = $this->groups->find($groupId);
@@ -170,7 +170,7 @@ final class GruppenController extends PageController
 
     public function members(Request $request): Response
     {
-        $this->authorization->requirePermission('identity.gruppen.view');
+        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::GRUPPEN);
 
         $groupId = $this->routeInt($request, 'id');
         $group = $this->groups->find($groupId);
@@ -191,7 +191,7 @@ final class GruppenController extends PageController
 
     public function delete(Request $request): Response
     {
-        $actor = $this->authorization->requirePermission('identity.gruppen.view');
+        $actor = $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::GRUPPEN);
 
         $groupId = $this->routeInt($request, 'id');
         $group = $this->groups->find($groupId);

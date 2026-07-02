@@ -30,7 +30,7 @@ final class AuditLogController extends PageController
 
     public function index(Request $request): Response
     {
-        $this->authorization->requirePermission('portal.verwaltung.audit.view');
+        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::BERECHTIGUNGEN);
 
         $filters = [
             'q' => $this->queryString($request, 'q'),
@@ -54,7 +54,7 @@ final class AuditLogController extends PageController
 
     public function show(Request $request): Response
     {
-        $this->authorization->requirePermission('portal.verwaltung.audit.view');
+        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::BERECHTIGUNGEN);
 
         $id = $this->routeInt($request, 'id');
         $log = $this->auditLogs->find($id);

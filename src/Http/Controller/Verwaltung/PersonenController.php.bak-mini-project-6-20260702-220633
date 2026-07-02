@@ -43,7 +43,7 @@ final class PersonenController extends PageController
 
     public function index(Request $request): Response
     {
-        $this->authorization->requirePermission('portal.verwaltung.personen.view');
+        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
 
         $filters = [
             'q' => $this->queryString($request, 'q'),
@@ -65,7 +65,7 @@ final class PersonenController extends PageController
 
     public function show(Request $request): Response
     {
-        $this->authorization->requirePermission('portal.verwaltung.personen.view');
+        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
 
         $personId = $this->routeInt($request, 'id');
         $person = $this->persons->find($personId);
@@ -88,7 +88,7 @@ final class PersonenController extends PageController
 
     public function createForm(Request $request): Response
     {
-        $this->authorization->requirePermission('portal.verwaltung.personen.view');
+        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
 
         return $this->renderPage($request, 'pages.verwaltung.personen.form', $this->pageParams([
             'title' => 'Person anlegen',
@@ -103,7 +103,7 @@ final class PersonenController extends PageController
 
     public function create(Request $request): Response
     {
-        $actor = $this->authorization->requirePermission('portal.verwaltung.personen.view');
+        $actor = $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
 
         try {
             $data = $this->personDataFromRequest($request);
@@ -131,7 +131,7 @@ final class PersonenController extends PageController
 
     public function editForm(Request $request): Response
     {
-        $this->authorization->requirePermission('portal.verwaltung.personen.view');
+        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
 
         $personId = $this->routeInt($request, 'id');
         $person = $this->persons->find($personId);
@@ -153,7 +153,7 @@ final class PersonenController extends PageController
 
     public function edit(Request $request): Response
     {
-        $actor = $this->authorization->requirePermission('portal.verwaltung.personen.view');
+        $actor = $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
 
         $personId = $this->routeInt($request, 'id');
         $oldPerson = $this->persons->find($personId);
@@ -187,7 +187,7 @@ final class PersonenController extends PageController
 
     public function updateStatus(Request $request): Response
     {
-        $actor = $this->authorization->requirePermission('portal.verwaltung.personen.view');
+        $actor = $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
 
         $personId = $this->routeInt($request, 'id');
         $status = $this->bodyString($request->body, 'status', 'disabled');
@@ -215,7 +215,7 @@ final class PersonenController extends PageController
 
     public function groups(Request $request): Response
     {
-        $this->authorization->requirePermission('portal.verwaltung.personen.view');
+        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
 
         $personId = $this->routeInt($request, 'id');
         $person = $this->persons->find($personId);
@@ -237,7 +237,7 @@ final class PersonenController extends PageController
 
     public function updateGroups(Request $request): Response
     {
-        $actor = $this->authorization->requirePermission('portal.verwaltung.personen.view');
+        $actor = $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
 
         $personId = $this->routeInt($request, 'id');
         $person = $this->persons->find($personId);
@@ -272,7 +272,7 @@ final class PersonenController extends PageController
 
     public function contacts(Request $request): Response
     {
-        $this->authorization->requirePermission('portal.verwaltung.personen.view');
+        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
 
         $personId = $this->routeInt($request, 'id');
         $person = $this->persons->find($personId);
@@ -293,7 +293,7 @@ final class PersonenController extends PageController
 
     public function createContact(Request $request): Response
     {
-        $actor = $this->authorization->requirePermission('portal.verwaltung.personen.view');
+        $actor = $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
 
         $personId = $this->routeInt($request, 'id');
         $person = $this->persons->find($personId);
@@ -320,7 +320,7 @@ final class PersonenController extends PageController
 
     public function deleteContact(Request $request): Response
     {
-        $actor = $this->authorization->requirePermission('portal.verwaltung.personen.view');
+        $actor = $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
 
         $personId = $this->routeInt($request, 'id');
         $contactId = $this->routeInt($request, 'contactId');
@@ -338,7 +338,7 @@ final class PersonenController extends PageController
 
     public function addresses(Request $request): Response
     {
-        $this->authorization->requirePermission('portal.verwaltung.personen.view');
+        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
 
         $personId = $this->routeInt($request, 'id');
         $person = $this->persons->find($personId);
@@ -359,7 +359,7 @@ final class PersonenController extends PageController
 
     public function createAddress(Request $request): Response
     {
-        $actor = $this->authorization->requirePermission('portal.verwaltung.personen.view');
+        $actor = $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
 
         $personId = $this->routeInt($request, 'id');
         $person = $this->persons->find($personId);
@@ -392,7 +392,7 @@ final class PersonenController extends PageController
 
     public function deleteAddress(Request $request): Response
     {
-        $actor = $this->authorization->requirePermission('portal.verwaltung.personen.view');
+        $actor = $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
 
         $personId = $this->routeInt($request, 'id');
         $addressId = $this->routeInt($request, 'addressId');

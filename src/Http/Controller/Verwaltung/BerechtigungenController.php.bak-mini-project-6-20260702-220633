@@ -36,7 +36,7 @@ final class BerechtigungenController extends PageController
 
     public function index(Request $request): Response
     {
-        $this->authorization->requirePermission('identity.permissions.view');
+        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::BERECHTIGUNGEN);
 
         $groups = $this->permissionGroups->findAll();
         $pageGroups = $this->pageGroups->findAll();
@@ -65,7 +65,7 @@ final class BerechtigungenController extends PageController
 
     public function group(Request $request): Response
     {
-        $this->authorization->requirePermission('identity.permissions.view');
+        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::BERECHTIGUNGEN);
 
         $groupId = $this->routeInt($request, 'id');
         $group = $this->permissionGroups->find($groupId);
@@ -95,7 +95,7 @@ final class BerechtigungenController extends PageController
 
     public function updateGroup(Request $request): Response
     {
-        $actor = $this->authorization->requirePermission('identity.permissions.view');
+        $actor = $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::BERECHTIGUNGEN);
 
         $groupId = $this->routeInt($request, 'id');
         $group = $this->permissionGroups->find($groupId);
@@ -128,7 +128,7 @@ final class BerechtigungenController extends PageController
 
     public function pageGroups(Request $request): Response
     {
-        $this->authorization->requirePermission('identity.permissions.view');
+        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::BERECHTIGUNGEN);
 
         return $this->renderPage($request, 'pages/verwaltung/berechtigungen/page_groups', $this->pageParams([
             'title' => 'PageGroups',

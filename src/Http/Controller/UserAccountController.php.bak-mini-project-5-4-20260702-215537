@@ -17,16 +17,13 @@ final class UserAccountController extends Controller
 {
     public function __construct(
         Renderer $renderer,
-        AreaRepository $areas,
-        MenuRepository $menus,
-        MenuItemRepository $menuItems,
+        private readonly AreaRepository $areas,
+        private readonly MenuRepository $menus,
+        private readonly MenuItemRepository $menuItems,
         private readonly UserRepository $users,
         private readonly SessionAuth $auth
     ) {
-        // Diese Dependencies bleiben aus Kompatibilitätsgründen in der Service-Factory,
-        // werden im neuen Konto-Controller aber nicht mehr benötigt.
-        unset($areas, $menus, $menuItems);
-
+        unset($this->areas, $this->menus, $this->menuItems);
         parent::__construct($renderer);
     }
 
@@ -39,7 +36,7 @@ final class UserAccountController extends Controller
 
         $userId = (int) $user['id'];
 
-        return $this->renderKontoPage('pages/konto/profile', [
+        return $this->renderPage($request, 'pages/konto/profile', [
             'title' => 'Mein Konto',
             'pageTitle' => 'Mein Konto',
             'areaName' => 'Konto',
@@ -175,7 +172,7 @@ final class UserAccountController extends Controller
 
     private function renderSettings(Request $request, array $user, ?string $passwordError = null, int $status = 200): Response
     {
-        return $this->renderKontoPage('pages/konto/settings', [
+        return $this->renderPage($request, 'pages/konto/settings', [
             'title' => 'Kontoeinstellungen',
             'pageTitle' => 'Kontoeinstellungen',
             'areaName' => 'Konto',
@@ -189,18 +186,6 @@ final class UserAccountController extends Controller
             'passwordChanged' => ($request->query['saved'] ?? '') === 'password',
             'passwordError' => $passwordError,
         ], $status);
-    }
-
-    /**
-     * @param array<string,mixed> $parameters
-     */
-    private function renderKontoPage(string $view, array $parameters = [], int $status = 200): Response
-    {
-        return new Response(
-            $status,
-            ['Content-Type' => 'text/html; charset=utf-8'],
-            $this->renderer->renderPage($view, $parameters)
-        );
     }
 
     private function requireUser(): ?array

@@ -9,6 +9,7 @@ use App\Http\Controller\NewsController;
 use App\Http\Controller\StyleGuideController;
 use App\Http\Controller\HealthController;
 use App\Http\Controller\UserAccountController;
+use App\Http\Controller\UserAccountController as KontoController;
 use App\Http\Controller\Verwaltung\VerwaltungController;
 use App\Http\Controller\Verwaltung\PersonenController;
 use App\Http\Controller\Verwaltung\GruppenController;
@@ -34,22 +35,23 @@ use App\Http\Controller\Administration\SystemeController as AdministrationSystem
 use App\Http\Controller\Identity\IdentityMeController;
 
 return [
-    // ACCOUNT ROUTES CANONICAL START
-    // Kanonische Konto-URLs. Es gibt keine /user- oder Legacy-Konto-Aliase mehr.
-    new Route('GET', '/konto', \App\Http\Controller\UserAccountController::class, 'profile'),
-    new Route('POST', '/konto', \App\Http\Controller\UserAccountController::class, 'updateProfile'),
-    new Route('GET', '/konto/einstellungen', \App\Http\Controller\UserAccountController::class, 'settings'),
-    new Route('POST', '/konto/einstellungen', \App\Http\Controller\UserAccountController::class, 'updateSettings'),
-    new Route('POST', '/konto/passwort', \App\Http\Controller\UserAccountController::class, 'updatePassword'),
-    // ACCOUNT ROUTES CANONICAL END
-new Route('GET', '/identity/me', IdentityMeController::class, 'index'),
+    // MINI PROJECT 5.1 KONTO ROUTES START
+    // /konto ist ein Login-/Account-Bereich. Er nutzt keine PageGroups und keine feinen
+    // Verwaltungspermissions. Der Controller prüft selbst, ob ein User eingeloggt ist.
+    new Route('GET', '/konto', KontoController::class, 'profile'),
+    new Route('POST', '/konto', KontoController::class, 'updateProfile'),
+    new Route('GET', '/konto/einstellungen', KontoController::class, 'settings'),
+    new Route('POST', '/konto/einstellungen', KontoController::class, 'updateSettings'),
+    new Route('POST', '/konto/passwort', KontoController::class, 'updatePassword'),
+    // MINI PROJECT 5.1 KONTO ROUTES END
+    new Route('GET', '/identity/me', IdentityMeController::class, 'index'),
 /*
     |--------------------------------------------------------------------------
     | Mini-Projekt 3 Legacy-Verwaltung-Aliase
     |--------------------------------------------------------------------------
     | Diese Routen müssen vor alten /verwaltung/gruppen- und
     | /verwaltung/berechtigungen-Routen stehen, damit nicht mehr die alten
-    | Legacy-Controller geladen werden.
+    | PageGroup-Controller geladen werden.
     */
     new Route('GET', '/verwaltung/gruppen', AdministrationGruppenController::class, 'index'),
     new Route('GET', '/verwaltung/gruppen/create', AdministrationGruppenController::class, 'createForm'),
@@ -199,8 +201,29 @@ new Route('GET', '/', HomeController::class, 'index'),
 
     // Verwaltung: Gruppen
 
+    // Deaktiviert durch Mini-Projekt 3 Legacy-Verwaltung-Alias: new Route('GET', '/verwaltung/gruppen', GruppenController::class, 'index'),
+
+    // Deaktiviert durch Mini-Projekt 3 Legacy-Verwaltung-Alias: new Route('GET', '/verwaltung/gruppen/create', GruppenController::class, 'createForm'),
+    // Deaktiviert durch Mini-Projekt 3 Legacy-Verwaltung-Alias: new Route('POST', '/verwaltung/gruppen/create', GruppenController::class, 'create'),
+
+    // Deaktiviert durch Mini-Projekt 3 Legacy-Verwaltung-Alias: new Route('GET', '/verwaltung/gruppen/{id}', GruppenController::class, 'show'),
+
+    // Deaktiviert durch Mini-Projekt 3 Legacy-Verwaltung-Alias: new Route('GET', '/verwaltung/gruppen/{id}/edit', GruppenController::class, 'editForm'),
+    // Deaktiviert durch Mini-Projekt 3 Legacy-Verwaltung-Alias: new Route('POST', '/verwaltung/gruppen/{id}/edit', GruppenController::class, 'edit'),
+
+    // Deaktiviert durch Mini-Projekt 3 Legacy-Verwaltung-Alias: new Route('GET', '/verwaltung/gruppen/{id}/mitglieder', GruppenController::class, 'members'),
+
+    // Deaktiviert durch Mini-Projekt 3 Legacy-Verwaltung-Alias: new Route('POST', '/verwaltung/gruppen/{id}/delete', GruppenController::class, 'delete'),
+
 
     // Verwaltung: Berechtigungen
+
+    // Deaktiviert durch Mini-Projekt 3 Legacy-Verwaltung-Alias: new Route('GET', '/verwaltung/berechtigungen', BerechtigungenController::class, 'index'),
+
+    // Deaktiviert durch Mini-Projekt 3 Legacy-Verwaltung-Alias: new Route('GET', '/verwaltung/berechtigungen/page-groups', BerechtigungenController::class, 'pageGroups'),
+
+    // Deaktiviert durch Mini-Projekt 3 Legacy-Verwaltung-Alias: new Route('GET', '/verwaltung/berechtigungen/gruppen/{id}', BerechtigungenController::class, 'group'),
+    // Deaktiviert durch Mini-Projekt 3 Legacy-Verwaltung-Alias: new Route('POST', '/verwaltung/berechtigungen/gruppen/{id}', BerechtigungenController::class, 'updateGroup'),
 
 
     // Verwaltung: Audit
@@ -241,10 +264,10 @@ new Route('GET', '/', HomeController::class, 'index'),
 
     // Konto
 
-// [mini-project-5-1 disabled invalid /konto route]     // [mini-project-5-3 disabled duplicate account route] new Route('GET', '/konto', AccountController::class, 'index'),
+// [mini-project-5-1 disabled invalid /konto route]     new Route('GET', '/konto', AccountController::class, 'index'),
 
-// [mini-project-5-1 disabled invalid /konto route]     // [mini-project-5-3 disabled duplicate account route] new Route('GET', '/konto/passwort', AccountController::class, 'passwordForm'),
-// [mini-project-5-1 disabled invalid /konto route]     // [mini-project-5-3 disabled duplicate account route] new Route('POST', '/konto/passwort', AccountController::class, 'changePassword'),
+// [mini-project-5-1 disabled invalid /konto route]     new Route('GET', '/konto/passwort', AccountController::class, 'passwordForm'),
+// [mini-project-5-1 disabled invalid /konto route]     new Route('POST', '/konto/passwort', AccountController::class, 'changePassword'),
 
     new Route('GET', '/passwort/vergessen', PasswordResetController::class, 'requestForm'),
     new Route('POST', '/passwort/vergessen', PasswordResetController::class, 'request'),
@@ -252,12 +275,20 @@ new Route('GET', '/', HomeController::class, 'index'),
     new Route('GET', '/passwort/zuruecksetzen/{token}', PasswordResetController::class, 'resetForm'),
     new Route('POST', '/passwort/zuruecksetzen/{token}', PasswordResetController::class, 'reset'),
     
+// [mini-project-5-1 disabled invalid /konto route]     new Route('GET', '/konto/profil', ProfileController::class, 'profile'),
 
+// [mini-project-5-1 disabled invalid /konto route]     new Route('GET', '/konto/profil/bearbeiten', ProfileController::class, 'editForm'),
+// [mini-project-5-1 disabled invalid /konto route]     new Route('POST', '/konto/profil/bearbeiten', ProfileController::class, 'edit'),
 
+// [mini-project-5-1 disabled invalid /konto route]     new Route('GET', '/konto/kontakte', ProfileController::class, 'contacts'),
+// [mini-project-5-1 disabled invalid /konto route]     new Route('POST', '/konto/kontakte', ProfileController::class, 'createContact'),
 // [mini-project-5-1 disabled invalid /konto route]     new Route('POST', '/konto/kontakte/{contactId}/delete', ProfileController::class, 'deleteContact'),
 
+// [mini-project-5-1 disabled invalid /konto route]     new Route('GET', '/konto/adressen', ProfileController::class, 'addresses'),
+// [mini-project-5-1 disabled invalid /konto route]     new Route('POST', '/konto/adressen', ProfileController::class, 'createAddress'),
 // [mini-project-5-1 disabled invalid /konto route]     new Route('POST', '/konto/adressen/{addressId}/delete', ProfileController::class, 'deleteAddress'),
 
+// [mini-project-5-1 disabled invalid /konto route]     new Route('GET', '/konto/sicherheit', ProfileController::class, 'security'),
 
 
 
