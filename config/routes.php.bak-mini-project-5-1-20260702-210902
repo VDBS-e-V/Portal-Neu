@@ -9,7 +9,6 @@ use App\Http\Controller\NewsController;
 use App\Http\Controller\StyleGuideController;
 use App\Http\Controller\HealthController;
 use App\Http\Controller\UserAccountController;
-use App\Http\Controller\UserAccountController as KontoController;
 use App\Http\Controller\Verwaltung\VerwaltungController;
 use App\Http\Controller\Verwaltung\PersonenController;
 use App\Http\Controller\Verwaltung\GruppenController;
@@ -35,15 +34,6 @@ use App\Http\Controller\Administration\SystemeController as AdministrationSystem
 use App\Http\Controller\Identity\IdentityMeController;
 
 return [
-    // MINI PROJECT 5.1 KONTO ROUTES START
-    // /konto ist ein Login-/Account-Bereich. Er nutzt keine PageGroups und keine feinen
-    // Verwaltungspermissions. Der Controller prüft selbst, ob ein User eingeloggt ist.
-    new Route('GET', '/konto', KontoController::class, 'profile'),
-    new Route('POST', '/konto', KontoController::class, 'updateProfile'),
-    new Route('GET', '/konto/einstellungen', KontoController::class, 'settings'),
-    new Route('POST', '/konto/einstellungen', KontoController::class, 'updateSettings'),
-    new Route('POST', '/konto/passwort', KontoController::class, 'updatePassword'),
-    // MINI PROJECT 5.1 KONTO ROUTES END
     new Route('GET', '/identity/me', IdentityMeController::class, 'index'),
 /*
     |--------------------------------------------------------------------------
@@ -264,10 +254,10 @@ new Route('GET', '/', HomeController::class, 'index'),
 
     // Konto
 
-// [mini-project-5-1 disabled invalid /konto route]     new Route('GET', '/konto', AccountController::class, 'index'),
+    new Route('GET', '/konto', AccountController::class, 'index'),
 
-// [mini-project-5-1 disabled invalid /konto route]     new Route('GET', '/konto/passwort', AccountController::class, 'passwordForm'),
-// [mini-project-5-1 disabled invalid /konto route]     new Route('POST', '/konto/passwort', AccountController::class, 'changePassword'),
+    new Route('GET', '/konto/passwort', AccountController::class, 'passwordForm'),
+    new Route('POST', '/konto/passwort', AccountController::class, 'changePassword'),
 
     new Route('GET', '/passwort/vergessen', PasswordResetController::class, 'requestForm'),
     new Route('POST', '/passwort/vergessen', PasswordResetController::class, 'request'),
@@ -275,20 +265,20 @@ new Route('GET', '/', HomeController::class, 'index'),
     new Route('GET', '/passwort/zuruecksetzen/{token}', PasswordResetController::class, 'resetForm'),
     new Route('POST', '/passwort/zuruecksetzen/{token}', PasswordResetController::class, 'reset'),
     
-// [mini-project-5-1 disabled invalid /konto route]     new Route('GET', '/konto/profil', ProfileController::class, 'profile'),
+    new Route('GET', '/konto/profil', ProfileController::class, 'profile'),
 
-// [mini-project-5-1 disabled invalid /konto route]     new Route('GET', '/konto/profil/bearbeiten', ProfileController::class, 'editForm'),
-// [mini-project-5-1 disabled invalid /konto route]     new Route('POST', '/konto/profil/bearbeiten', ProfileController::class, 'edit'),
+    new Route('GET', '/konto/profil/bearbeiten', ProfileController::class, 'editForm'),
+    new Route('POST', '/konto/profil/bearbeiten', ProfileController::class, 'edit'),
 
-// [mini-project-5-1 disabled invalid /konto route]     new Route('GET', '/konto/kontakte', ProfileController::class, 'contacts'),
-// [mini-project-5-1 disabled invalid /konto route]     new Route('POST', '/konto/kontakte', ProfileController::class, 'createContact'),
-// [mini-project-5-1 disabled invalid /konto route]     new Route('POST', '/konto/kontakte/{contactId}/delete', ProfileController::class, 'deleteContact'),
+    new Route('GET', '/konto/kontakte', ProfileController::class, 'contacts'),
+    new Route('POST', '/konto/kontakte', ProfileController::class, 'createContact'),
+    new Route('POST', '/konto/kontakte/{contactId}/delete', ProfileController::class, 'deleteContact'),
 
-// [mini-project-5-1 disabled invalid /konto route]     new Route('GET', '/konto/adressen', ProfileController::class, 'addresses'),
-// [mini-project-5-1 disabled invalid /konto route]     new Route('POST', '/konto/adressen', ProfileController::class, 'createAddress'),
-// [mini-project-5-1 disabled invalid /konto route]     new Route('POST', '/konto/adressen/{addressId}/delete', ProfileController::class, 'deleteAddress'),
+    new Route('GET', '/konto/adressen', ProfileController::class, 'addresses'),
+    new Route('POST', '/konto/adressen', ProfileController::class, 'createAddress'),
+    new Route('POST', '/konto/adressen/{addressId}/delete', ProfileController::class, 'deleteAddress'),
 
-// [mini-project-5-1 disabled invalid /konto route]     new Route('GET', '/konto/sicherheit', ProfileController::class, 'security'),
+    new Route('GET', '/konto/sicherheit', ProfileController::class, 'security'),
 
 
 

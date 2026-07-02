@@ -70,13 +70,6 @@ final class RoutePermissionMap
     {
         $method = strtoupper(trim($method));
         $path = $this->normalizePath($path);
-        // MINI PROJECT 5.1 KONTO PUBLIC ACCOUNT ROUTES START
-        // Accountseiten brauchen einen eingeloggten User, aber keine Vereins-/Admin-Permission.
-        // Die Login-Prüfung passiert im UserAccountController.
-        if ($path === '/konto' || str_starts_with($path, '/konto/')) {
-            return null;
-        }
-        // MINI PROJECT 5.1 KONTO PUBLIC ACCOUNT ROUTES END
         foreach ($this->entries() as $entry) {
             if (in_array($method, $entry['methods'], true) && $this->matches($entry['pattern'], $path)) {
                 return $entry['permission'];

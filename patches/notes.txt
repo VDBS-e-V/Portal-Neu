@@ -1,0 +1,5 @@
+Dieses Paket verwendet ein ausführbares Patch-Tool:
+
+php tools\apply_mini_project_5_1_konto_qa_fix.php
+
+Die Dateien in diesem patches-Ordner sind nur Hinweise. Es muss nichts mit git apply ausgeführt werden.
