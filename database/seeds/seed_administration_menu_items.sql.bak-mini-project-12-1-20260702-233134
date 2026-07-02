@@ -1,4 +1,3 @@
--- Mini-Projekt 12.1: page_group_id aus aktiven Seeds bereinigt am 2026-07-02T23:31:34+02:00
 SET @verwaltung_area_id := (SELECT `id` FROM `pt_areas` WHERE `area_key` = 'verwaltung' LIMIT 1);
 INSERT INTO `pt_menus` (`area_id`, `name`, `slug`, `is_default`, `settings`)
 SELECT @verwaltung_area_id, 'Administration', 'administration', 0, NULL
@@ -15,7 +14,7 @@ WHERE `menu_id` = @administration_menu_id
       'administration-gruppen',
       'administration-permissions',
       'administration-systeme'
-  );/* MINI PROJECT 12.1: deaktiviertes Legacy-page_group_id-Statement
+  );
 INSERT INTO `pt_menu_items` (`menu_id`, `page_group_id`, `parent_id`, `title`, `slug`, `url`, `route_name`, `icon`, `target`, `order_index`, `level`, `is_active`, `settings`, `required_permission_id`)
 SELECT @administration_menu_id, NULL, NULL, item_title, item_slug, item_url, NULL, item_icon, '_self', item_order, 1, 1, NULL, p.`id`
 FROM (
@@ -26,8 +25,7 @@ FROM (
     UNION ALL SELECT 'Systeme', 'administration-systeme', '/administration/systeme', 'server', 50, 'identity.systeme.view'
 ) items
 JOIN `ids_permissions` p ON p.`key_name` = items.permission_key
-WHERE @administration_menu_id IS NOT NULL
-*/;
+WHERE @administration_menu_id IS NOT NULL;
 UPDATE `pt_menu_items` mi
 LEFT JOIN `ids_permissions` p ON p.`key_name` = CASE
     WHEN mi.`url` IN ('/verwaltung', '/administration') THEN 'portal.verwaltung.dashboard.view'
