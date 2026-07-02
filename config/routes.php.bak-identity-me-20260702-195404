@@ -31,11 +31,9 @@ use App\Http\Controller\Administration\GruppenController as AdministrationGruppe
 use App\Http\Controller\Administration\PermissionsController as AdministrationPermissionsController;
 use App\Http\Controller\Administration\PersonenGruppenController as AdministrationPersonenGruppenController;
 use App\Http\Controller\Administration\SystemeController as AdministrationSystemeController;
-use App\Http\Controller\Identity\IdentityMeController;
 
 return [
-    new Route('GET', '/identity/me', IdentityMeController::class, 'index'),
-/*
+    /*
     |--------------------------------------------------------------------------
     | Mini-Projekt 3 Legacy-Verwaltung-Aliase
     |--------------------------------------------------------------------------

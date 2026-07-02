@@ -27,7 +27,6 @@ use App\Repository\AuthorizedMenuRepository;
 use App\Repository\EntityAuditRepository;
 use App\Repository\IdentityAdministrationRepository;
 use App\Repository\IdentityAuthorizationRepository;
-use App\Repository\IdentityMeRepository;
 use App\Repository\LoginEventRepository;
 use App\Repository\MenuItemRepository;
 use App\Repository\MenuRepository;
@@ -378,8 +377,4 @@ return [
             $container->get(MenuItemRepository::class)
         );
     },
-    IdentityMeRepository::class => static function (Container $container): IdentityMeRepository {
-        return new IdentityMeRepository($container->get(PDO::class));
-    },
-
 ];
