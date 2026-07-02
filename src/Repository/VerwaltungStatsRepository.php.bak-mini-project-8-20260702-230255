@@ -32,8 +32,8 @@ final class VerwaltungStatsRepository
             'groups_total' => $this->countTable('ids_permission_groups'),
             'groups_system' => $this->countWhere('ids_permission_groups', 'is_system = 1'),
 
-            'permissions_total' => $this->countTable('ids_permissions'),
-            'permissions_active' => $this->countActivePermissions(),
+            'page_groups_total' => $this->countTable('pt_page_groups'),
+            'page_groups_active' => $this->countWhere('pt_page_groups', 'is_active = 1'),
 
             'pending_invitations' => $this->countWhere('ids_user_invitations', 'status = :status', ['status' => 'pending']),
             'expired_invitations' => $this->countWhere('ids_user_invitations', 'status = :status', ['status' => 'expired']),
@@ -241,37 +241,6 @@ final class VerwaltungStatsRepository
         }
 
         return 0;
-    }
-
-    
-    private function countActivePermissions(): int
-    {
-        if (!$this->tableExists('ids_permissions')) {
-            return 0;
-        }
-
-        if ($this->columnExists('ids_permissions', 'is_active')) {
-            return $this->countWhere('ids_permissions', 'is_active = 1');
-        }
-
-        if ($this->columnExists('ids_permissions', 'status')) {
-            return $this->countWhere('ids_permissions', 'status = :status', ['status' => 'active']);
-        }
-
-        return $this->countTable('ids_permissions');
-    }
-
-    private function columnExists(string $table, string $column): bool
-    {
-        $stmt = $this->pdo->prepare(
-            'SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table_name AND COLUMN_NAME = :column_name'
-        );
-        $stmt->execute([
-            'table_name' => $table,
-            'column_name' => $column,
-        ]);
-
-        return (int) $stmt->fetchColumn() > 0;
     }
 
     private function countTable(string $table): int

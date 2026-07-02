@@ -68,9 +68,7 @@ final class EntityAuditRepository
             ['ids_permission_groups', $groupId],
             ['ids_person_permission_groups', $groupId],
             ['ids_user_permission_groups', $groupId],
-            ['ids_groups', $groupId],
-            ['ids_subject_groups', $groupId],
-            ['ids_group_permissions', $groupId],
+            ['pt_permission_group_page_group_access', $groupId],
         ], $limit);
     }
 
