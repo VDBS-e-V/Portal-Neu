@@ -6,6 +6,7 @@
 -------------------------------------------------------------------------- */
 
 SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
+SET @initial_admin_name = CONVERT('<INITIAL_ADMIN_NAME>' USING utf8mb4) COLLATE utf8mb4_unicode_ci;
 SET @initial_admin_email = CONVERT('<INITIAL_ADMIN_EMAIL>' USING utf8mb4) COLLATE utf8mb4_unicode_ci;
 SET @initial_admin_password_hash = '<BCRYPT_HASH>';
 
@@ -86,6 +87,7 @@ VALUES
     (@system_identity, 'identity.subjects.groups.remove', 'Subject-Gruppen entfernen', 'Gruppen von Subjects entfernen.', 'subjects', 1, 1),
 
     (@system_portal, 'portal.dashboard.view', 'Dashboard anzeigen', 'Portal-Dashboard anzeigen.', 'dashboard', 1, 1),
+    (@system_portal, 'portal.verwaltung.dashboard.view', 'Verwaltungsdashboard anzeigen', 'Darf das Verwaltungs- und Administrationsdashboard öffnen.', 'verwaltung.dashboard', 1, 1),
     (@system_portal, 'portal.verwaltung.personen.view', 'Personen anzeigen', 'Personenverwaltung anzeigen.', 'verwaltung.personen', 1, 1),
     (@system_portal, 'portal.verwaltung.personen.create', 'Personen erstellen', 'Personen erstellen.', 'verwaltung.personen', 1, 1),
     (@system_portal, 'portal.verwaltung.personen.edit', 'Personen bearbeiten', 'Personen bearbeiten.', 'verwaltung.personen', 1, 1),
@@ -205,7 +207,7 @@ SET @initial_admin_person_id = (
 );
 
 INSERT INTO `ids_persons` (`person_uuid`, `display_name`, `status`)
-SELECT UNHEX(REPLACE(UUID(), '-', '')), @initial_admin_email, 'active'
+SELECT UNHEX(REPLACE(UUID(), '-', '')), @initial_admin_name, 'active'
 WHERE @initial_admin_person_id IS NULL;
 
 SET @created_initial_admin_person_id = LAST_INSERT_ID();
@@ -233,7 +235,7 @@ WHERE NOT EXISTS (
 
 UPDATE `ids_persons`
 SET `status` = 'active',
-    `display_name` = COALESCE(NULLIF(`display_name`, ''), @initial_admin_email)
+    `display_name` = @initial_admin_name
 WHERE `id` = @initial_admin_person_id;
 
 UPDATE `ids_users`
@@ -306,18 +308,35 @@ JOIN `ids_groups` g ON g.`is_default` = 1 AND g.`is_active` = 1 AND g.`is_assign
 JOIN `ids_subjects` s ON s.`id` = p.`subject_id` AND s.`status` = 'active'
 WHERE p.`subject_id` IS NOT NULL;
 
-/* Initialer Admin: identity.administrator + portal.administrator. */
+/* Default-Admin: bekommt alle Administrator-Gruppen aller aktiven Systeme.
+   Dadurch erhält er alle Permissions, die aktuell existieren, ohne systemfremde Permissions in Gruppen zu mischen. */
 INSERT IGNORE INTO `ids_subject_groups` (`subject_id`, `group_id`, `assigned_at`, `note`)
-SELECT @initial_admin_subject_id, g.`id`, CURRENT_TIMESTAMP, CONCAT('Initialer Admin-Seed für ', @initial_admin_email)
+SELECT
+    @initial_admin_subject_id,
+    g.`id`,
+    CURRENT_TIMESTAMP,
+    CONCAT('Initialer Admin-Seed für ', @initial_admin_email, ' / ', @initial_admin_name)
 FROM `ids_groups` g
 JOIN `ids_systems` s ON s.`id` = g.`system_id`
 WHERE @initial_admin_subject_id IS NOT NULL
-  AND (
-      (s.`key_name` = 'identity' AND g.`key_name` = 'administrator')
-      OR
-      (s.`key_name` = 'portal' AND g.`key_name` = 'administrator')
-  );
+  AND s.`is_active` = 1
+  AND g.`is_active` = 1
+  AND g.`key_name` = 'administrator';
+
+/* Sicherstellen, dass jede Administrator-Gruppe alle aktiven Permissions ihres Systems hat. */
+INSERT IGNORE INTO `ids_group_permissions` (`group_id`, `permission_id`)
+SELECT g.`id`, p.`id`
+FROM `ids_groups` g
+JOIN `ids_permissions` p ON p.`system_id` = g.`system_id`
+JOIN `ids_systems` s ON s.`id` = g.`system_id`
+WHERE s.`is_active` = 1
+  AND g.`key_name` = 'administrator'
+  AND g.`is_active` = 1
+  AND p.`is_active` = 1;
 
 UPDATE `ids_subjects`
-SET `permission_version` = `permission_version` + 1
+SET `permission_version` = `permission_version` + 1,
+    `updated_at` = CURRENT_TIMESTAMP
 WHERE `id` = @initial_admin_subject_id;
+
+/* Keine SELECT-Kontrollausgaben im Seed: Der Projekt-Seed-Runner liest Resultsets nicht aus. */
