@@ -1,0 +1,86 @@
+<?php
+
+declare(strict_types=1);
+
+$root = dirname(__DIR__, 2);
+
+function mp11_files(string $dir): array
+{
+    if (!is_dir($dir)) {
+        return [];
+    }
+    $files = [];
+    $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS));
+    foreach ($it as $file) {
+        if (!$file instanceof SplFileInfo || !$file->isFile()) {
+            continue;
+        }
+        $path = $file->getPathname();
+        $normalized = str_replace('\\', '/', $path);
+        if (str_contains($normalized, '/vendor/') || str_contains($normalized, '/var/archive/')) {
+            continue;
+        }
+        if (str_contains($file->getFilename(), '.bak-')) {
+            continue;
+        }
+        $files[] = $path;
+    }
+    return $files;
+}
+
+$authFile = $root . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Security' . DIRECTORY_SEPARATOR . 'AuthorizationService.php';
+if (!is_file($authFile)) {
+    fwrite(STDERR, "AuthorizationService.php fehlt.\n");
+    exit(1);
+}
+
+$auth = file_get_contents($authFile);
+if ($auth === false) {
+    fwrite(STDERR, "AuthorizationService.php konnte nicht gelesen werden.\n");
+    exit(1);
+}
+
+$errors = [];
+$methodDefinitions = [
+    'requirePageGroupAccess',
+    'canAccessPageGroup',
+    'currentUserCanAccessPageGroup',
+];
+
+foreach ($methodDefinitions as $method) {
+    if (preg_match('/function\s+' . preg_quote($method, '/') . '\s*\(/', $auth)) {
+        $errors[] = 'AuthorizationService enthält noch alte Bridge-Methode: ' . $method;
+    }
+}
+
+$needles = $methodDefinitions;
+$dirs = [
+    $root . DIRECTORY_SEPARATOR . 'src',
+    $root . DIRECTORY_SEPARATOR . 'config',
+    $root . DIRECTORY_SEPARATOR . 'resources',
+];
+
+foreach ($dirs as $dir) {
+    foreach (mp11_files($dir) as $file) {
+        $content = file_get_contents($file);
+        if ($content === false) {
+            continue;
+        }
+        foreach ($needles as $needle) {
+            if (str_contains($content, $needle)) {
+                $rel = str_replace('\\', '/', substr($file, strlen($root) + 1));
+                $errors[] = $rel . ': alte Bridge-Referenz gefunden: ' . $needle;
+            }
+        }
+    }
+}
+
+if ($errors !== []) {
+    echo "Legacy-Authorization-Bridge-Check fehlgeschlagen:\n";
+    foreach (array_unique($errors) as $error) {
+        echo ' - ' . $error . PHP_EOL;
+    }
+    exit(1);
+}
+
+echo "OK: Alte PageGroup-Authorization-Bridge ist aus produktivem Code entfernt.\n";

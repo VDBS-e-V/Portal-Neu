@@ -222,6 +222,25 @@ final class AuthorizationService
      *
      * @return array<string,mixed>
      */
+    public function requirePageGroupAccess(string $areaKey, string $pageGroupKey): array
+    {
+        return $this->requirePermission(
+            $this->legacyPageGroupPermissionKey($areaKey, $pageGroupKey)
+        );
+    }
+
+    public function canAccessPageGroup(string $areaKey, string $pageGroupKey): bool
+    {
+        return $this->can(
+            $this->legacyPageGroupPermissionKey($areaKey, $pageGroupKey)
+        );
+    }
+
+    public function currentUserCanAccessPageGroup(string $areaKey, string $pageGroupKey): bool
+    {
+        return $this->canAccessPageGroup($areaKey, $pageGroupKey);
+    }
+
     private function legacyPageGroupPermissionKey(string $areaKey, string $pageGroupKey): string
     {
         $areaKey = $this->normalizeLegacyKey($areaKey);
