@@ -12,6 +12,7 @@ use App\Http\Controller\DevelopmentController;
 
 use App\Http\Routing\Router;
 
+use App\Navigation\AdministrationNavigation;
 use App\Navigation\AuthorizedMainMenu;
 use App\Navigation\VerwaltungNavigation;
 
@@ -24,6 +25,8 @@ use App\Repository\AreaRepository;
 use App\Repository\AuditLogRepository;
 use App\Repository\AuthorizedMenuRepository;
 use App\Repository\EntityAuditRepository;
+use App\Repository\IdentityAdministrationRepository;
+use App\Repository\IdentityAuthorizationRepository;
 use App\Repository\LoginEventRepository;
 use App\Repository\MenuItemRepository;
 use App\Repository\MenuRepository;
@@ -46,6 +49,9 @@ use App\Security\AdminSafetyService;
 use App\Security\AuthorizationService;
 use App\Security\CsrfGuard;
 use App\Security\CsrfTokenManager;
+use App\Security\IdentityAdminSafetyService;
+use App\Security\RoutePermissionGuard;
+use App\Security\RoutePermissionMap;
 use App\Security\SessionAuth;
 
 return [
@@ -57,7 +63,10 @@ return [
     },
 
     Router::class => static function (Container $container): Router {
-        return new Router($container);
+        return new Router(
+            $container,
+            $container->get(RoutePermissionGuard::class)
+        );
     },
 
     PDO::class => static function (Container $container): PDO {
@@ -120,6 +129,23 @@ return [
 
     UserRepository::class => static function (Container $container): UserRepository {
         return new UserRepository($container->get(PDO::class));
+    },
+
+    /*
+    |--------------------------------------------------------------------------
+    | Identity / Authorization-Repositories
+    |--------------------------------------------------------------------------
+    */
+
+    IdentityAuthorizationRepository::class => static function (Container $container): IdentityAuthorizationRepository {
+        return new IdentityAuthorizationRepository($container->get(PDO::class));
+    },
+
+    IdentityAdministrationRepository::class => static function (Container $container): IdentityAdministrationRepository {
+        return new IdentityAdministrationRepository(
+            $container->get(PDO::class),
+            $container->get(IdentityAuthorizationRepository::class)
+        );
     },
 
     /*
@@ -216,8 +242,24 @@ return [
         return new AuthorizationService(
             $container->get(SessionAuth::class),
             $container->get(UserRepository::class),
-            $container->get(PersonPermissionGroupRepository::class),
-            $container->get(PageGroupAccessRepository::class)
+            $container->get(IdentityAuthorizationRepository::class)
+        );
+    },
+
+    RoutePermissionMap::class => static function (): RoutePermissionMap {
+        return new RoutePermissionMap();
+    },
+
+    RoutePermissionGuard::class => static function (Container $container): RoutePermissionGuard {
+        return new RoutePermissionGuard(
+            $container->get(AuthorizationService::class),
+            $container->get(RoutePermissionMap::class)
+        );
+    },
+
+    IdentityAdminSafetyService::class => static function (Container $container): IdentityAdminSafetyService {
+        return new IdentityAdminSafetyService(
+            $container->get(IdentityAdministrationRepository::class)
         );
     },
 
@@ -270,6 +312,12 @@ return [
             $container->get(MenuItemRepository::class),
             $container->get(UserRepository::class),
             $container->get(SessionAuth::class)
+        );
+    },
+
+    AdministrationNavigation::class => static function (Container $container): AdministrationNavigation {
+        return new AdministrationNavigation(
+            $container->get(AuthorizationService::class)
         );
     },
 

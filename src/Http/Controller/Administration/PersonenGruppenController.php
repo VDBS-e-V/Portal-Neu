@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controller\Administration;
 
-use App\Http\Controller\Controller;
 use App\Http\Request\Request;
 use App\Http\Response\Response;
 use App\Navigation\AdministrationNavigation;
@@ -14,7 +13,7 @@ use App\Security\IdentityAdminSafetyService;
 use App\Presentation\Templating\Renderer;
 use RuntimeException;
 
-final class PersonenGruppenController extends Controller
+final class PersonenGruppenController extends AbstractAdministrationController
 {
     public function __construct(
         Renderer $renderer,

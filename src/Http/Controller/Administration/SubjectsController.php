@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controller\Administration;
 
-use App\Http\Controller\Controller;
 use App\Http\Request\Request;
 use App\Http\Response\Response;
 use App\Navigation\AdministrationNavigation;
@@ -12,7 +11,7 @@ use App\Repository\IdentityAdministrationRepository;
 use App\Security\AuthorizationService;
 use App\Presentation\Templating\Renderer;
 
-final class SubjectsController extends Controller
+final class SubjectsController extends AbstractAdministrationController
 {
     public function __construct(
         Renderer $renderer,

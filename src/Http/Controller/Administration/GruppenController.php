@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controller\Administration;
 
-use App\Http\Controller\Controller;
 use App\Http\Request\Request;
 use App\Http\Response\Response;
 use App\Navigation\AdministrationNavigation;
@@ -15,7 +14,7 @@ use App\Presentation\Templating\Renderer;
 use InvalidArgumentException;
 use RuntimeException;
 
-final class GruppenController extends Controller
+final class GruppenController extends AbstractAdministrationController
 {
     public function __construct(
         Renderer $renderer,

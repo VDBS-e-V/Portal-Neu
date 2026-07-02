@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controller\Administration;
 
-use App\Http\Controller\Controller;
 use App\Http\Request\Request;
 use App\Http\Response\Response;
 use App\Navigation\AdministrationNavigation;
@@ -13,7 +12,7 @@ use App\Security\AuthorizationService;
 use App\Presentation\Templating\Renderer;
 use InvalidArgumentException;
 
-final class SystemeController extends Controller
+final class SystemeController extends AbstractAdministrationController
 {
     public function __construct(
         Renderer $renderer,
