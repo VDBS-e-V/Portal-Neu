@@ -1,0 +1,78 @@
+<?php
+
+declare(strict_types=1);
+
+$root = dirname(__DIR__, 2);
+$needles = [
+    'PageGroupRepository',
+    'PageGroupAccessRepository',
+    'AdminSafetyService',
+    'pt_page_groups',
+    'pt_permission_group_page_group_access',
+    'page_group_id',
+];
+
+$directories = [
+    'config',
+    'src',
+    'resources/views',
+    'tools',
+    'database/seeds',
+];
+
+$ignoredFragments = [
+    '.bak-',
+    '/var/archive/',
+    '\\var\\archive\\',
+    'restore_mini_project_',
+    'scan_legacy_service_residue.php',
+];
+
+$matches = [];
+
+foreach ($directories as $directory) {
+    $base = $root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $directory);
+    if (!is_dir($base)) {
+        continue;
+    }
+
+    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($base, FilesystemIterator::SKIP_DOTS));
+    foreach ($iterator as $file) {
+        if (!$file instanceof SplFileInfo || !$file->isFile()) {
+            continue;
+        }
+        $path = $file->getPathname();
+        $normalized = str_replace('\\', '/', $path);
+        foreach ($ignoredFragments as $fragment) {
+            if (str_contains($normalized, str_replace('\\', '/', $fragment))) {
+                continue 2;
+            }
+        }
+        $content = file_get_contents($path);
+        if ($content === false) {
+            continue;
+        }
+        $lines = preg_split('/\R/', $content) ?: [];
+        foreach ($lines as $i => $line) {
+            foreach ($needles as $needle) {
+                if (stripos($line, $needle) !== false) {
+                    $relative = substr($normalized, strlen(str_replace('\\', '/', $root)) + 1);
+                    $matches[] = $relative . ':' . ($i + 1) . ': ' . trim($line);
+                    break;
+                }
+            }
+        }
+    }
+}
+
+if ($matches === []) {
+    echo "OK: Keine Legacy-Service-/PageGroup-Reste in produktiven Suchpfaden gefunden.\n";
+    exit(0);
+}
+
+echo "Legacy-Reste in produktiven Suchpfaden gefunden:\n";
+foreach ($matches as $match) {
+    echo ' - ' . $match . "\n";
+}
+echo "\nHinweis: Treffer in Migrationshistorie oder Archivdateien sind absichtlich nicht Teil dieser Suche.\n";
+exit(1);

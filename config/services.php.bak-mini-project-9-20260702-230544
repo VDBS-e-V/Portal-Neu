@@ -31,6 +31,8 @@ use App\Repository\IdentityMeRepository;
 use App\Repository\LoginEventRepository;
 use App\Repository\MenuItemRepository;
 use App\Repository\MenuRepository;
+use App\Repository\PageGroupAccessRepository;
+use App\Repository\PageGroupRepository;
 use App\Repository\PasswordResetRepository;
 use App\Repository\PermissionGroupRepository;
 use App\Repository\PersonAddressRepository;
@@ -44,6 +46,7 @@ use App\Repository\UserRepository;
 use App\Repository\VerwaltungStatsRepository;
 
 use App\Security\AccountSessionContext;
+use App\Security\AdminSafetyService;
 use App\Security\AuthorizationService;
 use App\Security\CsrfGuard;
 use App\Security\CsrfTokenManager;
@@ -172,7 +175,15 @@ return [
         return new PersonPermissionGroupRepository($container->get(PDO::class));
     },
 
-AuditLogRepository::class => static function (Container $container): AuditLogRepository {
+    PageGroupRepository::class => static function (Container $container): PageGroupRepository {
+        return new PageGroupRepository($container->get(PDO::class));
+    },
+
+    PageGroupAccessRepository::class => static function (Container $container): PageGroupAccessRepository {
+        return new PageGroupAccessRepository($container->get(PDO::class));
+    },
+
+    AuditLogRepository::class => static function (Container $container): AuditLogRepository {
         return new AuditLogRepository($container->get(PDO::class));
     },
 
@@ -247,7 +258,21 @@ AuditLogRepository::class => static function (Container $container): AuditLogRep
         );
     },
 
-CsrfTokenManager::class => static function (): CsrfTokenManager {
+    IdentityAdminSafetyService::class => static function (Container $container): IdentityAdminSafetyService {
+        return new IdentityAdminSafetyService(
+            $container->get(IdentityAdministrationRepository::class)
+        );
+    },
+
+    AdminSafetyService::class => static function (Container $container): AdminSafetyService {
+        return new AdminSafetyService(
+            $container->get(PermissionGroupRepository::class),
+            $container->get(PersonPermissionGroupRepository::class),
+            $container->get(PageGroupAccessRepository::class)
+        );
+    },
+
+    CsrfTokenManager::class => static function (): CsrfTokenManager {
         return new CsrfTokenManager();
     },
 
