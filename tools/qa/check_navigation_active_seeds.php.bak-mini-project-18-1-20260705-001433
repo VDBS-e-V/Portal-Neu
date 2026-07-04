@@ -1,0 +1,40 @@
+<?php
+
+declare(strict_types=1);
+
+$root = dirname(__DIR__, 2);
+$seedDir = $root . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'seeds';
+$errors = [];
+
+$legacyPatterns = [
+    'page_group_id',
+    'pt_page_groups',
+    'pt_permission_group_page_group_access',
+];
+
+if (is_dir($seedDir)) {
+    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($seedDir, FilesystemIterator::SKIP_DOTS));
+    foreach ($iterator as $fileInfo) {
+        if (!$fileInfo->isFile() || strtolower($fileInfo->getExtension()) !== 'sql') {
+            continue;
+        }
+        $file = $fileInfo->getPathname();
+        $name = basename($file);
+        $content = file_get_contents($file) ?: '';
+        foreach ($legacyPatterns as $pattern) {
+            if (stripos($content, $pattern) !== false) {
+                $errors[] = $name . ': enthält Legacy-Navigationsfeld/-tabelle ' . $pattern;
+            }
+        }
+    }
+}
+
+if ($errors !== []) {
+    echo "Aktive Seed-Dateien enthalten noch PageGroup-Navigationsverweise:\n";
+    foreach ($errors as $error) {
+        echo " - {$error}\n";
+    }
+    exit(1);
+}
+
+echo "OK: Aktive Seeds enthalten keine PageGroup-Navigationsverweise mehr.\n";

@@ -1,0 +1,46 @@
+<?php
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/identity_qa_bootstrap.php';
+
+$pdo = identity_qa_pdo();
+$errors = [];
+
+function nav_column_exists(PDO $pdo, string $table, string $column): bool
+{
+    $stmt = $pdo->prepare(
+        'SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table AND COLUMN_NAME = :column'
+    );
+    $stmt->execute(['table' => $table, 'column' => $column]);
+    return (int)$stmt->fetchColumn() > 0;
+}
+
+if (!nav_column_exists($pdo, 'pt_menu_items', 'permission_key')) {
+    $errors[] = 'pt_menu_items.permission_key fehlt.';
+}
+
+if (nav_column_exists($pdo, 'pt_menu_items', 'page_group_id')) {
+    $errors[] = 'Legacy-Spalte pt_menu_items.page_group_id existiert noch.';
+}
+
+if (nav_column_exists($pdo, 'pt_menu_items', 'permission_key')) {
+    $stmt = $pdo->query(
+        "SELECT COUNT(*) FROM pt_menu_items mi
+         LEFT JOIN ids_permissions p ON p.key_name = mi.permission_key
+         WHERE mi.permission_key IS NOT NULL AND mi.permission_key <> '' AND p.id IS NULL"
+    );
+    if ((int)$stmt->fetchColumn() > 0) {
+        $errors[] = 'pt_menu_items enthält permission_key-Werte ohne passende ids_permissions.key_name.';
+    }
+}
+
+if ($errors !== []) {
+    echo "Navigation-Permission-Modell-Check fehlgeschlagen:\n";
+    foreach ($errors as $error) {
+        echo ' - ' . $error . "\n";
+    }
+    exit(1);
+}
+
+echo "OK: Navigation nutzt pt_menu_items.permission_key ohne Legacy-Spalten.\n";

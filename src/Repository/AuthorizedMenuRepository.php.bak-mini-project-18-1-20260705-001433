@@ -10,7 +10,7 @@ use PDO;
 /**
  * Lädt Menüeinträge und filtert sie ausschließlich über required_permission_id.
  *
- * Das alte gruppenbasierte Navigationsmodell wird bewusst nicht mehr unterstützt.
+ * Das alte PageGroup-Modell wird bewusst nicht mehr unterstützt.
  * Menüeinträge ohne required_permission_id bleiben sichtbar, damit rein öffentliche
  * oder strukturelle Menüpunkte weiterhin funktionieren.
  */

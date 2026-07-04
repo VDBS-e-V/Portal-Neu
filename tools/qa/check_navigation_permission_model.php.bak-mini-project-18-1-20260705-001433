@@ -1,0 +1,147 @@
+<?php
+
+declare(strict_types=1);
+
+$root = dirname(__DIR__, 2);
+
+function mp18_env(string $root): array
+{
+    $env = [];
+    $file = $root . DIRECTORY_SEPARATOR . '.env';
+    if (is_file($file)) {
+        foreach (file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
+            $line = trim($line);
+            if ($line === '' || str_starts_with($line, '#') || !str_contains($line, '=')) {
+                continue;
+            }
+            [$key, $value] = explode('=', $line, 2);
+            $env[trim($key)] = trim(trim($value), "\"'");
+        }
+    }
+    return $env;
+}
+
+function mp18_pdo(string $root): PDO
+{
+    $env = mp18_env($root);
+    $db = $env['DB_DATABASE'] ?? $env['DB_NAME'] ?? 'vdbs_sys';
+    $user = $env['DB_USERNAME'] ?? $env['DB_USER'] ?? 'root';
+    $pass = $env['DB_PASSWORD'] ?? $env['DB_PASS'] ?? '';
+    $port = (int)($env['DB_PORT'] ?? 3306);
+    $hosts = array_values(array_unique(array_filter([
+        $env['DB_HOST'] ?? null,
+        '127.0.0.1',
+        'localhost',
+    ])));
+
+    $last = null;
+    foreach ($hosts as $host) {
+        try {
+            return new PDO(
+                "mysql:host={$host};port={$port};dbname={$db};charset=utf8mb4",
+                $user,
+                $pass,
+                [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::ATTR_EMULATE_PREPARES => false,
+                ]
+            );
+        } catch (Throwable $e) {
+            $last = $e;
+        }
+    }
+
+    throw new RuntimeException('Keine DB-Verbindung möglich: ' . ($last?->getMessage() ?? 'unbekannt'));
+}
+
+function mp18_table_exists(PDO $pdo, string $table): bool
+{
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table');
+    $stmt->execute(['table' => $table]);
+    return (int)$stmt->fetchColumn() > 0;
+}
+
+function mp18_column_exists(PDO $pdo, string $table, string $column): bool
+{
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table AND COLUMN_NAME = :column');
+    $stmt->execute(['table' => $table, 'column' => $column]);
+    return (int)$stmt->fetchColumn() > 0;
+}
+
+function mp18_first_existing_column(PDO $pdo, string $table, array $columns): ?string
+{
+    foreach ($columns as $column) {
+        if (mp18_column_exists($pdo, $table, $column)) {
+            return $column;
+        }
+    }
+    return null;
+}
+
+$pdo = mp18_pdo($root);
+$errors = [];
+$warnings = [];
+
+if (!mp18_table_exists($pdo, 'pt_menu_items')) {
+    $errors[] = 'Tabelle pt_menu_items fehlt.';
+} else {
+    if (!mp18_column_exists($pdo, 'pt_menu_items', 'permission_key')) {
+        $errors[] = 'pt_menu_items.permission_key fehlt.';
+    }
+
+    foreach (['page_group_id', 'permission_group_id', 'group_id'] as $legacyColumn) {
+        if (mp18_column_exists($pdo, 'pt_menu_items', $legacyColumn)) {
+            $errors[] = "Legacy-Spalte pt_menu_items.{$legacyColumn} existiert noch.";
+        }
+    }
+}
+
+if (!mp18_table_exists($pdo, 'ids_permissions')) {
+    $errors[] = 'Tabelle ids_permissions fehlt.';
+}
+
+if ($errors === [] && mp18_column_exists($pdo, 'pt_menu_items', 'permission_key')) {
+    $permKeyColumn = mp18_first_existing_column($pdo, 'ids_permissions', ['key_name', 'permission_key', 'key']);
+    if ($permKeyColumn === null) {
+        $errors[] = 'ids_permissions hat keine erkennbare Key-Spalte (key_name/permission_key/key).';
+    } else {
+        $stmt = $pdo->query("SELECT COUNT(*) FROM pt_menu_items WHERE permission_key IS NOT NULL AND TRIM(permission_key) = ''");
+        if ((int)$stmt->fetchColumn() > 0) {
+            $errors[] = 'pt_menu_items enthält leere permission_key-Werte. Seed erneut ausführen.';
+        }
+
+        $stmt = $pdo->query("\n            SELECT mi.id, mi.permission_key\n            FROM pt_menu_items mi\n            LEFT JOIN ids_permissions p ON p.`{$permKeyColumn}` = mi.permission_key\n            WHERE mi.permission_key IS NOT NULL\n              AND TRIM(mi.permission_key) <> ''\n              AND p.id IS NULL\n            ORDER BY mi.id\n            LIMIT 20\n        ");
+        $invalid = $stmt->fetchAll();
+        foreach ($invalid as $row) {
+            $errors[] = 'Menüeintrag #' . $row['id'] . ' verweist auf unbekannte Permission: ' . $row['permission_key'];
+        }
+
+        if (mp18_column_exists($pdo, 'ids_permissions', 'is_active')) {
+            $stmt = $pdo->query("\n                SELECT mi.id, mi.permission_key\n                FROM pt_menu_items mi\n                INNER JOIN ids_permissions p ON p.`{$permKeyColumn}` = mi.permission_key\n                WHERE mi.permission_key IS NOT NULL\n                  AND TRIM(mi.permission_key) <> ''\n                  AND COALESCE(p.is_active, 1) = 0\n                ORDER BY mi.id\n                LIMIT 20\n            ");
+            foreach ($stmt->fetchAll() as $row) {
+                $warnings[] = 'Menüeintrag #' . $row['id'] . ' verweist auf inaktive Permission: ' . $row['permission_key'];
+            }
+        }
+    }
+}
+
+if ($errors !== []) {
+    echo "Navigation-Permission-Modell-Check fehlgeschlagen:\n";
+    foreach ($errors as $error) {
+        echo " - {$error}\n";
+    }
+    if ($warnings !== []) {
+        echo "\nWarnungen:\n";
+        foreach ($warnings as $warning) {
+            echo " - {$warning}\n";
+        }
+    }
+    exit(1);
+}
+
+foreach ($warnings as $warning) {
+    echo "WARN: {$warning}\n";
+}
+
+echo "OK: Menü-/Navigation-Daten nutzen permission_key ohne Legacy-Gruppenfelder.\n";

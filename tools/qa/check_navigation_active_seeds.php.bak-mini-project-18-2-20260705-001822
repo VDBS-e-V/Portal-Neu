@@ -1,0 +1,47 @@
+<?php
+
+declare(strict_types=1);
+
+$root = dirname(__DIR__, 2);
+$seedDir = $root . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'seeds';
+$legacyTerms = [
+    'page_group_id',
+    'page_group',
+    'pt_page_groups',
+    'pt_permission_group_page_group_access',
+    'permission_group_id',
+    'ids_permission_groups',
+    'ids_user_permission_groups',
+    'ids_person_permission_groups',
+];
+
+$findings = [];
+foreach (glob($seedDir . DIRECTORY_SEPARATOR . '*.sql') ?: [] as $file) {
+    $name = basename($file);
+    $content = file_get_contents($file);
+    if ($content === false) {
+        continue;
+    }
+    $lines = preg_split('/\R/', $content) ?: [];
+    foreach ($lines as $lineNo => $line) {
+        $trimmed = trim($line);
+        if ($trimmed === '' || str_starts_with($trimmed, '--')) {
+            continue;
+        }
+        foreach ($legacyTerms as $term) {
+            if (stripos($line, $term) !== false) {
+                $findings[] = $name . ':' . ($lineNo + 1) . ': enthält Legacy-Navigationsbegriff ' . $term;
+            }
+        }
+    }
+}
+
+if ($findings !== []) {
+    echo "Aktive Seed-Dateien enthalten noch Legacy-Navigationsverweise:\n";
+    foreach ($findings as $finding) {
+        echo ' - ' . $finding . "\n";
+    }
+    exit(1);
+}
+
+echo "OK: Aktive Seeds enthalten keine Legacy-Navigationsverweise mehr.\n";

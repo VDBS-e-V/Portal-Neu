@@ -1,0 +1,13 @@
+SELECT
+    SUM(CASE WHEN COLUMN_NAME = 'permission_key' THEN 1 ELSE 0 END) AS has_permission_key,
+    SUM(CASE WHEN COLUMN_NAME = 'page_group_id' THEN 1 ELSE 0 END) AS has_page_group_id
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE()
+  AND TABLE_NAME = 'pt_menu_items';
+
+SELECT mi.id, mi.permission_key
+FROM pt_menu_items mi
+LEFT JOIN ids_permissions p ON p.key_name = mi.permission_key
+WHERE mi.permission_key IS NOT NULL
+  AND mi.permission_key <> ''
+  AND p.id IS NULL;
