@@ -1,0 +1,98 @@
+<?php
+
+declare(strict_types=1);
+
+$root = dirname(__DIR__, 2);
+
+$legacyNeedles = [
+    'ids_permission_groups',
+    'ids_user_permission_groups',
+    'ids_person_permission_groups',
+    'PermissionGroupRepository',
+    'PersonPermissionGroupRepository',
+];
+
+$scanDirs = [
+    'src',
+    'config',
+    'resources/views',
+];
+
+$allowedFiles = [
+    // QA/Seeds/Archive/Backups are intentionally excluded from this productive-code check.
+];
+
+$ignorePathFragments = [
+    DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR,
+    DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR,
+    DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'migrations' . DIRECTORY_SEPARATOR,
+    DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'seeds' . DIRECTORY_SEPARATOR,
+    DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'sql' . DIRECTORY_SEPARATOR,
+    DIRECTORY_SEPARATOR . 'tools' . DIRECTORY_SEPARATOR . 'qa' . DIRECTORY_SEPARATOR,
+    '.bak-',
+    '.zip',
+];
+
+$findings = [];
+
+foreach ($scanDirs as $dir) {
+    $base = $root . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $dir);
+    if (!is_dir($base)) {
+        continue;
+    }
+
+    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($base, FilesystemIterator::SKIP_DOTS));
+    foreach ($iterator as $file) {
+        if (!$file instanceof SplFileInfo || !$file->isFile()) {
+            continue;
+        }
+
+        $path = $file->getPathname();
+        $normalized = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
+
+        $ignored = false;
+        foreach ($ignorePathFragments as $fragment) {
+            if (str_contains($normalized, $fragment)) {
+                $ignored = true;
+                break;
+            }
+        }
+        if ($ignored) {
+            continue;
+        }
+
+        $extension = strtolower($file->getExtension());
+        if (!in_array($extension, ['php', 'sql'], true)) {
+            continue;
+        }
+
+        $lines = file($path, FILE_IGNORE_NEW_LINES);
+        if ($lines === false) {
+            continue;
+        }
+
+        foreach ($lines as $lineNo => $line) {
+            $trim = trim($line);
+            if ($trim === '' || str_starts_with($trim, '//') || str_starts_with($trim, '*')) {
+                continue;
+            }
+
+            foreach ($legacyNeedles as $needle) {
+                if (stripos($line, $needle) !== false) {
+                    $rel = str_replace($root . DIRECTORY_SEPARATOR, '', $path);
+                    $findings[] = sprintf('%s:%d: %s: %s', $rel, $lineNo + 1, $needle, trim($line));
+                }
+            }
+        }
+    }
+}
+
+if ($findings !== []) {
+    echo "Produktive Legacy-Identity-PermissionGroup-Verweise gefunden:\n";
+    foreach ($findings as $finding) {
+        echo ' - ' . $finding . "\n";
+    }
+    exit(1);
+}
+
+echo "OK: Keine produktiven Legacy-Identity-PermissionGroup-Codeverweise gefunden.\n";

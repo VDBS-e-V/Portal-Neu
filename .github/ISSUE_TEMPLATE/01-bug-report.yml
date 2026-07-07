@@ -1,0 +1,100 @@
+name: 🐛 Bug Report
+description: Etwas funktioniert nicht wie erwartet (z. B. in Verwaltung, Konto oder Login).
+title: "[Bug] "
+labels:
+  - bug
+  - needs-triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke, dass du einen Fehler meldest! Bitte prüfe vorher kurz:
+        - Gibt es schon ein ähnliches Issue?
+        - Hilft `docs/TROUBLESHOOTING.md` weiter?
+
+  - type: dropdown
+    id: bereich
+    attributes:
+      label: Betroffener Bereich
+      description: Welcher Teil des Portals ist betroffen? (orientiert sich am Berechtigungsmodell `Area.PageGroup`)
+      options:
+        - "verwaltung.personen"
+        - "verwaltung.gruppen"
+        - "verwaltung.berechtigungen"
+        - "verwaltung.audit"
+        - "verwaltung.einladungen"
+        - "verwaltung.datenschutz"
+        - "konto (Passwort/Profil/Kontakte/Adressen/Sicherheit)"
+        - "Login / Authentifizierung / Passwort vergessen"
+        - "Datenbank / Migrationen / Seed"
+        - "CLI (bin/console)"
+        - "Sonstiges"
+    validations:
+      required: true
+
+  - type: textarea
+    id: beschreibung
+    attributes:
+      label: Beschreibung des Fehlers
+      description: Was ist passiert?
+      placeholder: Kurze, klare Beschreibung des Problems.
+    validations:
+      required: true
+
+  - type: textarea
+    id: erwartet
+    attributes:
+      label: Erwartetes Verhalten
+      description: Was hättest du stattdessen erwartet?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduktion
+    attributes:
+      label: Schritte zur Reproduktion
+      description: Wie können wir den Fehler nachstellen?
+      placeholder: |
+        1. Als Nutzer 'demo.user@example.org' einloggen
+        2. Zu '/konto/...' navigieren
+        3. Auf '...' klicken
+        4. Fehler '...' erscheint
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Fehlermeldung / Log-Ausgabe
+      description: Relevante Ausgabe aus `storage/`, PHP-Fehlermeldung oder Browser-Konsole. Bitte ggf. sensible Daten (echte E-Mails, Tokens) schwärzen.
+      render: shell
+
+  - type: dropdown
+    id: schweregrad
+    attributes:
+      label: Schweregrad
+      options:
+        - Niedrig – kosmetisch / Umgehung vorhanden
+        - Mittel – beeinträchtigt einzelne Funktion
+        - Hoch – Kernfunktion nicht nutzbar
+        - Kritisch – Datenverlust, Sicherheits- oder Berechtigungsproblem
+    validations:
+      required: true
+
+  - type: input
+    id: umgebung
+    attributes:
+      label: Umgebung
+      placeholder: "z. B. PHP 8.2, lokal via `php -S`, Chrome 126, Ubuntu 24"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Vorab-Check
+      options:
+        - label: Ich habe nach bestehenden Issues gesucht, ob dieser Bug schon gemeldet wurde.
+          required: true
+        - label: Ich habe geprüft, ob es sich um ein Berechtigungs-/Rechteproblem (`verwaltung.berechtigungen`) statt einem Bug handelt.
+          required: false

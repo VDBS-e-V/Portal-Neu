@@ -13,7 +13,6 @@ use App\Repository\AreaRepository;
 use App\Repository\EntityAuditRepository;
 use App\Repository\MenuItemRepository;
 use App\Repository\MenuRepository;
-use App\Repository\PermissionGroupRepository;
 use App\Repository\PersonErasureRepository;
 use App\Repository\PersonRepository;
 use App\Security\AuthorizationService;
@@ -28,7 +27,6 @@ final class EntityAuditController extends PageController
         MenuItemRepository $menuItems,
         private readonly EntityAuditRepository $audit,
         private readonly PersonRepository $persons,
-        private readonly PermissionGroupRepository $groups,
         private readonly PersonErasureRepository $erasures,
         private readonly VerwaltungNavigation $navigation,
         private readonly AuthorizationService $authorization
@@ -38,7 +36,7 @@ final class EntityAuditController extends PageController
 
     public function person(Request $request): Response
     {
-        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
+        $this->authorization->requirePermission('portal.verwaltung.entity-audit.view');
 
         $personId = $this->routeInt($request, 'id');
         $person = $this->persons->find($personId);
@@ -63,24 +61,18 @@ final class EntityAuditController extends PageController
 
     public function group(Request $request): Response
     {
-        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::GRUPPEN);
-
+        $this->authorization->requirePermission('portal.verwaltung.entity-audit.view');
         $groupId = $this->routeInt($request, 'id');
-        $group = $this->groups->find($groupId);
-
-        if ($group === []) {
-            return $this->text('Gruppe nicht gefunden.', 404);
-        }
 
         return $this->renderPage($request, 'pages/verwaltung/audit/entity', $this->pageParams([
             'title' => 'Audit: Gruppe',
-            'pageTitle' => 'Audit: ' . $this->label($group, 'Gruppe #' . $groupId),
+            'pageTitle' => 'Audit: Gruppe #' . $groupId,
             'activeKey' => 'gruppen',
-            'backHref' => '/verwaltung/gruppen/' . $groupId,
+            'backHref' => '/administration/gruppen/' . $groupId,
             'backLabel' => 'Zur Gruppe',
-            'entityTitle' => $this->label($group, 'Gruppe #' . $groupId),
-            'entitySubtitle' => 'Berechtigungsgruppe #' . $groupId,
-            'entityType' => 'ids_permission_groups',
+            'entityTitle' => 'Gruppe #' . $groupId,
+            'entitySubtitle' => 'Identity-Gruppe #' . $groupId,
+            'entityType' => 'ids_groups',
             'entityId' => $groupId,
             'entries' => $this->audit->forGroup($groupId),
         ]));
@@ -88,7 +80,7 @@ final class EntityAuditController extends PageController
 
     public function erasure(Request $request): Response
     {
-        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
+        $this->authorization->requirePermission('portal.verwaltung.entity-audit.view');
 
         $requestId = $this->routeInt($request, 'id');
         $erasure = $this->erasures->find($requestId);

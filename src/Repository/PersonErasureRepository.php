@@ -363,14 +363,6 @@ final class PersonErasureRepository
             $stmt->execute(['person_id' => $personId]);
         }
 
-        if ($this->tableExists('ids_person_permission_groups')) {
-            $stmt = $this->pdo->prepare(
-                'DELETE FROM ids_person_permission_groups
-                 WHERE person_id = :person_id'
-            );
-            $stmt->execute(['person_id' => $personId]);
-        }
-
         if ($this->tableExists('ids_user_invitations')) {
             $stmt = $this->pdo->prepare(
                 'UPDATE ids_user_invitations invitation

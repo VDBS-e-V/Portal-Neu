@@ -1,0 +1,48 @@
+<?php
+
+declare(strict_types=1);
+
+$root = dirname(__DIR__, 2);
+$php = PHP_BINARY;
+
+$commands = [
+    [$php, '-l', $root . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Security' . DIRECTORY_SEPARATOR . 'AuthorizationService.php'],
+    [$php, '-l', $root . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Security' . DIRECTORY_SEPARATOR . 'RoutePermissionMap.php'],
+    [$php, '-l', $root . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'services.php'],
+    [$php, $root . DIRECTORY_SEPARATOR . 'tools' . DIRECTORY_SEPARATOR . 'qa' . DIRECTORY_SEPARATOR . 'check_no_pagegroup_authorization_bridge.php'],
+    [$php, $root . DIRECTORY_SEPARATOR . 'tools' . DIRECTORY_SEPARATOR . 'qa' . DIRECTORY_SEPARATOR . 'check_identity_authorization_methods.php'],
+];
+
+$optional = [
+    'tools/qa/run_identity_legacy_drop_checks.php',
+    'tools/qa/run_identity_db_legacy_checks.php',
+    'tools/qa/run_identity_service_cleanup_checks.php',
+    'tools/qa/run_identity_cleanup_checks.php',
+    'tools/qa/run_identity_runtime_checks.php',
+];
+
+foreach ($optional as $relative) {
+    $path = $root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relative);
+    if (is_file($path)) {
+        $commands[] = [$php, $path];
+    }
+}
+
+$failed = false;
+foreach ($commands as $cmd) {
+    $display = array_map(static fn(string $part): string => '"' . $part . '"', $cmd);
+    echo 'Running: ' . implode(' ', $display) . PHP_EOL;
+    $escaped = array_map('escapeshellarg', $cmd);
+    passthru(implode(' ', $escaped), $exitCode);
+    if ($exitCode !== 0) {
+        echo 'FAILED: ' . implode(' ', $display) . PHP_EOL;
+        $failed = true;
+    }
+}
+
+if ($failed) {
+    echo "Mini-Projekt-11-Authorization-Cleanup-Checks haben Fehler gefunden.\n";
+    exit(1);
+}
+
+echo "OK: Mini-Projekt-11-Authorization-Cleanup-Checks bestanden.\n";

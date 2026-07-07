@@ -35,7 +35,7 @@ final class EinladungenController extends PageController
 
     public function index(Request $request): Response
     {
-        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
+        $this->authorization->requirePermission('portal.verwaltung.einladungen.view');
 
         $this->invitations->markExpired();
 
@@ -51,7 +51,7 @@ final class EinladungenController extends PageController
 
     public function createForPerson(Request $request): Response
     {
-        $actor = $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
+        $actor = $this->authorization->requirePermission('portal.verwaltung.einladungen.view');
 
         $personId = $this->routeInt($request, 'id');
         $person = $this->persons->find($personId);
@@ -88,7 +88,7 @@ final class EinladungenController extends PageController
 
     public function revoke(Request $request): Response
     {
-        $actor = $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
+        $actor = $this->authorization->requirePermission('portal.verwaltung.einladungen.view');
 
         $invitationId = $this->routeInt($request, 'id');
         $this->invitations->revoke($invitationId);

@@ -1,0 +1,87 @@
+<?php
+
+declare(strict_types=1);
+
+$root = dirname(__DIR__, 2);
+$paths = [
+    'src/Repository/AuthorizedMenuRepository.php',
+    'src/Navigation',
+    'resources/views/layouts',
+    'resources/views/partials',
+];
+
+$legacyTerms = [
+    'page_group_id',
+    'page_group',
+    'pt_page_groups',
+    'pt_permission_group_page_group_access',
+    'ids_permission_groups',
+    'ids_user_permission_groups',
+    'ids_person_permission_groups',
+    'permission_group_id',
+];
+
+function nav_collect_files(string $path): array
+{
+    if (is_file($path)) {
+        return [$path];
+    }
+    if (!is_dir($path)) {
+        return [];
+    }
+    $files = [];
+    $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS));
+    foreach ($it as $file) {
+        if (!$file->isFile()) {
+            continue;
+        }
+        if (!in_array(strtolower($file->getExtension()), ['php', 'phtml'], true)) {
+            continue;
+        }
+        $files[] = $file->getPathname();
+    }
+    return $files;
+}
+
+function nav_strip_php_comments(string $code): string
+{
+    $tokens = token_get_all($code);
+    $out = '';
+    foreach ($tokens as $token) {
+        if (is_array($token) && in_array($token[0], [T_COMMENT, T_DOC_COMMENT], true)) {
+            continue;
+        }
+        $out .= is_array($token) ? $token[1] : $token;
+    }
+    return $out;
+}
+
+$findings = [];
+foreach ($paths as $relative) {
+    $absolute = $root . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relative);
+    foreach (nav_collect_files($absolute) as $file) {
+        $content = file_get_contents($file);
+        if ($content === false) {
+            continue;
+        }
+        $scan = nav_strip_php_comments($content);
+        $lines = preg_split('/\R/', $scan) ?: [];
+        foreach ($lines as $lineNo => $line) {
+            foreach ($legacyTerms as $term) {
+                if (stripos($line, $term) !== false) {
+                    $findings[] = str_replace($root . DIRECTORY_SEPARATOR, '', $file) . ':' . ($lineNo + 1) . ': ' . $term;
+                }
+            }
+        }
+    }
+}
+
+if ($findings !== []) {
+    echo "Navigation-Code-Check fehlgeschlagen:\n";
+    foreach ($findings as $finding) {
+        echo ' - ' . $finding . "\n";
+    }
+    exit(1);
+}
+
+echo "OK: Navigation-Code nutzt keine Legacy-Gruppen-/PageGroup-Begriffe produktiv.\n";

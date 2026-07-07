@@ -11,8 +11,8 @@ use App\Http\Controller\HealthController;
 use App\Http\Controller\UserAccountController;
 use App\Http\Controller\Verwaltung\VerwaltungController;
 use App\Http\Controller\Verwaltung\PersonenController;
-use App\Http\Controller\Verwaltung\GruppenController;
-use App\Http\Controller\Verwaltung\BerechtigungenController;
+// [mini-project-7 archived legacy pagegroup controller import] use App\Http\Controller\Verwaltung\GruppenController;
+// [mini-project-7 archived legacy pagegroup controller import] use App\Http\Controller\Verwaltung\BerechtigungenController;
 use App\Http\Controller\Verwaltung\AuditLogController;
 use App\Http\Controller\InvitationController;
 use App\Http\Controller\Verwaltung\EinladungenController;
@@ -21,10 +21,68 @@ use App\Http\Controller\Verwaltung\EntityAuditController;
 use App\Http\Controller\AccountController;
 use App\Http\Controller\PasswordResetController;
 use App\Http\Controller\ProfileController;
+use App\Http\Controller\Administration\AdministrationController;
+use App\Http\Controller\Administration\SystemeController;
+use App\Http\Controller\Administration\PermissionsController;
+use App\Http\Controller\Administration\PersonenGruppenController;
+use App\Http\Controller\Administration\SubjectsController;
 use App\Http\Routing\Route;
+use App\Http\Controller\Administration\GruppenController as AdministrationGruppenController;
+use App\Http\Controller\Administration\PermissionsController as AdministrationPermissionsController;
+use App\Http\Controller\Administration\PersonenGruppenController as AdministrationPersonenGruppenController;
+use App\Http\Controller\Administration\SystemeController as AdministrationSystemeController;
+use App\Http\Controller\Identity\IdentityMeController;
+use App\Http\Controller\Administration\AdministrationController as AdminAdministrationController;
+use App\Http\Controller\Administration\SystemeController as AdminSystemeController;
+use App\Http\Controller\Administration\GruppenController as AdminGruppenController;
+use App\Http\Controller\Administration\PermissionsController as AdminPermissionsController;
+use App\Http\Controller\Administration\PersonenGruppenController as AdminPersonenGruppenController;
+use App\Http\Controller\Administration\SubjectsController as AdminSubjectsController;
 
 return [
-    new Route('GET', '/', HomeController::class, 'index'),
+    // ACCOUNT ROUTES CANONICAL START
+    // Kanonische Konto-URLs. Es gibt keine /user- oder Legacy-Konto-Aliase mehr.
+    new Route('GET', '/konto', \App\Http\Controller\UserAccountController::class, 'profile'),
+    new Route('POST', '/konto', \App\Http\Controller\UserAccountController::class, 'updateProfile'),
+    new Route('GET', '/konto/einstellungen', \App\Http\Controller\UserAccountController::class, 'settings'),
+    new Route('POST', '/konto/einstellungen', \App\Http\Controller\UserAccountController::class, 'updateSettings'),
+    new Route('POST', '/konto/passwort', \App\Http\Controller\UserAccountController::class, 'updatePassword'),
+    // ACCOUNT ROUTES CANONICAL END
+new Route('GET', '/identity/me', IdentityMeController::class, 'index'),
+/*
+    |--------------------------------------------------------------------------
+    | Mini-Projekt 3 Legacy-Verwaltung-Aliase
+    |--------------------------------------------------------------------------
+    | Diese Routen müssen vor alten /verwaltung/gruppen- und
+    | /verwaltung/berechtigungen-Routen stehen, damit nicht mehr die alten
+    | Legacy-Controller geladen werden.
+    */
+    new Route('GET', '/verwaltung/gruppen', AdminGruppenController::class, 'index'),
+    new Route('GET', '/verwaltung/gruppen/create', AdminGruppenController::class, 'createForm'),
+    new Route('POST', '/verwaltung/gruppen/create', AdminGruppenController::class, 'create'),
+    new Route('GET', '/verwaltung/gruppen/{id}', AdminGruppenController::class, 'show'),
+    new Route('GET', '/verwaltung/gruppen/{id}/edit', AdminGruppenController::class, 'editForm'),
+    new Route('POST', '/verwaltung/gruppen/{id}/edit', AdminGruppenController::class, 'edit'),
+    new Route('GET', '/verwaltung/gruppen/{id}/permissions', AdminGruppenController::class, 'permissionsForm'),
+    new Route('POST', '/verwaltung/gruppen/{id}/permissions', AdminGruppenController::class, 'permissions'),
+    new Route('POST', '/verwaltung/gruppen/{id}/delete', AdminGruppenController::class, 'delete'),
+
+    new Route('GET', '/verwaltung/berechtigungen', AdminPermissionsController::class, 'index'),
+    new Route('GET', '/verwaltung/permissions', AdminPermissionsController::class, 'index'),
+    new Route('GET', '/verwaltung/permissions/create', AdminPermissionsController::class, 'createForm'),
+    new Route('POST', '/verwaltung/permissions/create', AdminPermissionsController::class, 'create'),
+    new Route('GET', '/verwaltung/permissions/{id}', AdminPermissionsController::class, 'show'),
+    new Route('GET', '/verwaltung/permissions/{id}/edit', AdminPermissionsController::class, 'editForm'),
+    new Route('POST', '/verwaltung/permissions/{id}/edit', AdminPermissionsController::class, 'edit'),
+    new Route('POST', '/verwaltung/permissions/{id}/deactivate', AdminPermissionsController::class, 'deactivate'),
+
+    new Route('GET', '/verwaltung/personen-gruppen', AdminPersonenGruppenController::class, 'index'),
+    new Route('GET', '/verwaltung/personen/{id}/gruppen', AdminPersonenGruppenController::class, 'groups'),
+    new Route('POST', '/verwaltung/personen/{id}/gruppen', AdminPersonenGruppenController::class, 'assign'),
+    new Route('POST', '/verwaltung/personen/{id}/gruppen/{groupId}/remove', AdminPersonenGruppenController::class, 'remove'),
+
+    new Route('GET', '/verwaltung/systeme', AdminSystemeController::class, 'index'),
+new Route('GET', '/', HomeController::class, 'index'),
     
     // Auth / user
     new Route('GET', '/login', AuthController::class, 'loginForm'),
@@ -133,8 +191,8 @@ return [
 
     new Route('POST', '/verwaltung/personen/{id}/status', PersonenController::class, 'updateStatus'),
 
-    new Route('GET', '/verwaltung/personen/{id}/gruppen', PersonenController::class, 'groups'),
-    new Route('POST', '/verwaltung/personen/{id}/gruppen', PersonenController::class, 'updateGroups'),
+// [mini-project-6-2 disabled duplicate route: first at line 80]     new Route('GET', '/verwaltung/personen/{id}/gruppen', AdminPersonenGruppenController::class, 'groups'),
+// [mini-project-6-2 disabled duplicate route: first at line 81]     new Route('POST', '/verwaltung/personen/{id}/gruppen', AdminPersonenGruppenController::class, 'updateGroups'),
 
     new Route('GET', '/verwaltung/personen/{id}/kontakte', PersonenController::class, 'contacts'),
     new Route('POST', '/verwaltung/personen/{id}/kontakte', PersonenController::class, 'createContact'),
@@ -147,29 +205,8 @@ return [
 
     // Verwaltung: Gruppen
 
-    new Route('GET', '/verwaltung/gruppen', GruppenController::class, 'index'),
-
-    new Route('GET', '/verwaltung/gruppen/create', GruppenController::class, 'createForm'),
-    new Route('POST', '/verwaltung/gruppen/create', GruppenController::class, 'create'),
-
-    new Route('GET', '/verwaltung/gruppen/{id}', GruppenController::class, 'show'),
-
-    new Route('GET', '/verwaltung/gruppen/{id}/edit', GruppenController::class, 'editForm'),
-    new Route('POST', '/verwaltung/gruppen/{id}/edit', GruppenController::class, 'edit'),
-
-    new Route('GET', '/verwaltung/gruppen/{id}/mitglieder', GruppenController::class, 'members'),
-
-    new Route('POST', '/verwaltung/gruppen/{id}/delete', GruppenController::class, 'delete'),
-
 
     // Verwaltung: Berechtigungen
-
-    new Route('GET', '/verwaltung/berechtigungen', BerechtigungenController::class, 'index'),
-
-    new Route('GET', '/verwaltung/berechtigungen/page-groups', BerechtigungenController::class, 'pageGroups'),
-
-    new Route('GET', '/verwaltung/berechtigungen/gruppen/{id}', BerechtigungenController::class, 'group'),
-    new Route('POST', '/verwaltung/berechtigungen/gruppen/{id}', BerechtigungenController::class, 'updateGroup'),
 
 
     // Verwaltung: Audit
@@ -210,10 +247,10 @@ return [
 
     // Konto
 
-    new Route('GET', '/konto', AccountController::class, 'index'),
+// [mini-project-5-1 disabled invalid /konto route]     // [mini-project-5-3 disabled duplicate account route] new Route('GET', '/konto', AccountController::class, 'index'),
 
-    new Route('GET', '/konto/passwort', AccountController::class, 'passwordForm'),
-    new Route('POST', '/konto/passwort', AccountController::class, 'changePassword'),
+// [mini-project-5-1 disabled invalid /konto route]     // [mini-project-5-3 disabled duplicate account route] new Route('GET', '/konto/passwort', AccountController::class, 'passwordForm'),
+// [mini-project-5-1 disabled invalid /konto route]     // [mini-project-5-3 disabled duplicate account route] new Route('POST', '/konto/passwort', AccountController::class, 'changePassword'),
 
     new Route('GET', '/passwort/vergessen', PasswordResetController::class, 'requestForm'),
     new Route('POST', '/passwort/vergessen', PasswordResetController::class, 'request'),
@@ -221,18 +258,47 @@ return [
     new Route('GET', '/passwort/zuruecksetzen/{token}', PasswordResetController::class, 'resetForm'),
     new Route('POST', '/passwort/zuruecksetzen/{token}', PasswordResetController::class, 'reset'),
     
-    new Route('GET', '/konto/profil', ProfileController::class, 'profile'),
 
-    new Route('GET', '/konto/profil/bearbeiten', ProfileController::class, 'editForm'),
-    new Route('POST', '/konto/profil/bearbeiten', ProfileController::class, 'edit'),
 
-    new Route('GET', '/konto/kontakte', ProfileController::class, 'contacts'),
-    new Route('POST', '/konto/kontakte', ProfileController::class, 'createContact'),
-    new Route('POST', '/konto/kontakte/{contactId}/delete', ProfileController::class, 'deleteContact'),
+// [mini-project-5-1 disabled invalid /konto route]     new Route('POST', '/konto/kontakte/{contactId}/delete', ProfileController::class, 'deleteContact'),
 
-    new Route('GET', '/konto/adressen', ProfileController::class, 'addresses'),
-    new Route('POST', '/konto/adressen', ProfileController::class, 'createAddress'),
-    new Route('POST', '/konto/adressen/{addressId}/delete', ProfileController::class, 'deleteAddress'),
+// [mini-project-5-1 disabled invalid /konto route]     new Route('POST', '/konto/adressen/{addressId}/delete', ProfileController::class, 'deleteAddress'),
 
-    new Route('GET', '/konto/sicherheit', ProfileController::class, 'security'),
+
+
+
+    // Administration
+    new Route('GET', '/administration', AdminAdministrationController::class, 'index'),
+
+    new Route('GET', '/administration/systeme', AdminSystemeController::class, 'index'),
+    new Route('GET', '/administration/systeme/create', AdminSystemeController::class, 'createForm'),
+    new Route('POST', '/administration/systeme/create', AdminSystemeController::class, 'create'),
+    new Route('GET', '/administration/systeme/{id}', AdminSystemeController::class, 'show'),
+    new Route('GET', '/administration/systeme/{id}/edit', AdminSystemeController::class, 'editForm'),
+    new Route('POST', '/administration/systeme/{id}/edit', AdminSystemeController::class, 'edit'),
+
+    new Route('GET', '/administration/gruppen', AdminGruppenController::class, 'index'),
+    new Route('GET', '/administration/gruppen/create', AdminGruppenController::class, 'createForm'),
+    new Route('POST', '/administration/gruppen/create', AdminGruppenController::class, 'create'),
+    new Route('GET', '/administration/gruppen/{id}', AdminGruppenController::class, 'show'),
+    new Route('GET', '/administration/gruppen/{id}/edit', AdminGruppenController::class, 'editForm'),
+    new Route('POST', '/administration/gruppen/{id}/edit', AdminGruppenController::class, 'edit'),
+    new Route('GET', '/administration/gruppen/{id}/permissions', AdminGruppenController::class, 'permissionsForm'),
+    new Route('POST', '/administration/gruppen/{id}/permissions', AdminGruppenController::class, 'permissions'),
+    new Route('POST', '/administration/gruppen/{id}/delete', AdminGruppenController::class, 'delete'),
+
+    new Route('GET', '/administration/permissions', AdminPermissionsController::class, 'index'),
+    new Route('GET', '/administration/permissions/create', AdminPermissionsController::class, 'createForm'),
+    new Route('POST', '/administration/permissions/create', AdminPermissionsController::class, 'create'),
+    new Route('GET', '/administration/permissions/{id}', AdminPermissionsController::class, 'show'),
+    new Route('GET', '/administration/permissions/{id}/edit', AdminPermissionsController::class, 'editForm'),
+    new Route('POST', '/administration/permissions/{id}/edit', AdminPermissionsController::class, 'edit'),
+    new Route('POST', '/administration/permissions/{id}/deactivate', AdminPermissionsController::class, 'deactivate'),
+
+    new Route('GET', '/administration/personen', AdminPersonenGruppenController::class, 'index'),
+    new Route('GET', '/administration/personen/{id}/gruppen', AdminPersonenGruppenController::class, 'groups'),
+    new Route('POST', '/administration/personen/{id}/gruppen', AdminPersonenGruppenController::class, 'assign'),
+    new Route('POST', '/administration/personen/{id}/gruppen/{groupId}/remove', AdminPersonenGruppenController::class, 'remove'),
+
+    new Route('GET', '/administration/subjects/{id}', AdminSubjectsController::class, 'show'),
 ];

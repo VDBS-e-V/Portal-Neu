@@ -1,0 +1,48 @@
+<?php
+
+declare(strict_types=1);
+
+$root = dirname(__DIR__, 2);
+$php = PHP_BINARY;
+$commands = [
+    [$php, '-l', $root . '/config/routes.php'],
+    [$php, '-l', $root . '/config/services.php'],
+    [$php, $root . '/tools/qa/check_navigation_permission_model.php'],
+    [$php, $root . '/tools/qa/check_navigation_code_permission_model.php'],
+    [$php, $root . '/tools/qa/check_navigation_active_seeds.php'],
+];
+
+$optional = [
+    $root . '/tools/qa/run_identity_admin_safety_checks.php',
+    $root . '/tools/qa/run_personen_identity_checks.php',
+];
+
+foreach ($optional as $tool) {
+    if (is_file($tool)) {
+        $commands[] = [$php, $tool];
+    }
+}
+
+$failed = false;
+foreach ($commands as $command) {
+    $display = implode(' ', array_map(static fn (string $part): string => '"' . $part . '"', $command));
+    echo "Running: {$display}\n";
+    $process = proc_open($command, [STDIN, STDOUT, STDERR], $pipes, $root);
+    if (!is_resource($process)) {
+        echo "FAILED: Prozess konnte nicht gestartet werden.\n";
+        $failed = true;
+        continue;
+    }
+    $exit = proc_close($process);
+    if ($exit !== 0) {
+        echo "FAILED: {$display}\n";
+        $failed = true;
+    }
+}
+
+if ($failed) {
+    echo "Mini-Projekt-18-Navigation-Permission-Checks haben Fehler gefunden.\n";
+    exit(1);
+}
+
+echo "OK: Mini-Projekt-18-Navigation-Permission-Checks bestanden.\n";

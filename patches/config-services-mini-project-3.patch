@@ -1,0 +1,26 @@
+*** Begin Patch
+*** Update File: config/services.php
+@@
+ use App\Repository\IdentityAuthorizationRepository;
++use App\Repository\IdentityAdministrationRepository;
+ use App\Security\AuthorizationService;
++use App\Security\IdentityAdminSafetyService;
+ use App\Navigation\AdministrationNavigation;
+@@
+  IdentityAuthorizationRepository::class => static function (Container $container): IdentityAuthorizationRepository {
+   return new IdentityAuthorizationRepository($container->get(PDO::class));
+  },
++
++ IdentityAdministrationRepository::class => static function (Container $container): IdentityAdministrationRepository {
++  return new IdentityAdministrationRepository(
++   $container->get(PDO::class),
++   $container->get(IdentityAuthorizationRepository::class)
++  );
++ },
++
++ IdentityAdminSafetyService::class => static function (Container $container): IdentityAdminSafetyService {
++  return new IdentityAdminSafetyService(
++   $container->get(IdentityAdministrationRepository::class)
++  );
++ },
+*** End Patch

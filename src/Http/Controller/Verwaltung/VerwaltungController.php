@@ -32,7 +32,7 @@ final class VerwaltungController extends PageController
 
     public function index(Request $request): Response
     {
-        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
+        $this->authorization->requirePermission('portal.verwaltung.dashboard.view');
 
         return $this->renderPage($request, 'pages/verwaltung/index', [
             'title' => 'Verwaltung',

@@ -37,7 +37,7 @@ final class DatenschutzController extends PageController
 
     public function index(Request $request): Response
     {
-        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
+        $this->authorization->requirePermission('portal.verwaltung.datenschutz.view');
 
         $filters = [
             'q' => $this->queryString($request, 'q'),
@@ -57,7 +57,7 @@ final class DatenschutzController extends PageController
 
     public function createForm(Request $request): Response
     {
-        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
+        $this->authorization->requirePermission('portal.verwaltung.datenschutz.view');
 
         $personId = $this->routeInt($request, 'id');
         $person = $this->persons->find($personId);
@@ -77,7 +77,7 @@ final class DatenschutzController extends PageController
 
     public function create(Request $request): Response
     {
-        $actor = $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
+        $actor = $this->authorization->requirePermission('portal.verwaltung.datenschutz.view');
 
         $personId = $this->routeInt($request, 'id');
         $person = $this->persons->find($personId);
@@ -119,7 +119,7 @@ final class DatenschutzController extends PageController
 
     public function show(Request $request): Response
     {
-        $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
+        $this->authorization->requirePermission('portal.verwaltung.datenschutz.view');
 
         $requestId = $this->routeInt($request, 'id');
         $erasure = $this->erasures->find($requestId);
@@ -139,7 +139,7 @@ final class DatenschutzController extends PageController
 
     public function approve(Request $request): Response
     {
-        $actor = $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
+        $actor = $this->authorization->requirePermission('portal.verwaltung.datenschutz.view');
 
         $requestId = $this->routeInt($request, 'id');
         $erasure = $this->erasures->find($requestId);
@@ -167,7 +167,7 @@ final class DatenschutzController extends PageController
 
     public function reject(Request $request): Response
     {
-        $actor = $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
+        $actor = $this->authorization->requirePermission('portal.verwaltung.datenschutz.view');
 
         $requestId = $this->routeInt($request, 'id');
         $erasure = $this->erasures->find($requestId);
@@ -195,7 +195,7 @@ final class DatenschutzController extends PageController
 
     public function cancel(Request $request): Response
     {
-        $actor = $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
+        $actor = $this->authorization->requirePermission('portal.verwaltung.datenschutz.view');
 
         $requestId = $this->routeInt($request, 'id');
         $erasure = $this->erasures->find($requestId);
@@ -223,7 +223,7 @@ final class DatenschutzController extends PageController
 
     public function complete(Request $request): Response
     {
-        $actor = $this->authorization->requirePageGroupAccess(VerwaltungAccess::AREA, VerwaltungAccess::PERSONEN);
+        $actor = $this->authorization->requirePermission('portal.verwaltung.datenschutz.view');
 
         $requestId = $this->routeInt($request, 'id');
         $erasure = $this->erasures->find($requestId);

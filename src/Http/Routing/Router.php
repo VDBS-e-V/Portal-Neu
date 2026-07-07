@@ -11,20 +11,20 @@ use App\Http\Response\HtmlResponse;
 use App\Http\Response\JsonResponse;
 use App\Http\Response\Response;
 use App\Presentation\Templating\Renderer;
+use App\Security\RoutePermissionGuard;
 use ReflectionClass;
 use ReflectionNamedType;
 use RuntimeException;
 
 final class Router
 {
-    /** @var array<int, Route> */
+    /** @var array<int,Route> */
     private array $routes = [];
 
-    private Container $container;
-
-    public function __construct(Container $container)
-    {
-        $this->container = $container;
+    public function __construct(
+        private readonly Container $container,
+        private readonly ?RoutePermissionGuard $permissionGuard = null
+    ) {
     }
 
     public function add(Route $route): void
@@ -40,16 +40,18 @@ final class Router
             }
 
             $routeParams = $this->matchRoute($route->path, $request->path);
-
             if ($routeParams === null) {
                 continue;
             }
 
             $requestForAction = $request->withRouteParams($routeParams);
 
+            if ($this->permissionGuard !== null) {
+                $this->permissionGuard->guard($requestForAction);
+            }
+
             $controllerClass = $route->controller;
             $controller = $this->makeController($controllerClass);
-
             if (!$controller instanceof Controller) {
                 throw new RuntimeException('Route controller must extend ' . Controller::class);
             }
@@ -64,7 +66,6 @@ final class Router
             if (is_string($response)) {
                 /** @var Renderer $renderer */
                 $renderer = $this->container->get(Renderer::class);
-
                 return new HtmlResponse($renderer->renderPage($response));
             }
 
@@ -105,29 +106,23 @@ final class Router
 
         $reflection = new ReflectionClass($controllerClass);
         $constructor = $reflection->getConstructor();
-
         if ($constructor === null) {
             return new $controllerClass();
         }
 
         $arguments = [];
-
         foreach ($constructor->getParameters() as $parameter) {
             $type = $parameter->getType();
-
             if (!$type instanceof ReflectionNamedType || $type->isBuiltin()) {
                 throw new RuntimeException(
-                    'Cannot resolve constructor parameter $' . $parameter->getName() .
-                    ' for controller ' . $controllerClass
+                    'Cannot resolve constructor parameter $' . $parameter->getName() . ' for controller ' . $controllerClass
                 );
             }
 
             $dependencyClass = $type->getName();
-
             if (!$this->container->has($dependencyClass)) {
                 throw new RuntimeException(
-                    'Missing container entry for ' . $dependencyClass .
-                    ' required by controller ' . $controllerClass
+                    'Missing container entry for ' . $dependencyClass . ' required by controller ' . $controllerClass
                 );
             }
 
@@ -138,7 +133,7 @@ final class Router
     }
 
     /**
-     * @return array<string, string>|null
+     * @return array<string,string>|null
      */
     private function matchRoute(string $routePath, string $requestPath): ?array
     {
@@ -151,13 +146,11 @@ final class Router
 
         $parameterNames = [];
         $pattern = $this->routePathToRegex($routePath, $parameterNames);
-
         if (preg_match($pattern, $requestPath, $matches) !== 1) {
             return null;
         }
 
         $params = [];
-
         foreach ($parameterNames as $name) {
             if (!isset($matches[$name])) {
                 continue;
@@ -170,7 +163,7 @@ final class Router
     }
 
     /**
-     * @param array<int, string> $parameterNames
+     * @param array<int,string> $parameterNames
      */
     private function routePathToRegex(string $routePath, array &$parameterNames): string
     {
@@ -199,7 +192,6 @@ final class Router
     {
         $path = parse_url($path, PHP_URL_PATH) ?: '/';
         $path = '/' . ltrim($path, '/');
-
         if ($path !== '/') {
             $path = rtrim($path, '/');
         }

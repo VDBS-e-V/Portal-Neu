@@ -65,10 +65,11 @@ final class EntityAuditRepository
     public function forGroup(int $groupId, int $limit = 150): array
     {
         return $this->forEntityList([
-            ['ids_permission_groups', $groupId],
-            ['ids_person_permission_groups', $groupId],
-            ['ids_user_permission_groups', $groupId],
-            ['pt_permission_group_page_group_access', $groupId],
+            ['ids_groups', $groupId],
+            ['ids_subject_groups', $groupId],
+            ['ids_groups', $groupId],
+            ['ids_subject_groups', $groupId],
+            ['ids_group_permissions', $groupId],
         ], $limit);
     }
 

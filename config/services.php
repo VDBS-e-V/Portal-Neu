@@ -12,6 +12,7 @@ use App\Http\Controller\DevelopmentController;
 
 use App\Http\Routing\Router;
 
+use App\Navigation\AdministrationNavigation;
 use App\Navigation\AuthorizedMainMenu;
 use App\Navigation\VerwaltungNavigation;
 
@@ -24,17 +25,16 @@ use App\Repository\AreaRepository;
 use App\Repository\AuditLogRepository;
 use App\Repository\AuthorizedMenuRepository;
 use App\Repository\EntityAuditRepository;
+use App\Repository\IdentityAdministrationRepository;
+use App\Repository\IdentityAuthorizationRepository;
+use App\Repository\IdentityMeRepository;
 use App\Repository\LoginEventRepository;
 use App\Repository\MenuItemRepository;
 use App\Repository\MenuRepository;
-use App\Repository\PageGroupAccessRepository;
-use App\Repository\PageGroupRepository;
 use App\Repository\PasswordResetRepository;
-use App\Repository\PermissionGroupRepository;
 use App\Repository\PersonAddressRepository;
 use App\Repository\PersonContactRepository;
 use App\Repository\PersonErasureRepository;
-use App\Repository\PersonPermissionGroupRepository;
 use App\Repository\PersonRepository;
 use App\Repository\UserInvitationRepository;
 use App\Repository\UserPasswordRepository;
@@ -42,10 +42,12 @@ use App\Repository\UserRepository;
 use App\Repository\VerwaltungStatsRepository;
 
 use App\Security\AccountSessionContext;
-use App\Security\AdminSafetyService;
 use App\Security\AuthorizationService;
 use App\Security\CsrfGuard;
 use App\Security\CsrfTokenManager;
+use App\Security\IdentityAdminSafetyService;
+use App\Security\RoutePermissionGuard;
+use App\Security\RoutePermissionMap;
 use App\Security\SessionAuth;
 
 return [
@@ -57,7 +59,10 @@ return [
     },
 
     Router::class => static function (Container $container): Router {
-        return new Router($container);
+        return new Router(
+            $container,
+            $container->get(RoutePermissionGuard::class)
+        );
     },
 
     PDO::class => static function (Container $container): PDO {
@@ -124,6 +129,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Identity / Authorization-Repositories
+    |--------------------------------------------------------------------------
+    */
+
+    IdentityAuthorizationRepository::class => static function (Container $container): IdentityAuthorizationRepository {
+        return new IdentityAuthorizationRepository($container->get(PDO::class));
+    },
+
+    IdentityAdministrationRepository::class => static function (Container $container): IdentityAdministrationRepository {
+        return new IdentityAdministrationRepository(
+            $container->get(PDO::class),
+            $container->get(IdentityAuthorizationRepository::class)
+        );
+    },
+
+    /*
+    |--------------------------------------------------------------------------
     | Verwaltung-Repositories
     |--------------------------------------------------------------------------
     */
@@ -140,23 +162,7 @@ return [
         return new PersonAddressRepository($container->get(PDO::class));
     },
 
-    PermissionGroupRepository::class => static function (Container $container): PermissionGroupRepository {
-        return new PermissionGroupRepository($container->get(PDO::class));
-    },
-
-    PersonPermissionGroupRepository::class => static function (Container $container): PersonPermissionGroupRepository {
-        return new PersonPermissionGroupRepository($container->get(PDO::class));
-    },
-
-    PageGroupRepository::class => static function (Container $container): PageGroupRepository {
-        return new PageGroupRepository($container->get(PDO::class));
-    },
-
-    PageGroupAccessRepository::class => static function (Container $container): PageGroupAccessRepository {
-        return new PageGroupAccessRepository($container->get(PDO::class));
-    },
-
-    AuditLogRepository::class => static function (Container $container): AuditLogRepository {
+AuditLogRepository::class => static function (Container $container): AuditLogRepository {
         return new AuditLogRepository($container->get(PDO::class));
     },
 
@@ -216,20 +222,22 @@ return [
         return new AuthorizationService(
             $container->get(SessionAuth::class),
             $container->get(UserRepository::class),
-            $container->get(PersonPermissionGroupRepository::class),
-            $container->get(PageGroupAccessRepository::class)
+            $container->get(IdentityAuthorizationRepository::class)
         );
     },
 
-    AdminSafetyService::class => static function (Container $container): AdminSafetyService {
-        return new AdminSafetyService(
-            $container->get(PermissionGroupRepository::class),
-            $container->get(PersonPermissionGroupRepository::class),
-            $container->get(PageGroupAccessRepository::class)
+    RoutePermissionMap::class => static function (): RoutePermissionMap {
+        return new RoutePermissionMap();
+    },
+
+    RoutePermissionGuard::class => static function (Container $container): RoutePermissionGuard {
+        return new RoutePermissionGuard(
+            $container->get(AuthorizationService::class),
+            $container->get(RoutePermissionMap::class)
         );
     },
 
-    CsrfTokenManager::class => static function (): CsrfTokenManager {
+CsrfTokenManager::class => static function (): CsrfTokenManager {
         return new CsrfTokenManager();
     },
 
@@ -253,7 +261,6 @@ return [
         return new AuditLogger(
             $container->get(AuditLogRepository::class),
             $container->get(SessionAuth::class),
-            $container->get(PersonPermissionGroupRepository::class)
         );
     },
 
@@ -270,6 +277,12 @@ return [
             $container->get(MenuItemRepository::class),
             $container->get(UserRepository::class),
             $container->get(SessionAuth::class)
+        );
+    },
+
+    AdministrationNavigation::class => static function (Container $container): AdministrationNavigation {
+        return new AdministrationNavigation(
+            $container->get(AuthorizationService::class)
         );
     },
 
@@ -327,6 +340,17 @@ return [
             $container->get(AreaRepository::class),
             $container->get(MenuRepository::class),
             $container->get(MenuItemRepository::class)
+        );
+    },
+    IdentityMeRepository::class => static function (Container $container): IdentityMeRepository {
+        return new IdentityMeRepository($container->get(PDO::class));
+    },
+
+
+    IdentityAdminSafetyService::class => static function (Container $container): IdentityAdminSafetyService {
+        return new IdentityAdminSafetyService(
+            $container->get(IdentityAdministrationRepository::class),
+            $container->get(PDO::class)
         );
     },
 ];

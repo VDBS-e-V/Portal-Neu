@@ -1,0 +1,72 @@
+# Berechtigungskonzept
+
+## Permission-Namensschema
+
+Permissions folgen dem Muster:
+
+```text
+<system>.<bereich>.<ressource>.<aktion>
+```
+
+Beispiele:
+
+```text
+portal.verwaltung.dashboard.view
+portal.verwaltung.personen.view
+portal.verwaltung.audit.view
+identity.administration.groups.manage
+identity.administration.permissions.manage
+```
+
+## Standardaktionen
+
+| Aktion | Zweck |
+|---|---|
+| `view` | ansehen |
+| `create` | erstellen |
+| `edit` | bearbeiten |
+| `delete` | löschen/deaktivieren |
+| `manage` | verwalten |
+| `assign` | zuweisen |
+| `remove` | entfernen |
+| `export` | exportieren |
+| `import` | importieren |
+| `approve` | freigeben |
+| `archive` | archivieren |
+
+## Systemgrenzen
+
+Eine Gruppe gehört zu genau einem System in `ids_systems`. Eine Permission gehört ebenfalls zu genau einem System. `ids_group_permissions` darf nur Zuordnungen innerhalb desselben Systems enthalten.
+
+## Administratorgruppen
+
+Für jedes aktive System kann eine Administratorgruppe existieren, zum Beispiel:
+
+```text
+identity.administrator
+portal.administrator
+bibliocollect.administrator
+methodenmatrix.administrator
+```
+
+Der Initial-Admin soll Mitglied der Administratorgruppen aller aktiven Systeme sein. Administratorgruppen sollen alle aktiven Permissions ihres Systems abdecken.
+
+## Default-Gruppen
+
+`ids_groups.is_default` markiert Gruppen, die automatisch oder als Basismitgliedschaft vergeben werden können. Default-Gruppen geben keine Sonderstellung außerhalb ihres Systems.
+
+## Prüfung im Code
+
+Controller, Guards und Services prüfen Permissions. Gruppen werden nicht direkt als Autorisierungsentscheidung verwendet.
+
+Richtig:
+
+```text
+Prüfe: portal.verwaltung.personen.view
+```
+
+Falsch:
+
+```text
+Prüfe: ist Mitglied von alter PageGroup oder Legacy-PermissionGroup
+```

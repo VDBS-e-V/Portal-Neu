@@ -1,0 +1,104 @@
+<?php
+
+declare(strict_types=1);
+
+$root = dirname(__DIR__, 2);
+$errors = [];
+$warnings = [];
+
+$legacyPatterns = [
+    'page_group_id',
+    'page_group',
+    'pageGroup',
+    'pt_page_groups',
+    'pt_permission_group_page_group_access',
+    'permission_group_id',
+    'ids_permission_groups',
+    'ids_user_permission_groups',
+    'ids_person_permission_groups',
+    'PermissionGroupRepository',
+    'PersonPermissionGroupRepository',
+];
+
+$navigationTargets = [
+    'src/Repository/AuthorizedMenuRepository.php',
+    'src/Navigation',
+    'src/Presentation/Navigation',
+    'resources/views/layouts',
+    'resources/views/partials',
+    'resources/views/components',
+];
+
+function mp18_scan_file(string $file, array $patterns): array
+{
+    $hits = [];
+    $lines = file($file, FILE_IGNORE_NEW_LINES) ?: [];
+    foreach ($lines as $index => $line) {
+        foreach ($patterns as $pattern) {
+            if (stripos($line, $pattern) !== false) {
+                $hits[] = basename($file) . ':' . ($index + 1) . ': ' . $pattern . ': ' . trim($line);
+            }
+        }
+    }
+    return $hits;
+}
+
+foreach ($navigationTargets as $relative) {
+    $path = $root . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relative);
+    if (is_file($path)) {
+        foreach (mp18_scan_file($path, $legacyPatterns) as $hit) {
+            $errors[] = $relative . ': ' . $hit;
+        }
+        continue;
+    }
+
+    if (is_dir($path)) {
+        $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS));
+        foreach ($iterator as $fileInfo) {
+            if (!$fileInfo->isFile()) {
+                continue;
+            }
+            $file = $fileInfo->getPathname();
+            if (!preg_match('/\.(php|phtml|inc)$/i', $file)) {
+                continue;
+            }
+            $relativeFile = str_replace($root . DIRECTORY_SEPARATOR, '', $file);
+            foreach (mp18_scan_file($file, $legacyPatterns) as $hit) {
+                $errors[] = $relativeFile . ': ' . $hit;
+            }
+        }
+    }
+}
+
+$repo = $root . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Repository' . DIRECTORY_SEPARATOR . 'AuthorizedMenuRepository.php';
+if (!is_file($repo)) {
+    $warnings[] = 'src/Repository/AuthorizedMenuRepository.php existiert nicht. Falls Navigation anders implementiert ist, ist das ok; sonst fehlt der zentrale Menüfilter.';
+} else {
+    $content = file_get_contents($repo) ?: '';
+    if (stripos($content, 'permission_key') === false) {
+        $errors[] = 'AuthorizedMenuRepository.php referenziert permission_key nicht.';
+    }
+    if (!preg_match('/AuthorizationService|hasPermission|can\(|requirePermission|currentUser/i', $content)) {
+        $warnings[] = 'AuthorizedMenuRepository.php referenziert keinen offensichtlichen AuthorizationService/Permission-Check. Bitte Browser-Smoke-Test mit Nicht-Admin durchführen.';
+    }
+}
+
+if ($errors !== []) {
+    echo "Navigation-Code-Check fehlgeschlagen:\n";
+    foreach ($errors as $error) {
+        echo " - {$error}\n";
+    }
+    if ($warnings !== []) {
+        echo "\nWarnungen:\n";
+        foreach ($warnings as $warning) {
+            echo " - {$warning}\n";
+        }
+    }
+    exit(1);
+}
+
+foreach ($warnings as $warning) {
+    echo "WARN: {$warning}\n";
+}
+
+echo "OK: Navigation-/Layout-Code ist frei von Legacy-Gruppenverweisen und verwendet permission_key.\n";

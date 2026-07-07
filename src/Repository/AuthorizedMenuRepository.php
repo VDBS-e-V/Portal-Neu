@@ -7,6 +7,13 @@ namespace App\Repository;
 use App\Security\AuthorizationService;
 use PDO;
 
+/**
+ * Lädt Menüeinträge und filtert sie ausschließlich über required_permission_id.
+ *
+ * Das alte gruppenbasierte Navigationsmodell wird bewusst nicht mehr unterstützt.
+ * Menüeinträge ohne required_permission_id bleiben sichtbar, damit rein öffentliche
+ * oder strukturelle Menüpunkte weiterhin funktionieren.
+ */
 final class AuthorizedMenuRepository
 {
     public function __construct(
@@ -16,7 +23,7 @@ final class AuthorizedMenuRepository
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return array<int,array<string,mixed>>
      */
     public function flatItems(string $menuSlug): array
     {
@@ -24,9 +31,8 @@ final class AuthorizedMenuRepository
             return [];
         }
 
-        $hasPageGroupId = $this->columnExists('pt_menu_items', 'page_group_id')
-            && $this->tableExists('pt_page_groups')
-            && $this->tableExists('pt_areas');
+        $hasRequiredPermissionId = $this->columnExists('pt_menu_items', 'required_permission_id')
+            && $this->tableExists('ids_permissions');
 
         $select = [
             'mi.id',
@@ -43,14 +49,10 @@ final class AuthorizedMenuRepository
         ];
 
         $join = '';
-
-        if ($hasPageGroupId) {
-            $select[] = 'mi.page_group_id';
-            $select[] = 'pg.page_group_key';
-            $select[] = 'area.area_key';
-            $join = '
-                LEFT JOIN pt_page_groups pg ON pg.id = mi.page_group_id
-                LEFT JOIN pt_areas area ON area.id = pg.area_id';
+        if ($hasRequiredPermissionId) {
+            $select[] = 'mi.required_permission_id';
+            $select[] = 'perm.key_name AS required_permission_key';
+            $join = ' LEFT JOIN ids_permissions perm ON perm.id = mi.required_permission_id AND perm.is_active = 1';
         }
 
         $stmt = $this->pdo->prepare(
@@ -73,12 +75,11 @@ final class AuthorizedMenuRepository
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return array<int,array<string,mixed>>
      */
     public function tree(string $menuSlug): array
     {
         $items = $this->flatItems($menuSlug);
-
         $byId = [];
         $tree = [];
 
@@ -89,7 +90,6 @@ final class AuthorizedMenuRepository
 
         foreach ($byId as $id => $item) {
             $parentId = (int) ($item['parent_id'] ?? 0);
-
             if ($parentId > 0 && isset($byId[$parentId])) {
                 $byId[$parentId]['children'][] = &$byId[$id];
                 continue;
@@ -101,19 +101,21 @@ final class AuthorizedMenuRepository
         return $tree;
     }
 
-    /**
-     * @param array<string, mixed> $item
-     */
+    /** @param array<string,mixed> $item */
     private function canSeeItem(array $item): bool
     {
-        $areaKey = trim((string) ($item['area_key'] ?? ''));
-        $pageGroupKey = trim((string) ($item['page_group_key'] ?? ''));
+        $permissionKey = trim((string) ($item['required_permission_key'] ?? ''));
+        $permissionId = (int) ($item['required_permission_id'] ?? 0);
 
-        if ($areaKey === '' || $pageGroupKey === '') {
+        if ($permissionId <= 0) {
             return true;
         }
 
-        return $this->authorization->currentUserCanAccessPageGroup($areaKey, $pageGroupKey);
+        if ($permissionKey === '') {
+            return false;
+        }
+
+        return $this->authorization->can($permissionKey);
     }
 
     private function tableExists(string $table): bool

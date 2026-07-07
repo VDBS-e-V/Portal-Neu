@@ -1,0 +1,13 @@
+-- Mini-Projekt 18: Navigation-/Menürechte prüfen
+
+SELECT 'menu_items_without_permission_column_check' AS check_name,
+       COUNT(*) AS menu_items_total
+FROM pt_menu_items;
+
+SELECT 'invalid_menu_permissions' AS check_name,
+       COUNT(*) AS invalid_count
+FROM pt_menu_items mi
+LEFT JOIN ids_permissions p ON p.key_name = mi.permission_key
+WHERE mi.permission_key IS NOT NULL
+  AND TRIM(mi.permission_key) <> ''
+  AND p.id IS NULL;

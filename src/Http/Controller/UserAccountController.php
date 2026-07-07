@@ -13,7 +13,7 @@ use App\Repository\MenuRepository;
 use App\Repository\UserRepository;
 use App\Security\SessionAuth;
 
-final class UserAccountController extends PageController
+final class UserAccountController extends Controller
 {
     public function __construct(
         Renderer $renderer,
@@ -21,26 +21,31 @@ final class UserAccountController extends PageController
         MenuRepository $menus,
         MenuItemRepository $menuItems,
         private readonly UserRepository $users,
-        private readonly SessionAuth $auth,
+        private readonly SessionAuth $auth
     ) {
-        parent::__construct($renderer, $areas, $menus, $menuItems);
+        // Diese Dependencies bleiben aus Kompatibilitätsgründen in der Service-Factory,
+        // werden im neuen Konto-Controller aber nicht mehr benötigt.
+        unset($areas, $menus, $menuItems);
+
+        parent::__construct($renderer);
     }
 
     public function profile(Request $request): Response
     {
         $user = $this->requireUser();
-
         if ($user === null) {
-            return $this->redirect('/login?redirect=/user');
+            return $this->redirect('/login?redirect=/konto');
         }
 
         $userId = (int) $user['id'];
 
-        return $this->renderPage($request, 'pages/user/profile', [
-            'title' => 'Mein Profil',
-            'pageTitle' => 'Mein Profil',
+        return $this->renderKontoPage('pages/konto/profile', [
+            'title' => 'Mein Konto',
+            'pageTitle' => 'Mein Konto',
             'areaName' => 'Konto',
-            'areaRootLink' => '/user',
+            'areaRootLink' => '/konto',
+            'canonicalProfileUrl' => '/konto',
+            'canonicalSettingsUrl' => '/konto/einstellungen',
             'user' => $user,
             'name' => $this->users->nameForUser($userId),
             'contacts' => $this->users->contactsForUser($userId),
@@ -54,120 +59,94 @@ final class UserAccountController extends PageController
     public function updateProfile(Request $request): Response
     {
         $user = $this->requireUser();
-
         if ($user === null) {
-            return $this->redirect('/login?redirect=/user');
+            return $this->redirect('/login?redirect=/konto');
         }
 
         if (!$this->auth->validateCsrf($request->body['_csrf'] ?? null)) {
-            return $this->redirect('/user');
+            return $this->redirect('/konto');
         }
 
         $userId = (int) $user['id'];
 
         $this->users->saveName($userId, [
-            'salutation' => $request->body['salutation'] ?? null,
-            'title' => $request->body['title'] ?? null,
-            'first_name' => $request->body['first_name'] ?? null,
-            'middle_name' => $request->body['middle_name'] ?? null,
-            'last_name' => $request->body['last_name'] ?? null,
-            'preferred_name' => $request->body['preferred_name'] ?? null,
-            'pronouns' => $request->body['pronouns'] ?? null,
+            'salutation' => $this->nullableString($request->body['salutation'] ?? null),
+            'title' => $this->nullableString($request->body['title'] ?? null),
+            'first_name' => $this->nullableString($request->body['first_name'] ?? null),
+            'middle_name' => $this->nullableString($request->body['middle_name'] ?? null),
+            'last_name' => $this->nullableString($request->body['last_name'] ?? null),
+            'preferred_name' => $this->nullableString($request->body['preferred_name'] ?? null),
+            'pronouns' => $this->nullableString($request->body['pronouns'] ?? null),
         ]);
 
         $this->users->saveSimpleContacts(
             $userId,
-            $request->body['phone'] ?? null,
-            $request->body['mobile'] ?? null,
-            $request->body['website'] ?? null,
+            $this->nullableString($request->body['phone'] ?? null),
+            $this->nullableString($request->body['mobile'] ?? null),
+            $this->nullableString($request->body['website'] ?? null),
         );
 
         $this->users->savePrimaryAddress($userId, [
-            'address_type' => $request->body['address_type'] ?? 'private',
-            'recipient_name' => $request->body['recipient_name'] ?? null,
-            'organization' => $request->body['organization'] ?? null,
-            'street' => $request->body['street'] ?? null,
-            'house_number' => $request->body['house_number'] ?? null,
-            'address_addition' => $request->body['address_addition'] ?? null,
-            'postal_code' => $request->body['postal_code'] ?? null,
-            'city' => $request->body['city'] ?? null,
-            'state' => $request->body['state'] ?? null,
-            'country' => $request->body['country'] ?? 'DE',
+            'address_type' => $this->nullableString($request->body['address_type'] ?? null) ?: 'private',
+            'recipient_name' => $this->nullableString($request->body['recipient_name'] ?? null),
+            'organization' => $this->nullableString($request->body['organization'] ?? null),
+            'street' => $this->nullableString($request->body['street'] ?? null),
+            'house_number' => $this->nullableString($request->body['house_number'] ?? null),
+            'address_addition' => $this->nullableString($request->body['address_addition'] ?? null),
+            'postal_code' => $this->nullableString($request->body['postal_code'] ?? null),
+            'city' => $this->nullableString($request->body['city'] ?? null),
+            'state' => $this->nullableString($request->body['state'] ?? null),
+            'country' => $this->nullableString($request->body['country'] ?? null) ?: 'DE',
         ]);
 
-        $displayName = trim((string) ($request->body['preferred_name'] ?? ''));
-
-        if ($displayName === '') {
-            $displayName = trim(
-                (string) ($request->body['first_name'] ?? '')
-                . ' '
-                . (string) ($request->body['last_name'] ?? '')
-            );
-        }
-
+        $displayName = $this->displayNameFromRequest($request);
         if ($displayName !== '') {
-            $this->users->update($userId, [
-                'display_name' => $displayName,
-            ]);
+            $this->users->update($userId, ['display_name' => $displayName]);
         }
 
-        return $this->redirect('/user?saved=profile');
+        return $this->redirect('/konto?saved=profile');
     }
 
     public function settings(Request $request): Response
     {
         $user = $this->requireUser();
-
         if ($user === null) {
-            return $this->redirect('/login?redirect=/user/settings');
+            return $this->redirect('/login?redirect=/konto/einstellungen');
         }
 
-        return $this->renderPage($request, 'pages/user/settings', [
-            'title' => 'Kontoeinstellungen',
-            'pageTitle' => 'Kontoeinstellungen',
-            'areaName' => 'Konto',
-            'areaRootLink' => '/user',
-            'user' => $user,
-            'settings' => $this->users->settingsForUser((int) $user['id']),
-            'csrfToken' => $this->auth->csrfToken(),
-            'saved' => ($request->query['saved'] ?? '') === 'settings',
-            'passwordChanged' => ($request->query['saved'] ?? '') === 'password',
-            'passwordError' => null,
-        ]);
+        return $this->renderSettings($request, $user);
     }
 
     public function updateSettings(Request $request): Response
     {
         $user = $this->requireUser();
-
         if ($user === null) {
-            return $this->redirect('/login?redirect=/user/settings');
+            return $this->redirect('/login?redirect=/konto/einstellungen');
         }
 
         if (!$this->auth->validateCsrf($request->body['_csrf'] ?? null)) {
-            return $this->redirect('/user/settings');
+            return $this->redirect('/konto/einstellungen');
         }
 
         $this->users->saveSettings((int) $user['id'], [
-            'language' => $request->body['language'] ?? 'de',
-            'timezone' => $request->body['timezone'] ?? 'Europe/Berlin',
-            'email_notifications' => $request->body['email_notifications'] ?? null,
-            'profile_visibility' => $request->body['profile_visibility'] ?? 'private',
+            'language' => $this->nullableString($request->body['language'] ?? null) ?: 'de',
+            'timezone' => $this->nullableString($request->body['timezone'] ?? null) ?: 'Europe/Berlin',
+            'email_notifications' => isset($request->body['email_notifications']) ? 1 : 0,
+            'profile_visibility' => $this->nullableString($request->body['profile_visibility'] ?? null) ?: 'private',
         ]);
 
-        return $this->redirect('/user/settings?saved=settings');
+        return $this->redirect('/konto/einstellungen?saved=settings');
     }
 
     public function updatePassword(Request $request): Response
     {
         $user = $this->requireUser();
-
         if ($user === null) {
-            return $this->redirect('/login?redirect=/user/settings');
+            return $this->redirect('/login?redirect=/konto/einstellungen');
         }
 
         if (!$this->auth->validateCsrf($request->body['_csrf'] ?? null)) {
-            return $this->redirect('/user/settings');
+            return $this->redirect('/konto/einstellungen');
         }
 
         $currentPassword = (string) ($request->body['current_password'] ?? '');
@@ -176,56 +155,86 @@ final class UserAccountController extends PageController
         $hash = (string) ($user['password_hash'] ?? '');
 
         if ($hash === '' || !password_verify($currentPassword, $hash)) {
-            return $this->settingsWithPasswordError($request, $user, 'Das aktuelle Passwort ist falsch.');
+            return $this->renderSettings($request, $user, 'Das aktuelle Passwort ist falsch.', 422);
         }
 
         if (strlen($newPassword) < 10) {
-            return $this->settingsWithPasswordError($request, $user, 'Das neue Passwort muss mindestens 10 Zeichen lang sein.');
+            return $this->renderSettings($request, $user, 'Das neue Passwort muss mindestens 10 Zeichen lang sein.', 422);
         }
 
         if ($newPassword !== $newPasswordRepeat) {
-            return $this->settingsWithPasswordError($request, $user, 'Die Wiederholung des neuen Passworts stimmt nicht überein.');
+            return $this->renderSettings($request, $user, 'Die Wiederholung des neuen Passworts stimmt nicht überein.', 422);
         }
 
         $this->users->update((int) $user['id'], [
             'password_hash' => password_hash($newPassword, PASSWORD_DEFAULT),
         ]);
 
-        return $this->redirect('/user/settings?saved=password');
+        return $this->redirect('/konto/einstellungen?saved=password');
     }
 
-    private function settingsWithPasswordError(Request $request, array $user, string $error): Response
+    private function renderSettings(Request $request, array $user, ?string $passwordError = null, int $status = 200): Response
     {
-        return $this->renderPage($request, 'pages/user/settings', [
+        return $this->renderKontoPage('pages/konto/settings', [
             'title' => 'Kontoeinstellungen',
             'pageTitle' => 'Kontoeinstellungen',
             'areaName' => 'Konto',
-            'areaRootLink' => '/user',
+            'areaRootLink' => '/konto',
+            'canonicalProfileUrl' => '/konto',
+            'canonicalSettingsUrl' => '/konto/einstellungen',
             'user' => $user,
             'settings' => $this->users->settingsForUser((int) $user['id']),
             'csrfToken' => $this->auth->csrfToken(),
-            'saved' => false,
-            'passwordChanged' => false,
-            'passwordError' => $error,
-        ], 422);
+            'saved' => ($request->query['saved'] ?? '') === 'settings',
+            'passwordChanged' => ($request->query['saved'] ?? '') === 'password',
+            'passwordError' => $passwordError,
+        ], $status);
+    }
+
+    /**
+     * @param array<string,mixed> $parameters
+     */
+    private function renderKontoPage(string $view, array $parameters = [], int $status = 200): Response
+    {
+        return new Response(
+            $status,
+            ['Content-Type' => 'text/html; charset=utf-8'],
+            $this->renderer->renderPage($view, $parameters)
+        );
     }
 
     private function requireUser(): ?array
     {
         $id = $this->auth->id();
-
         if ($id === null) {
             return null;
         }
 
         $user = $this->users->find($id);
-
         if ($user === [] || ($user['status'] ?? null) !== 'active') {
             $this->auth->logout();
-
             return null;
         }
 
         return $user;
+    }
+
+    private function nullableString(mixed $value): ?string
+    {
+        $value = trim((string) ($value ?? ''));
+        return $value === '' ? null : $value;
+    }
+
+    private function displayNameFromRequest(Request $request): string
+    {
+        $preferredName = trim((string) ($request->body['preferred_name'] ?? ''));
+        if ($preferredName !== '') {
+            return $preferredName;
+        }
+
+        return trim(
+            (string) ($request->body['first_name'] ?? '') . ' ' .
+            (string) ($request->body['last_name'] ?? '')
+        );
     }
 }

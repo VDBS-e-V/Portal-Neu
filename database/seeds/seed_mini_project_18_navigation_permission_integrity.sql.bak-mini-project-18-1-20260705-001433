@@ -1,0 +1,59 @@
+-- Mini-Projekt 18: Navigation-/Menürechte final vereinheitlichen
+-- Ziel: pt_menu_items.permission_key ist die einzige Berechtigungsquelle.
+
+UPDATE pt_menu_items
+SET permission_key = NULL
+WHERE permission_key IS NOT NULL
+  AND TRIM(permission_key) = '';
+
+-- Bekannte kanonische Verwaltung-/Administration-Menüpunkte absichern, sofern sie existieren.
+-- Die Updates sind bewusst weich und ändern nur Einträge ohne Permission.
+UPDATE pt_menu_items
+SET permission_key = 'portal.verwaltung.dashboard.view'
+WHERE (permission_key IS NULL OR permission_key = '')
+  AND (url = '/verwaltung' OR route = '/verwaltung');
+
+UPDATE pt_menu_items
+SET permission_key = 'portal.verwaltung.personen.view'
+WHERE (permission_key IS NULL OR permission_key = '')
+  AND (url = '/verwaltung/personen' OR route = '/verwaltung/personen');
+
+UPDATE pt_menu_items
+SET permission_key = 'portal.verwaltung.audit.view'
+WHERE (permission_key IS NULL OR permission_key = '')
+  AND (url = '/verwaltung/audit' OR route = '/verwaltung/audit');
+
+UPDATE pt_menu_items
+SET permission_key = 'portal.verwaltung.einladungen.view'
+WHERE (permission_key IS NULL OR permission_key = '')
+  AND (url = '/verwaltung/einladungen' OR route = '/verwaltung/einladungen');
+
+UPDATE pt_menu_items
+SET permission_key = 'portal.verwaltung.datenschutz.view'
+WHERE (permission_key IS NULL OR permission_key = '')
+  AND (url = '/verwaltung/datenschutz' OR route = '/verwaltung/datenschutz');
+
+UPDATE pt_menu_items
+SET permission_key = 'portal.verwaltung.dashboard.view'
+WHERE (permission_key IS NULL OR permission_key = '')
+  AND (url = '/administration' OR route = '/administration');
+
+UPDATE pt_menu_items
+SET permission_key = 'portal.verwaltung.gruppen.view'
+WHERE (permission_key IS NULL OR permission_key = '')
+  AND (url = '/administration/gruppen' OR route = '/administration/gruppen' OR url = '/verwaltung/gruppen' OR route = '/verwaltung/gruppen');
+
+UPDATE pt_menu_items
+SET permission_key = 'portal.verwaltung.permissions.view'
+WHERE (permission_key IS NULL OR permission_key = '')
+  AND (url = '/administration/permissions' OR route = '/administration/permissions' OR url = '/verwaltung/berechtigungen' OR route = '/verwaltung/berechtigungen');
+
+UPDATE pt_menu_items
+SET permission_key = 'portal.verwaltung.systeme.view'
+WHERE (permission_key IS NULL OR permission_key = '')
+  AND (url = '/administration/systeme' OR route = '/administration/systeme');
+
+UPDATE pt_menu_items
+SET permission_key = 'portal.verwaltung.personen.view'
+WHERE (permission_key IS NULL OR permission_key = '')
+  AND (url = '/administration/personen' OR route = '/administration/personen');

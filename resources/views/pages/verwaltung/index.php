@@ -63,7 +63,7 @@ $number = static fn (mixed $value): string => number_format((int) $value, 0, ','
             ['Personen', $stats['persons_total'] ?? 0, 'Aktiv: ' . $number($stats['persons_active'] ?? 0) . ' · Deaktiviert: ' . $number($stats['persons_disabled'] ?? 0), 'primary'],
             ['Logins', $stats['logins_total'] ?? 0, 'Aktiv: ' . $number($stats['logins_active'] ?? 0) . ' · Eingeladen: ' . $number($stats['logins_invited'] ?? 0), 'secondary-cta'],
             ['Gruppen', $stats['groups_total'] ?? 0, 'Systemgruppen: ' . $number($stats['groups_system'] ?? 0), 'info'],
-            ['PageGroups', $stats['page_groups_total'] ?? 0, 'Aktiv: ' . $number($stats['page_groups_active'] ?? 0), 'success'],
+            ['Permissions', $stats['permissions_total'] ?? 0, 'Aktiv: ' . $number($stats['permissions_active'] ?? 0), 'success'],
             ['Einladungen', $stats['pending_invitations'] ?? 0, 'offen', 'warning'],
             ['DSGVO', $stats['open_erasure_requests'] ?? 0, 'offene Vorgänge', 'danger'],
         ] as $card): ?>

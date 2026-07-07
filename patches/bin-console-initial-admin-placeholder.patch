@@ -1,0 +1,29 @@
+diff --git a/bin/console b/bin/console
+--- a/bin/console
++++ b/bin/console
+@@
+ function replaceSeedPlaceholders(string $sql, array $options): string
+ {
+@@
+   if (strpos($sql, '<BCRYPT_HASH>') !== false) {
+@@
+   }
++
++  if (strpos($sql, '<INITIAL_ADMIN_EMAIL>') !== false) {
++    $email = (string) ($options['initial-admin-email'] ?? (getenv('INITIAL_ADMIN_EMAIL') ?: ''));
++
++    if ($email === '') {
++      fwrite(STDERR, "Initial admin email is required. Use INITIAL_ADMIN_EMAIL or --initial-admin-email=...\n");
++      exit(1);
++    }
++
++    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
++      fwrite(STDERR, "Invalid initial admin email: {$email}\n");
++      exit(1);
++    }
++
++    $sql = str_replace('<INITIAL_ADMIN_EMAIL>', addslashes($email), $sql);
++  }
+ 
+   return $sql;
+ }

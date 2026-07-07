@@ -1,0 +1,58 @@
+<?php
+
+declare(strict_types=1);
+
+$root = dirname(__DIR__, 2);
+$errors = [];
+
+function file_text(string $path): string
+{
+    if (!is_file($path)) {
+        return '';
+    }
+    $content = file_get_contents($path);
+    return $content === false ? '' : $content;
+}
+
+$servicesFile = $root . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'services.php';
+$services = file_text($servicesFile);
+
+$forbiddenServices = [
+    'PageGroupRepository' => '/\bPageGroupRepository\b/',
+    'PageGroupAccessRepository' => '/\bPageGroupAccessRepository\b/',
+    'old AdminSafetyService' => '/\bAdminSafetyService\b/',
+];
+
+foreach ($forbiddenServices as $label => $pattern) {
+    if (preg_match($pattern, $services)) {
+        $errors[] = 'config/services.php enthält noch Legacy-Service-Referenz: ' . $label;
+    }
+}
+
+$forbiddenFiles = [
+    'src/Repository/PageGroupRepository.php',
+    'src/Repository/PageGroupAccessRepository.php',
+    'src/Security/AdminSafetyService.php',
+];
+
+foreach ($forbiddenFiles as $relative) {
+    $path = $root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relative);
+    if (is_file($path)) {
+        $errors[] = 'Legacy-Datei ist noch produktiv vorhanden: ' . $relative;
+    }
+}
+
+$identityAdminSafety = $root . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Security' . DIRECTORY_SEPARATOR . 'IdentityAdminSafetyService.php';
+if (!is_file($identityAdminSafety)) {
+    $errors[] = 'IdentityAdminSafetyService.php fehlt. Der neue Safety-Service muss erhalten bleiben.';
+}
+
+if ($errors !== []) {
+    echo "Legacy-Service-Check fehlgeschlagen:\n";
+    foreach ($errors as $error) {
+        echo ' - ' . $error . "\n";
+    }
+    exit(1);
+}
+
+echo "OK: Alte PageGroup-Service- und AdminSafetyService-Referenzen sind aus der produktiven Services-Konfiguration entfernt.\n";

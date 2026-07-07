@@ -1,0 +1,543 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+use App\Bootstrap\Routes;
+
+/******************************************
+ * 
+ * Command Liste:
+ * * php bin/console routes
+ * * * php bin/console migrate
+ * * * php bin/console migrate:status
+ *  * * * php bin/console migrate:fresh [--seed]
+ * * * php bin/console seed [--reset]
+ *  * * * php bin/console db:hard-reset [--force]
+ *  * * Options:
+ *  * * * --reset: For seeds, delete existing data before seeding. For migrate:fresh, runs a hard reset before migrating.
+ *  * * * --seed: When used with migrate:fresh, runs seeds after migrating. When used alone, runs the seed command.
+ *  * * * --force: For db:hard-reset, skip confirmation prompt.
+ *  * * Examples:
+ *  * * * php bin/console migrate:fresh --seed
+ *  * * * php bin/console seed --reset
+ *  * * * php bin/console db:hard-reset --force
+ *  * * * php bin/console db:hard-reset --force --seed --admin-password=secret123
+ *  * * * Note: For commands that interact with the database, ensure that the DB_HOST, DB_PORT, DB_NAME, DB_USER, and DB_PASS environment variables are set, either in the shell environment or in a .env file at the project root.
+ *
+******************************************/
+
+// Load project .env for CLI (so getenv() picks up DB_* variables)
+$root = dirname(__DIR__);
+$envFile = $root . '/.env';
+if (is_file($envFile)) {
+    loadEnvFile($envFile);
+}
+
+$command = $argv[1] ?? '';
+$options = parseOptions($argv);
+
+if ($command === 'routes') {
+    foreach (Routes::load() as $route) {
+        echo sprintf("%s %s -> %s::%s\n", $route->method, $route->path, $route->controller, $route->action);
+    }
+
+    exit(0);
+}
+
+if (in_array($command, ['migrate', 'migrate:status', 'migrate:fresh', 'seed', 'db:hard-reset'], true)) {
+    // Lazy-load functions and execute requested action
+    if ($command === 'migrate') {
+        runMigrate();
+        exit(0);
+    }
+
+    if ($command === 'migrate:status') {
+        runMigrateStatus();
+        exit(0);
+    }
+
+    if ($command === 'migrate:fresh') {
+        runHardReset($options);
+        runMigrate();
+
+        if (!empty($options['seed'])) {
+            runSeed($options);
+        }
+
+        exit(0);
+    }
+
+    if ($command === 'seed') {
+        runSeed($options);
+        exit(0);
+    }
+
+    if ($command === 'db:hard-reset') {
+        runHardReset($options);
+        exit(0);
+    }
+}
+
+fwrite(STDERR, "Usage: php bin/console routes|migrate|migrate:status|migrate:fresh|seed|db:hard-reset [--reset] [--seed] [--force] [--admin-password=...] [--no-prompt]\n");
+exit(1);
+
+function getPdo(): PDO
+{
+    $host = getenv('DB_HOST') ?: '127.0.0.1';
+    $port = getenv('DB_PORT') ?: '3306';
+    $db = getenv('DB_NAME') ?: '';
+    $user = getenv('DB_USER') ?: 'root';
+    $pass = getenv('DB_PASS') ?: '';
+
+    if (empty($db)) {
+        fwrite(STDERR, "Environment variable DB_NAME is required.\n");
+        exit(1);
+    }
+
+    $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4', $host, $port, $db);
+    try {
+        $pdo = new PDO($dsn, $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+    } catch (PDOException $e) {
+        fwrite(STDERR, "Failed to connect to DB: " . $e->getMessage() . "\n");
+        exit(1);
+    }
+
+    return $pdo;
+}
+
+function listSqlFiles(string $dir): array
+{
+    if (!is_dir($dir)) {
+        return [];
+    }
+
+    $all = array_filter(scandir($dir), function ($f) use ($dir) {
+        return is_file($dir . DIRECTORY_SEPARATOR . $f) && substr($f, -4) === '.sql';
+    });
+    sort($all, SORT_STRING);
+    return array_values($all);
+}
+
+function parseOptions(array $argv): array
+{
+    $options = [];
+
+    foreach (array_slice($argv, 2) as $argument) {
+        if (!str_starts_with($argument, '--')) {
+            continue;
+        }
+
+        $argument = substr($argument, 2);
+        $position = strpos($argument, '=');
+
+        if ($position === false) {
+            $options[$argument] = true;
+            continue;
+        }
+
+        $key = substr($argument, 0, $position);
+        $value = substr($argument, $position + 1);
+        $options[$key] = $value;
+    }
+
+    return $options;
+}
+
+function readSqlFile(string $path): string
+{
+    $sql = file_get_contents($path);
+    if ($sql === false) {
+        fwrite(STDERR, "Failed to read $path\n");
+        exit(1);
+    }
+
+    return $sql;
+}
+
+function executeSqlStatements(PDO $pdo, string $sql, string $sourceLabel): void
+{
+    $statements = preg_split('/;\s*\n/', $sql);
+    if ($statements === false) {
+        fwrite(STDERR, "Failed to parse SQL in $sourceLabel\n");
+        exit(1);
+    }
+
+    foreach ($statements as $statement) {
+        $statement = trim($statement);
+        if ($statement === '' || str_starts_with($statement, '--')) {
+            continue;
+        }
+
+        $pdo->exec($statement);
+    }
+}
+
+function runMigrate(): void
+{
+    $pdo = getPdo();
+    $dir = dirname(__DIR__) . '/database/migrations';
+    $files = listSqlFiles($dir);
+
+    // get applied migrations
+    $applied = [];
+    try {
+        $stmt = $pdo->query('SELECT migration FROM `__migrations`');
+        $applied = $stmt->fetchAll(PDO::FETCH_COLUMN, 0) ?: [];
+    } catch (PDOException $e) {
+        // migrations table may not exist yet
+        $applied = [];
+    }
+
+    // determine batch
+    $batch = 1;
+    try {
+        $row = $pdo->query('SELECT COALESCE(MAX(batch), 0) FROM `__migrations`')->fetchColumn();
+        $batch = ((int)$row) + 1;
+    } catch (PDOException $e) {
+        $batch = 1;
+    }
+
+    foreach ($files as $file) {
+        if (in_array($file, $applied, true)) {
+            echo "Skipped: $file\n";
+            continue;
+        }
+
+        $path = $dir . DIRECTORY_SEPARATOR . $file;
+        echo "Running: $file\n";
+        try {
+            $pdo->beginTransaction();
+            executeSqlStatements($pdo, readSqlFile($path), $path);
+
+            // ensure migrations table exists before inserting (it will after running 0000)
+            $pdo->prepare('INSERT INTO `__migrations` (migration, batch) VALUES (?, ?)')->execute([$file, $batch]);
+
+            // Commit only if a transaction is still active. Some DDL statements (CREATE TABLE)
+            // cause implicit commits in MySQL and calling commit() afterwards throws
+            // "There is no active transaction". Handle that gracefully.
+            try {
+                if ($pdo->inTransaction()) {
+                    $pdo->commit();
+                }
+            } catch (PDOException $commitEx) {
+                // If the commit failed because there's no active transaction, ignore it.
+                if (strpos($commitEx->getMessage(), 'There is no active transaction') === false) {
+                    throw $commitEx;
+                }
+            }
+
+            echo "Applied: $file\n";
+        } catch (Exception $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            fwrite(STDERR, "Failed to apply $file: " . $e->getMessage() . "\n");
+            exit(1);
+        }
+    }
+
+    echo "Migrations complete.\n";
+}
+
+function runMigrateStatus(): void
+{
+    $pdo = getPdo();
+    $dir = dirname(__DIR__) . '/database/migrations';
+    $files = listSqlFiles($dir);
+
+    $applied = [];
+    try {
+        $rows = $pdo->query('SELECT migration, batch, ran_at FROM `__migrations`')->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($rows as $r) {
+            $applied[$r['migration']] = $r;
+        }
+    } catch (PDOException $e) {
+        // no migrations table yet
+        $applied = [];
+    }
+
+    foreach ($files as $file) {
+        if (isset($applied[$file])) {
+            $info = $applied[$file];
+            echo sprintf("[X] %s (batch=%s, ran_at=%s)\n", $file, $info['batch'], $info['ran_at']);
+        } else {
+            echo sprintf("[ ] %s\n", $file);
+        }
+    }
+}
+
+function quoteIdentifier(string $identifier): string
+{
+    return '`' . str_replace('`', '``', $identifier) . '`';
+}
+
+function listDatabaseObjects(PDO $pdo): array
+{
+    $objects = [];
+
+    try {
+        $rows = $pdo->query('SHOW FULL TABLES')->fetchAll(PDO::FETCH_NUM) ?: [];
+    } catch (PDOException $e) {
+        return [];
+    }
+
+    foreach ($rows as $row) {
+        $name = (string) ($row[0] ?? '');
+        $type = strtoupper((string) ($row[1] ?? 'BASE TABLE'));
+
+        if ($name === '') {
+            continue;
+        }
+
+        $objects[] = [
+            'name' => $name,
+            'type' => $type === 'VIEW' ? 'view' : 'table',
+        ];
+    }
+
+    return $objects;
+}
+
+function listDatabaseTables(PDO $pdo): array
+{
+    return array_values(array_map(
+        static fn (array $object): string => $object['name'],
+        array_filter(
+            listDatabaseObjects($pdo),
+            static fn (array $object): bool => $object['type'] === 'table'
+        )
+    ));
+}
+
+function confirmHardReset(array $options): void
+{
+    if (!empty($options['force']) || !empty($options['no-prompt'])) {
+        return;
+    }
+
+    fwrite(STDOUT, "This will DROP all database tables and views, including __migrations. Type HARD RESET to continue: ");
+    $answer = trim((string) fgets(STDIN));
+
+    if ($answer !== 'HARD RESET') {
+        fwrite(STDERR, "Hard reset aborted. Use --force to run without confirmation.\n");
+        exit(1);
+    }
+}
+
+function runHardReset(array $options): void
+{
+    confirmHardReset($options);
+
+    $pdo = getPdo();
+    $objects = listDatabaseObjects($pdo);
+
+    if (empty($objects)) {
+        echo "No database tables or views found. Hard reset skipped.\n";
+        return;
+    }
+
+    echo "Running hard reset...\n";
+    $pdo->exec('SET FOREIGN_KEY_CHECKS=0');
+    $error = null;
+
+    try {
+        $remaining = $objects;
+        $passes = 0;
+
+        while (!empty($remaining) && $passes < 5) {
+            $passes++;
+            $droppedAny = false;
+
+            foreach (['view', 'table'] as $type) {
+                foreach ($remaining as $object) {
+                    if ($object['type'] !== $type) {
+                        continue;
+                    }
+
+                    $name = $object['name'];
+                    $identifier = quoteIdentifier($name);
+                    $sql = $type === 'view'
+                        ? "DROP VIEW IF EXISTS {$identifier}"
+                        : "DROP TABLE IF EXISTS {$identifier}";
+
+                    echo sprintf("Dropping %s: %s\n", $type, $name);
+                    $pdo->exec($sql);
+                    $droppedAny = true;
+                }
+            }
+
+            $remaining = listDatabaseObjects($pdo);
+
+            if (!$droppedAny) {
+                break;
+            }
+        }
+
+        if (!empty($remaining)) {
+            $names = array_map(static fn (array $object): string => $object['name'], $remaining);
+            throw new RuntimeException('Could not drop all database objects: ' . implode(', ', $names));
+        }
+    } catch (Throwable $e) {
+        $error = $e;
+    } finally {
+        $pdo->exec('SET FOREIGN_KEY_CHECKS=1');
+    }
+
+    if ($error !== null) {
+        fwrite(STDERR, "Hard reset failed: " . $error->getMessage() . "\n");
+        exit(1);
+    }
+
+    echo "Hard reset complete. All database tables and views were dropped.\n";
+}
+
+function resetSeedData(PDO $pdo): void
+{
+    $tables = array_values(array_filter(
+        listDatabaseTables($pdo),
+        static fn ($table): bool => $table !== '__migrations'
+    ));
+
+    if (empty($tables)) {
+        return;
+    }
+
+    $pdo->exec('SET FOREIGN_KEY_CHECKS=0');
+    try {
+        foreach ($tables as $table) {
+            $pdo->exec('DELETE FROM ' . quoteIdentifier((string) $table));
+        }
+    } finally {
+        $pdo->exec('SET FOREIGN_KEY_CHECKS=1');
+    }
+}
+
+function resolveSeedPassword(array $options): string
+{
+    $password = (string) ($options['admin-password'] ?? (getenv('SEED_ADMIN_PASSWORD') ?: ''));
+    if ($password !== '') {
+        return $password;
+    }
+
+    if (!empty($options['no-prompt'])) {
+        fwrite(STDERR, "Seed admin password is required. Use SEED_ADMIN_PASSWORD or --admin-password=...\n");
+        exit(1);
+    }
+
+    fwrite(STDOUT, "Enter admin password for seed (will be hashed): ");
+    $password = trim((string) fgets(STDIN));
+    if ($password === '') {
+        fwrite(STDERR, "No password provided; aborting seed.\n");
+        exit(1);
+    }
+
+    return $password;
+}
+
+function replaceSeedPlaceholders(string $sql, array $options): string
+{
+    if (strpos($sql, '<USER_UUID>') !== false) {
+        try {
+            $hex = bin2hex(random_bytes(16));
+        } catch (Exception $e) {
+            $hex = str_replace('.', '', uniqid('', true));
+            $hex = substr(str_pad($hex, 32, '0'), 0, 32);
+        }
+
+        $sql = str_replace('<USER_UUID>', $hex, $sql);
+    }
+
+    if (strpos($sql, '<BCRYPT_HASH>') !== false) {
+        $hash = password_hash(resolveSeedPassword($options), PASSWORD_DEFAULT);
+        $sql = str_replace('<BCRYPT_HASH>', addslashes($hash), $sql);
+    }
+
+    return $sql;
+}
+
+function runSeed(array $options): void
+{
+    $pdo = getPdo();
+    $dir = dirname(__DIR__) . '/database/seeds';
+    $files = listSqlFiles($dir);
+
+    if (empty($files)) {
+        echo "No seed files found.\n";
+        return;
+    }
+
+    if (!empty($options['reset'])) {
+        echo "Resetting seed data...\n";
+        resetSeedData($pdo);
+    }
+
+    foreach ($files as $file) {
+        $path = $dir . DIRECTORY_SEPARATOR . $file;
+        echo "Seeding: $file\n";
+        try {
+            $pdo->beginTransaction();
+            $sql = replaceSeedPlaceholders(readSqlFile($path), $options);
+            executeSqlStatements($pdo, $sql, $path);
+            try {
+                if ($pdo->inTransaction()) {
+                    $pdo->commit();
+                }
+            } catch (PDOException $commitEx) {
+                if (strpos($commitEx->getMessage(), 'There is no active transaction') === false) {
+                    throw $commitEx;
+                }
+            }
+            echo "Seeded: $file\n";
+        } catch (Exception $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            $message = $e->getMessage();
+            if (strpos($message, 'Duplicate entry') !== false && empty($options['reset'])) {
+                $message .= "\nHint: the seed data already exists. Re-run with --reset to clear and reseed the database.";
+            }
+            fwrite(STDERR, "Failed to seed $file: " . $message . "\n");
+            exit(1);
+        }
+    }
+
+    echo "Seeding complete.\n";
+}
+
+function loadEnvFile(string $envFile): void
+{
+    $lines = @file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if ($lines === false) {
+        return;
+    }
+
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if ($line === '' || str_starts_with($line, '#')) {
+            continue;
+        }
+
+        $position = strpos($line, '=');
+        if ($position === false) {
+            continue;
+        }
+
+        $key = trim(substr($line, 0, $position));
+        $value = trim(substr($line, $position + 1));
+
+        if (
+            (str_starts_with($value, '"') && str_ends_with($value, '"')) ||
+            (str_starts_with($value, "'") && str_ends_with($value, "'"))
+        ) {
+            $value = substr($value, 1, -1);
+        }
+
+        if (getenv($key) === false) {
+            putenv($key . '=' . $value);
+            $_ENV[$key] = $value;
+        }
+    }
+}
