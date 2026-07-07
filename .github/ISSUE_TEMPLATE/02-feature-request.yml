@@ -1,0 +1,65 @@
+name: ✨ Feature Request
+description: Vorschlag für eine neue Funktion oder Erweiterung im Portal.
+title: "[Feature] "
+labels:
+  - enhancement
+  - needs-triage
+body:
+  - type: dropdown
+    id: bereich
+    attributes:
+      label: Betroffener Bereich
+      options:
+        - "verwaltung.personen"
+        - "verwaltung.gruppen"
+        - "verwaltung.berechtigungen"
+        - "verwaltung.audit"
+        - "verwaltung.einladungen"
+        - "verwaltung.datenschutz"
+        - "konto"
+        - "Login / Authentifizierung"
+        - "CLI (bin/console)"
+        - "Neuer Bereich / Sonstiges"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Welches Problem soll gelöst werden?
+      description: Beschreibe die Motivation. Ein gutes Format ist "Als [Rolle] möchte ich [Ziel], damit [Nutzen]".
+      placeholder: "Als Verwaltungs-Admin möchte ich ..., damit ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: loesung
+    attributes:
+      label: Vorgeschlagene Lösung
+      description: Wie könnte die Funktion konkret aussehen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternativen
+    attributes:
+      label: Alternativen
+      description: Welche anderen Lösungswege hast du in Betracht gezogen?
+    validations:
+      required: false
+
+  - type: textarea
+    id: berechtigungen
+    attributes:
+      label: Auswirkungen auf Berechtigungsmodell
+      description: Braucht es eine neue PageGroup/Permission (`Area.PageGroup`), oder betrifft es bestehende Rechte?
+    validations:
+      required: false
+
+  - type: textarea
+    id: kontext
+    attributes:
+      label: Zusätzlicher Kontext
+      description: Screenshots, Mockups, verwandte Issues, Links.
+    validations:
+      required: false

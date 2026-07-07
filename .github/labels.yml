@@ -1,0 +1,95 @@
+# Label-Definitionen für VDBS-e-V/Portal-Neu
+# Wird von .github/workflows/labels-sync.yml automatisch angewendet.
+# Format kompatibel mit der Action "EndBug/label-sync".
+
+# --- Typ ---
+- name: bug
+  color: "d73a4a"
+  description: Etwas funktioniert nicht wie erwartet
+- name: enhancement
+  color: "a2eeef"
+  description: Neue Funktion oder Erweiterung
+- name: task
+  color: "7057ff"
+  description: Interne Aufgabe – Refactoring, QA, Wartung
+- name: documentation
+  color: "0075ca"
+  description: Betrifft README oder docs/
+- name: question
+  color: "d876e3"
+  description: Frage zur Nutzung oder Konfiguration
+- name: security
+  color: "b60205"
+  description: Sicherheitsrelevantes Thema (siehe SECURITY.md)
+
+# --- Priorität ---
+- name: "priority: low"
+  color: "c5def5"
+  description: Geringe Priorität
+- name: "priority: medium"
+  color: "ffd8b1"
+  description: Mittlere Priorität
+- name: "priority: high"
+  color: "ff9f1c"
+  description: Hohe Priorität
+- name: "priority: critical"
+  color: "e11d21"
+  description: Kritisch – zeitnahes Handeln erforderlich
+
+# --- Status ---
+- name: needs-triage
+  color: "ededed"
+  description: Noch nicht gesichtet/priorisiert
+- name: needs-info
+  color: "fbca04"
+  description: Wartet auf weitere Informationen von der meldenden Person
+- name: confirmed
+  color: "0e8a16"
+  description: Bestätigt, reproduzierbar
+- name: in-progress
+  color: "1d76db"
+  description: Wird aktuell bearbeitet
+- name: blocked
+  color: "5319e7"
+  description: Blockiert durch anderes Issue/externe Abhängigkeit
+- name: wontfix
+  color: "ffffff"
+  description: Wird bewusst nicht umgesetzt
+- name: duplicate
+  color: "cfd3d7"
+  description: Bereits an anderer Stelle gemeldet
+
+# --- Bereich (orientiert an Area.PageGroup / README) ---
+- name: "area: verwaltung.personen"
+  color: "5319e7"
+  description: Bereich /verwaltung/personen
+- name: "area: verwaltung.gruppen"
+  color: "5319e7"
+  description: Bereich /verwaltung/gruppen
+- name: "area: verwaltung.berechtigungen"
+  color: "5319e7"
+  description: Bereich /verwaltung/berechtigungen
+- name: "area: verwaltung.audit"
+  color: "5319e7"
+  description: Bereich /verwaltung/audit
+- name: "area: verwaltung.einladungen"
+  color: "5319e7"
+  description: Bereich /verwaltung/einladungen
+- name: "area: verwaltung.datenschutz"
+  color: "5319e7"
+  description: Bereich /verwaltung/datenschutz (DSGVO-Anonymisierung)
+- name: "area: konto"
+  color: "5319e7"
+  description: Bereich /konto (Passwort, Profil, Kontakte, Adressen, Sicherheit)
+- name: "area: auth"
+  color: "5319e7"
+  description: Login, Passwort vergessen, Authentifizierung
+- name: "area: datenbank"
+  color: "5319e7"
+  description: Datenbank, Migrationen, Seed
+- name: "area: qa"
+  color: "5319e7"
+  description: Tests, tools/qa
+- name: "area: deployment"
+  color: "5319e7"
+  description: Deployment, Infrastruktur, Konfiguration

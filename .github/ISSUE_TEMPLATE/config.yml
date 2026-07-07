@@ -1,5 +1,13 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Sicherheitslücke vertraulich melden
+  - name: 🔒 Sicherheitslücke melden
     url: https://github.com/VDBS-e-V/Portal-Neu/security/advisories/new
-    about: Bitte Sicherheitslücken nicht öffentlich als Issue posten.
+    about: >-
+      Bitte KEIN öffentliches Issue für Sicherheitslücken (z. B. Auth-Bypass,
+      Rechte-Eskalation, DSGVO-relevante Datenlecks) erstellen. Nutze stattdessen
+      GitHub Security Advisories – siehe SECURITY.md.
+  - name: 💬 Frage zur Nutzung / Diskussion
+    url: https://github.com/VDBS-e-V/Portal-Neu/discussions
+    about: >-
+      Für allgemeine Fragen, Ideen oder Diskussionen (falls Discussions aktiviert ist).
+      Für konkrete, umsetzbare Anliegen bitte trotzdem ein Issue-Formular nutzen.

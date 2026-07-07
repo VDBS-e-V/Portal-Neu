@@ -1,0 +1,32 @@
+name: Inaktive Issues markieren
+
+on:
+  schedule:
+    - cron: "0 4 * * 1" # jeden Montag 04:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/stale@v9
+        with:
+          days-before-stale: 30
+          days-before-close: 14
+          exempt-issue-labels: "security,in-progress,blocked"
+          exempt-pr-labels: "in-progress,blocked"
+          stale-issue-label: needs-info
+          stale-pr-label: needs-info
+          stale-issue-message: >
+            Dieses Issue hatte 30 Tage lang keine Aktivität und wurde als
+            `needs-info` markiert. Ohne weitere Rückmeldung wird es in 14
+            Tagen automatisch geschlossen.
+          stale-pr-message: >
+            Dieser Pull Request hatte 30 Tage lang keine Aktivität. Ohne
+            weitere Rückmeldung wird er in 14 Tagen automatisch geschlossen.
+          close-issue-message: >
+            Dieses Issue wurde mangels Aktivität automatisch geschlossen.
+            Bei Bedarf gerne mit neuen Informationen erneut öffnen.

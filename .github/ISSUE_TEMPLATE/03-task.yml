@@ -1,0 +1,49 @@
+name: 🛠️ Aufgabe / Chore
+description: Interne Aufgabe – Refactoring, Wartung, QA, Deployment, Tests etc. (kein Bug, kein Feature)
+title: "[Task] "
+labels:
+  - task
+  - needs-triage
+body:
+  - type: dropdown
+    id: kategorie
+    attributes:
+      label: Kategorie
+      options:
+        - Refactoring
+        - Tests (phpunit.xml / tools/qa)
+        - Deployment / Infrastruktur
+        - Datenbank / Migrationen
+        - Abhängigkeiten (composer.json)
+        - Dokumentation (technisch, kein Nutzertext)
+        - Sonstiges
+    validations:
+      required: true
+
+  - type: textarea
+    id: beschreibung
+    attributes:
+      label: Beschreibung der Aufgabe
+      description: Was muss getan werden?
+    validations:
+      required: true
+
+  - type: textarea
+    id: hintergrund
+    attributes:
+      label: Kontext / Hintergrund
+      description: Warum ist das notwendig? Bezug zu docs/DEPLOYMENT_CHECKLIST.md, docs/TESTS.md o. ä.?
+    validations:
+      required: false
+
+  - type: textarea
+    id: akzeptanz
+    attributes:
+      label: Akzeptanzkriterien
+      description: Woran erkennt man, dass die Aufgabe erledigt ist?
+      placeholder: |
+        - [ ] `php tools/qa/run_all.php` läuft ohne Fehler
+        - [ ] Tests grün
+        - [ ] Dokumentation aktualisiert
+    validations:
+      required: true

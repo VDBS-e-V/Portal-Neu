@@ -1,55 +1,39 @@
-## Zusammenfassung
+## Beschreibung
 
-<!-- Was wurde geändert und warum? -->
+<!-- Was ändert dieser PR und warum? -->
 
-## Verknüpftes Issue
+## Bezug zu Issue(s)
 
 Closes #
 
 ## Art der Änderung
 
-- [ ] Bugfix
-- [ ] Feature
-- [ ] Security-Hardening
-- [ ] Refactoring
-- [ ] Dokumentation
-- [ ] Deployment / Infrastruktur
+- [ ] 🐛 Bugfix
+- [ ] ✨ Neues Feature
+- [ ] 💥 Breaking Change (bestehendes Verhalten/Routen/Berechtigungen ändern sich)
+- [ ] 📚 Dokumentation
+- [ ] 🛠️ Refactoring / Wartung / QA
+- [ ] 🧪 Tests
 
-## Betroffene Bereiche
+## Betroffener Bereich
 
-- [ ] Login / Konto
-- [ ] Verwaltung
-- [ ] Personen
-- [ ] Berechtigungen
-- [ ] Einladungen
-- [ ] Datenschutz / DSGVO
-- [ ] Audit
-- [ ] Datenbank
-- [ ] CI / GitHub Actions
-- [ ] Dokumentation
+<!-- z. B. verwaltung.personen, verwaltung.berechtigungen, konto, Login, Datenbank ... -->
 
-## Tests / QA
+## Checkliste
 
-- [ ] `composer validate` erfolgreich
-- [ ] `composer install` erfolgreich
-- [ ] PHPUnit erfolgreich
-- [ ] `php tools/qa/run_all.php` erfolgreich
-- [ ] Manuell getestet
+- [ ] Code folgt den bestehenden Konventionen des Projekts
+- [ ] `php tools/qa/run_all.php` läuft ohne Fehler
+- [ ] Relevante Tests (`phpunit`) wurden ergänzt/angepasst und laufen grün
+- [ ] Datenbank-Änderungen: Migrationen/Seed berücksichtigt (siehe `docs/DATENBANK.md`)
+- [ ] Berechtigungen geprüft: neue/geänderte Routen sind korrekt an `Area.PageGroup` gebunden (siehe `docs/BERECHTIGUNGEN.md`)
+- [ ] Sicherheitsrelevante Änderungen: `docs/SICHERHEIT.md` beachtet, keine sensiblen Daten (Passwörter, Tokens) im Diff
+- [ ] Dokumentation aktualisiert (README/docs) falls nötig
+- [ ] `docs/CHANGELOG_PORTAL_AUSBAU.md` ergänzt
 
-## Security / Datenschutz
+## Screenshots (falls UI-Änderung)
 
-- [ ] Keine Secrets committed
-- [ ] Keine personenbezogenen Daten in Logs, Issues oder Tests
-- [ ] Berechtigungen geprüft, falls relevant
-- [ ] CSRF/Auth/Session-Auswirkungen geprüft, falls relevant
-
-## Deployment
-
-- [ ] Keine Deployment-Auswirkung
-- [ ] Deployment-Auswirkung dokumentiert
-- [ ] DB-Änderungen dokumentiert
-- [ ] Rollback-Hinweis vorhanden
+<!-- Vorher/Nachher -->
 
 ## Hinweise für Reviewer
 
-<!-- Worauf sollen Reviewer besonders achten? -->
+<!-- Worauf soll besonders geachtet werden? -->

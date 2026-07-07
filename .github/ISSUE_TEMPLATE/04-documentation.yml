@@ -1,0 +1,41 @@
+name: 📚 Dokumentation
+description: Fehler, Lücke oder Verbesserungsvorschlag in der Dokumentation.
+title: "[Docs] "
+labels:
+  - documentation
+  - needs-triage
+body:
+  - type: dropdown
+    id: dokument
+    attributes:
+      label: Betroffenes Dokument
+      options:
+        - README.md
+        - docs/INSTALLATION.md
+        - docs/MINI_PROJEKTE.md
+        - docs/ROUTEN.md
+        - docs/DATENBANK.md
+        - docs/BERECHTIGUNGEN.md
+        - docs/SICHERHEIT.md
+        - docs/TESTS.md
+        - docs/TROUBLESHOOTING.md
+        - docs/DEPLOYMENT_CHECKLIST.md
+        - docs/CHANGELOG_PORTAL_AUSBAU.md
+        - Noch nicht vorhanden / fehlt komplett
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Was ist falsch, veraltet oder unklar?
+    validations:
+      required: true
+
+  - type: textarea
+    id: vorschlag
+    attributes:
+      label: Vorschlag zur Korrektur
+      description: Wenn du schon einen Formulierungsvorschlag hast, gerne hier rein.
+    validations:
+      required: false
