@@ -289,15 +289,40 @@ PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
-INSERT INTO `pt_ticket_types` (`type_key`, `name`, `description`, `is_active`) VALUES
-('general', 'Allgemein', 'Allgemeine Anfrage', 1),
-('seminar_request', 'Seminaranfrage', 'Anfrage zu Seminaren', 1),
-('technical', 'Technisch', 'Technischer Support', 1),
-('account', 'Account', 'Anfragen zu Nutzerkonten', 1)
+-- Ersetzt den frueheren pt_ticket_types-Seed (flache Liste ohne Bereichs-Ebene).
+-- Die alten 4 Typen werden 1:1 als Kategorien unter einem einzigen Bereich "Allgemein"
+-- abgebildet, da die tatsaechliche Fachbereichsstruktur (Umsetzungsschritt "Area tickets
+-- + PageGroups") noch nicht feststeht. category_key uebernimmt bewusst die alten
+-- type_key-Werte, damit bestehende Referenzen/Reports nachvollziehbar bleiben.
+INSERT INTO `pt_ticket_areas`
+  (`area_key`, `name`, `is_active`, `sort_order`)
+VALUES
+  ('allgemein', 'Allgemein', 1, 10)
 ON DUPLICATE KEY UPDATE
 `name` = VALUES(`name`),
-`description` = VALUES(`description`),
-`is_active` = VALUES(`is_active`);
+`is_active` = VALUES(`is_active`),
+`sort_order` = VALUES(`sort_order`);
+
+INSERT INTO `pt_ticket_categories`
+  (`area_id`, `category_key`, `name`, `is_active`, `sort_order`)
+SELECT
+  a.id,
+  x.category_key,
+  x.name,
+  1,
+  x.sort_order
+FROM `pt_ticket_areas` a
+JOIN (
+  SELECT 'general' AS category_key, 'Allgemeine Anfrage' AS name, 10 AS sort_order
+  UNION ALL SELECT 'seminar_request', 'Seminaranfrage', 20
+  UNION ALL SELECT 'technical', 'Technischer Support', 30
+  UNION ALL SELECT 'account', 'Anfragen zu Nutzerkonten', 40
+) x
+WHERE a.area_key = 'allgemein'
+ON DUPLICATE KEY UPDATE
+`name` = VALUES(`name`),
+`is_active` = VALUES(`is_active`),
+`sort_order` = VALUES(`sort_order`);
 
 SET @has_cod_schools_school_key := (
   SELECT COUNT(*)
